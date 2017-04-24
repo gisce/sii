@@ -19,4 +19,9 @@ class SII(object):
             }
         }
 
+        object_generated = xml.load(obj)
+        errors = object_generated.errors
+        if errors:
+            print 'Errors', errors
+            raise
         return xml.dump(obj).data
