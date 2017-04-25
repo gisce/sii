@@ -1,6 +1,7 @@
 # coding=utf-8
 
 from setuptools import setup, find_packages
+from sii import __LIBRARY_VERSION__
 
 PACKAGES_DATA = {'sii': ['data/*.xsd']}
 
@@ -10,7 +11,7 @@ setup(
     author='GISCE-TI, S.L.',
     author_email='devel@gisce.net',
     url='http://www.gisce.net',
-    version='0.1.0alpha',
+    version=__LIBRARY_VERSION__,
     license='General Public Licence 2',
     long_description='''Long description''',
     provides=['sii'],
