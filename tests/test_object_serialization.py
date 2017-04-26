@@ -1,6 +1,7 @@
 # coding=utf-8
 
 from sii.resource import SII
+import sii
 from expects import *
 
 
@@ -10,13 +11,17 @@ class Period():
 
 
 class Partner():
-    def __init__(self):
+    def __init__(self, name, nif):
+        self.name = name
+        self.nif = nif
         pass
 
 
 class Invoice():
-    def __init__(self, number, period=None):
+    def __init__(self, number, type, partner, period=None):
         self.number = number
+        self.type = type
+        self.partner_id = partner
         self.period = period
         self.tax_ids = []
 
