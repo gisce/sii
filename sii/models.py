@@ -38,12 +38,47 @@ class DetalleFactura(Schema):
 
 class Factura(Schema):
     # Campos comunes de una factura
-    PeriodoImpositivo = fields.Nested(PeriodoImpositivo)
-    IDFactura = fields.Nested(DetalleFactura)
+    PeriodoImpositivo = fields.Nested(PeriodoImpositivo, required=True)
+    IDFactura = fields.Nested(DetalleFactura, required=True)
+
+
+class Exenta(Schema):
+    BaseImponible = fields.Float(required=True)
+
+
+class DetalleIVA(Schema):
+    TipoImpositivo = fields.String(required=True)
+    BaseImponible = fields.Float(required=True)
+    CuotaRepercutida = fields.Float(required=True)
+
+
+class DesgloseIVA(Schema):
+    DetalleIVA = fields.Nested(DetalleIVA, required=True)
+
+
+class NoExenta(Schema):
+    TipoNoExenta = fields.String(required=True)
+    DesgloseIVA = fields.Nested(DesgloseIVA, required=True)
+
+    @validates('TipoNoExenta')
+    def validate_tipo_no_exenta(self, value):
+        if value not in ['S1', 'S2']:
+            raise ValidationError(
+                'El TipoNoExenta es incorrecto: {}'.format(value))
+
+
+class ExentaAIVA(Schema):
+    Exenta = fields.Nested(Exenta)
+    NoExenta = fields.Nested(NoExenta)
+
+
+class SujetaAIVA(Schema):
+    Sujeta = fields.Nested(ExentaAIVA)
+    NoSujeta = fields.String()  # TODO
 
 
 class TipoDesglose(Schema):
-    DesgloseFactura = fields.String()  # TODO to change
+    DesgloseFactura = fields.Nested(SujetaAIVA)
     DesgloseTipoOperacion = fields.String()  # TODO to change
 
 
