@@ -35,27 +35,32 @@ class Invoice():
 
 with description("El XML Generado"):
     with before.all:
-        self.partner = Partner(name='Francisco García', nif='123456789T')
+        period = Period(name='03/2016')
+        tax_line = [
+            InvoiceLineTaxes('IVA 21%', base_imponible=12.34),
+            InvoiceLineTaxes('IBI 15%', base_imponible=56.78)
+        ]
+        self.partner = Partner(name='Francisco García', nif='12345678T')
         self.invoice = Invoice(
-            number='F012345', type='out_invoice', partner=self.partner
+            number='F012345', type='out_invoice', partner=self.partner,
+            amount_total=15, period_id=period, date_invoice='2016-03-25',
+            tax_line_ids=tax_line
         )
 
         # TODO delete print object
         print '\n'
-        print '========================='
-        print 'La factura de ejemplo es:\n'
+        print '========= FACTURA EJEMPLO ================'
         from pprintpp import pprint
-        pprint(self.invoice.__dict__)
-        print '========================='
+        pprint(vars(self.invoice))
+        print '=========================================='
 
         self.obj = SII.generate_object(self.invoice)
 
         # TODO delete print object
         print '\n'
-        print '======================================='
-        print 'El objeto generado para pasar a XML es:\n'
+        print '============ RESULTADO DEL DUMP ====================='
         pprint(self.obj)
-        print '======================================='
+        print '====================================================='
 
         self.cabecera = self.obj['SuministroLRFacturasEmitidas']['Cabecera']
         self.factura = self.obj[
