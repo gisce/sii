@@ -95,3 +95,6 @@ with description("El XML Generado"):
     with description("en la factura"):
         with it("el número de la factura debe ser igual que el de la factura original"):
             expect(self.factura['IDFactura']['NumSerieFacturaEmisor']).to(equal(self.invoice.number))
+
+        with it("el tipo de la factura es 'F1'"):
+            expect(self.factura['FacturaExpedida']['TipoFactura']).to(equal('F1'))
