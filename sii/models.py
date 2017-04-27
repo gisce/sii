@@ -1,70 +1,124 @@
 # coding=utf-8
 
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, validates, ValidationError
 from sii import __SII_VERSION__
 
 
 class Titular(Schema):
-    nombre_razon = fields.String(
-        attribute='NombreRazon', dump_to='NombreRazon',
+    NombreRazon = fields.String(
+        required=True,
         validate=validate.Length(max=40, error='Nombre demasiado largo')
     )
-    nif = fields.String(
-        attribute='NIF', dump_to='NIF',
+    NIF = fields.String(
+        required=True,
         validate=validate.Length(max=9, error='NIF demasiado largo')  # TODO validate if it belongs to a NIF ??
     )
 
 
 class Cabecera(Schema):
-    version = fields.String(
-        attribute='IDVersionSii', dump_to='IDVersionSii',
-        default=__SII_VERSION__
-    )
-    titular = fields.Nested(Titular, attribute='Titular', dump_to='Titular')
-    tipo_comunicacion = fields.String(
-        attribute='TipoComunicacion', dump_to='TipoComunicacion'
-    )
+    IDVersionSii = fields.String(required=True, default=__SII_VERSION__)
+    Titular = fields.Nested(Titular, required=True)
+    TipoComunicacion = fields.String(required=True)
 
 
 class PeriodoImpositivo(Schema):
-    ejercicio = fields.String(dump_to='Ejercicio')  # TODO validate Año en formato 'YYYY'
-    periodo = fields.String(dump_to='Periodo')  # TODO validate Enumeration '01' para enero, '02' para febrero, ..., '0A' Periodicidad anual
+    Ejercicio = fields.String(required=True)  # TODO validate Año en formato 'YYYY'
+    Periodo = fields.String(required=True)  # TODO validate Enumeration '01' para enero, '02' para febrero, ..., '0A' Periodicidad anual
 
 
 class EmisorFactura(Schema):
-    nif = fields.String(dump_to='NIF')
+    NIF = fields.String(required=True)
 
 
-class IDFactura(Schema):
-    IDEmisorFactura = fields.Nested(EmisorFactura)
-    NumSerieFacturaEmisor = fields.String()
-    FechaExpedicionFacturaEmisor = fields.String()
+class DetalleFactura(Schema):
+    IDEmisorFactura = fields.Nested(EmisorFactura, required=True)
+    NumSerieFacturaEmisor = fields.String(required=True)
+    FechaExpedicionFacturaEmisor = fields.String(required=True)
 
 
 class Factura(Schema):
     # Campos comunes de una factura
-    periodo = fields.Nested(PeriodoImpositivo, dump_to='PeriodoImpositivo')
-    detalle_factura = fields.Nested(
-        IDFactura, attribute='IDFactura', dump_to='IDFactura'
+    PeriodoImpositivo = fields.Nested(PeriodoImpositivo, required=True)
+    IDFactura = fields.Nested(DetalleFactura, required=True)
+
+
+class Exenta(Schema):
+    BaseImponible = fields.Float(required=True)
+
+
+class DetalleIVA(Schema):
+    TipoImpositivo = fields.String(required=True)
+    BaseImponible = fields.Float(required=True)
+    CuotaRepercutida = fields.Float(required=True)
+
+
+class DesgloseIVA(Schema):
+    DetalleIVA = fields.Nested(DetalleIVA, required=True)
+
+
+class NoExenta(Schema):
+    TipoNoExenta = fields.String(required=True)
+    DesgloseIVA = fields.Nested(DesgloseIVA, required=True)
+
+    @validates('TipoNoExenta')
+    def validate_tipo_no_exenta(self, value):
+        if value not in ['S1', 'S2']:
+            raise ValidationError(
+                'El TipoNoExenta es incorrecto: {}'.format(value))
+
+
+class ExentaAIVA(Schema):
+    Exenta = fields.Nested(Exenta)
+    NoExenta = fields.Nested(NoExenta)
+
+
+class SujetaAIVA(Schema):
+    Sujeta = fields.Nested(ExentaAIVA)
+    NoSujeta = fields.String()  # TODO
+
+
+class TipoDesglose(Schema):
+    DesgloseFactura = fields.Nested(SujetaAIVA)
+    DesgloseTipoOperacion = fields.String()  # TODO to change
+
+
+class Contraparte(Schema):
+    NombreRazon = fields.String(
+        required=True,
+        validate=validate.Length(max=40, error='Nombre demasiado largo')
+    )
+    NIF = fields.String(
+        required=True,
+        validate=validate.Length(max=9, error='NIF demasiado largo')  # TODO validate if it belongs to a NIF ??
     )
 
 
-class FacturaEmitida(IDFactura):
+class DetalleFacturaEmitida(Schema):
+    TipoFactura = fields.String(required=True)
+    ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
+    DescripcionOperacion = fields.String(required=True)
+    TipoDesglose = fields.Nested(TipoDesglose, required=True)
+    ImporteTotal = fields.Float()
+    Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
+
+
+class DetalleFacturaRecibida(Schema):
+    pass  # TODO add missing fields
+
+
+class FacturaEmitida(Factura):
     # Campos específicos para facturas emitidas
-    factura_emitida = fields.String(dump_to='FacturaExpedida')  # TODO add missing fields
+    FacturaExpedida = fields.Nested(DetalleFacturaEmitida)
 
 
-class FacturaRecibida(IDFactura):
+class FacturaRecibida(Factura):
     # Campos específicos para facturas recibidas
-    factura_recibida = fields.String(dump_to='FacturaRecibida')  # TODO add missing fields
+    FacturaRecibida = fields.String(DetalleFacturaRecibida)
 
 
 class RegistroFacturasEmitidas(Schema):
-    cabecera = fields.Nested(Cabecera, attribute='Cabecera', dump_to='Cabecera')
-    factura = fields.Nested(
-        Factura, attribute='RegistroLRFacturasEmitidas',
-        dump_to='RegistroLRFacturasEmitidas'
-    )
+    Cabecera = fields.Nested(Cabecera)
+    RegistroLRFacturasEmitidas = fields.Nested(FacturaEmitida)
     # TODO lista_facturas = fields.List(fields.Nested(Factura, dump_to='Factura'), validate=validate.Length(max=10000, error='No puede haber más de 10000 facturas'))
 
 
@@ -73,4 +127,4 @@ class SuministroFacturasEmitidas(Schema):
 
 
 class SuministroFacturasRecibidas(Schema):
-    pass
+    pass  # TODO add missing fields
