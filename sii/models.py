@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, validates, ValidationError
 from sii import __SII_VERSION__
 
 
@@ -18,7 +18,7 @@ class Titular(Schema):
 class Cabecera(Schema):
     IDVersionSii = fields.String(required=True, default=__SII_VERSION__)
     Titular = fields.Nested(Titular, required=True)
-    TipoComunicacion = fields.String()
+    TipoComunicacion = fields.String(required=True)
 
 
 class PeriodoImpositivo(Schema):
@@ -64,7 +64,7 @@ class DetalleFacturaEmitida(Schema):
     DescripcionOperacion = fields.String(required=True)
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     ImporteTotal = fields.Float()
-    Contraparte = fields.Nested(Contraparte)
+    Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
 
 
 class DetalleFacturaRecibida(Schema):
@@ -83,7 +83,7 @@ class FacturaRecibida(Factura):
 
 class RegistroFacturasEmitidas(Schema):
     Cabecera = fields.Nested(Cabecera)
-    RegistroLRFacturasEmitidas = fields.Nested(Factura)
+    RegistroLRFacturasEmitidas = fields.Nested(FacturaEmitida)
     # TODO lista_facturas = fields.List(fields.Nested(Factura, dump_to='Factura'), validate=validate.Length(max=10000, error='No puede haber más de 10000 facturas'))
 
 
