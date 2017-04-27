@@ -6,24 +6,31 @@ from expects import *
 
 
 class Period():
-    def __init__(self):
-        pass
+    def __init__(self, name):
+        self.name = name
 
 
 class Partner():
     def __init__(self, name, nif):
         self.name = name
         self.nif = nif
-        pass
+
+
+class InvoiceLineTaxes():
+    def __init__(self, name, base_imponible):
+        self.name = name
+        self.base = base_imponible
 
 
 class Invoice():
-    def __init__(self, number, type, partner, period=None):
+    def __init__(self, number, type, partner, amount_total, period_id, date_invoice, tax_line_ids):
         self.number = number
         self.type = type
         self.partner_id = partner
-        self.period = period
-        self.tax_ids = []
+        self.period_id = period_id
+        self.amount_total = amount_total
+        self.date_invoice = date_invoice
+        self.tax_line = tax_line_ids
 
 
 with description("El XML Generado"):
