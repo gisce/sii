@@ -46,14 +46,14 @@ class Exenta(Schema):
     BaseImponible = fields.Float(required=True)
 
 
-class DetalleIVA(Schema):
+class DetalleIVAEmitida(Schema):
     TipoImpositivo = fields.String(required=True)
     BaseImponible = fields.Float(required=True)
     CuotaRepercutida = fields.Float(required=True)
 
 
 class DesgloseIVA(Schema):
-    DetalleIVA = fields.Nested(DetalleIVA, required=True)
+    DetalleIVA = fields.Nested(DetalleIVAEmitida, required=True)
 
 
 class NoExenta(Schema):
@@ -64,15 +64,16 @@ class NoExenta(Schema):
     def validate_tipo_no_exenta(self, value):
         if value not in ['S1', 'S2']:
             raise ValidationError(
-                'El TipoNoExenta es incorrecto: {}'.format(value))
+                'El TipoNoExenta es incorrecto: {}'.format(value)
+            )
 
 
-class ExentaAIVA(Schema):
+class ExentaAIVA(Schema):  # TODO obligatorio uno de los dos
     Exenta = fields.Nested(Exenta)
     NoExenta = fields.Nested(NoExenta)
 
 
-class SujetaAIVA(Schema):
+class SujetaAIVA(Schema):  # TODO obligatorio uno de los dos
     Sujeta = fields.Nested(ExentaAIVA)
     NoSujeta = fields.String()  # TODO
 
