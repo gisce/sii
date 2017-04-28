@@ -46,14 +46,14 @@ class Exenta(Schema):
     BaseImponible = fields.Float(required=True)
 
 
-class DetalleIVA(Schema):
+class DetalleIVAEmitida(Schema):
     TipoImpositivo = fields.String(required=True)
     BaseImponible = fields.Float(required=True)
     CuotaRepercutida = fields.Float(required=True)
 
 
 class DesgloseIVA(Schema):
-    DetalleIVA = fields.Nested(DetalleIVA, required=True)
+    DetalleIVA = fields.Nested(DetalleIVAEmitida, required=True)
 
 
 class NoExenta(Schema):
@@ -64,15 +64,16 @@ class NoExenta(Schema):
     def validate_tipo_no_exenta(self, value):
         if value not in ['S1', 'S2']:
             raise ValidationError(
-                'El TipoNoExenta es incorrecto: {}'.format(value))
+                'El TipoNoExenta es incorrecto: {}'.format(value)
+            )
 
 
-class ExentaAIVA(Schema):
+class ExentaAIVA(Schema):  # TODO obligatorio uno de los dos
     Exenta = fields.Nested(Exenta)
     NoExenta = fields.Nested(NoExenta)
 
 
-class SujetaAIVA(Schema):
+class SujetaAIVA(Schema):  # TODO obligatorio uno de los dos
     Sujeta = fields.Nested(ExentaAIVA)
     NoSujeta = fields.String()  # TODO
 
@@ -102,29 +103,57 @@ class DetalleFacturaEmitida(Schema):
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
 
 
-class DetalleFacturaRecibida(Schema):
-    pass  # TODO add missing fields
-
-
 class FacturaEmitida(Factura):
     # Campos específicos para facturas emitidas
-    FacturaExpedida = fields.Nested(DetalleFacturaEmitida)
-
-
-class FacturaRecibida(Factura):
-    # Campos específicos para facturas recibidas
-    FacturaRecibida = fields.String(DetalleFacturaRecibida)
+    FacturaExpedida = fields.Nested(DetalleFacturaEmitida, required=True)
 
 
 class RegistroFacturasEmitidas(Schema):
-    Cabecera = fields.Nested(Cabecera)
-    RegistroLRFacturasEmitidas = fields.Nested(FacturaEmitida)
+    Cabecera = fields.Nested(Cabecera, required=True)
+    RegistroLRFacturasEmitidas = fields.Nested(FacturaEmitida, required=True)
     # TODO lista_facturas = fields.List(fields.Nested(Factura, dump_to='Factura'), validate=validate.Length(max=10000, error='No puede haber más de 10000 facturas'))
 
 
 class SuministroFacturasEmitidas(Schema):
-    SuministroLRFacturasEmitidas = fields.Nested(RegistroFacturasEmitidas)
+    SuministroLRFacturasEmitidas = fields.Nested(
+        RegistroFacturasEmitidas, required=True
+    )
+
+
+class DetalleIVARecibida(DetalleIVAEmitida):
+    pass
+
+
+class DetalleIVARecibida2(Schema):
+    BaseImponible = fields.Float(required=True)
+
+
+class DesgloseFactura(Schema):
+    InversionSujetoPasivo = fields.Nested(DetalleIVARecibida)
+    DesgloseIVA = fields.Nested(DetalleIVARecibida2)
+
+
+class DetalleFacturaRecibida(Schema):
+    TipoFactura = fields.String(required=True)
+    ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
+    DescripcionOperacion = fields.String(required=True)
+    DesgloseFactura = fields.Nested(DesgloseFactura, required=True)
+    Contraparte = fields.Nested(Contraparte, required=True)
+    FechaRegContable = fields.String(required=True)  # TODO change to Date, max length 10 chars,
+    CuotaDeducible = fields.Float(required=True)
+
+
+class FacturaRecibida(Factura):
+    # Campos específicos para facturas recibidas
+    FacturaRecibida = fields.String(DetalleFacturaRecibida, required=True)
+
+
+class RegistroFacturasRecibidas(Schema):
+    Cabecera = fields.Nested(Cabecera, required=True)
+    RegistroLRFacturasEmitidas = fields.Nested(FacturaRecibida, required=True)
 
 
 class SuministroFacturasRecibidas(Schema):
-    pass  # TODO add missing fields
+    SuministroLRFacturasRecibidas = fields.Nested(
+        RegistroFacturasRecibidas, required=True
+    )
