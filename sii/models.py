@@ -150,7 +150,7 @@ class FacturaRecibida(Factura):
 
 class RegistroFacturasRecibidas(Schema):
     Cabecera = fields.Nested(Cabecera, required=True)
-    RegistroLRFacturasEmitidas = fields.Nested(FacturaRecibida, required=True)
+    RegistroLRFacturasRecibidas = fields.Nested(FacturaRecibida, required=True)
 
 
 class SuministroFacturasRecibidas(Schema):
