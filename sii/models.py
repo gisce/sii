@@ -103,29 +103,57 @@ class DetalleFacturaEmitida(Schema):
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
 
 
-class DetalleFacturaRecibida(Schema):
-    pass  # TODO add missing fields
-
-
 class FacturaEmitida(Factura):
     # Campos específicos para facturas emitidas
-    FacturaExpedida = fields.Nested(DetalleFacturaEmitida)
-
-
-class FacturaRecibida(Factura):
-    # Campos específicos para facturas recibidas
-    FacturaRecibida = fields.String(DetalleFacturaRecibida)
+    FacturaExpedida = fields.Nested(DetalleFacturaEmitida, required=True)
 
 
 class RegistroFacturasEmitidas(Schema):
-    Cabecera = fields.Nested(Cabecera)
-    RegistroLRFacturasEmitidas = fields.Nested(FacturaEmitida)
+    Cabecera = fields.Nested(Cabecera, required=True)
+    RegistroLRFacturasEmitidas = fields.Nested(FacturaEmitida, required=True)
     # TODO lista_facturas = fields.List(fields.Nested(Factura, dump_to='Factura'), validate=validate.Length(max=10000, error='No puede haber más de 10000 facturas'))
 
 
 class SuministroFacturasEmitidas(Schema):
-    SuministroLRFacturasEmitidas = fields.Nested(RegistroFacturasEmitidas)
+    SuministroLRFacturasEmitidas = fields.Nested(
+        RegistroFacturasEmitidas, required=True
+    )
+
+
+class DetalleIVARecibida(DetalleIVAEmitida):
+    pass
+
+
+class DetalleIVARecibida2(Schema):
+    BaseImponible = fields.Float(required=True)
+
+
+class DesgloseFactura(Schema):
+    InversionSujetoPasivo = fields.Nested(DetalleIVARecibida)
+    DesgloseIVA = fields.Nested(DetalleIVARecibida2)
+
+
+class DetalleFacturaRecibida(Schema):
+    TipoFactura = fields.String(required=True)
+    ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
+    DescripcionOperacion = fields.String(required=True)
+    DesgloseFactura = fields.Nested(DesgloseFactura, required=True)
+    Contraparte = fields.Nested(Contraparte, required=True)
+    FechaRegContable = fields.String(required=True)  # TODO change to Date, max length 10 chars,
+    CuotaDeducible = fields.Float(required=True)
+
+
+class FacturaRecibida(Factura):
+    # Campos específicos para facturas recibidas
+    FacturaRecibida = fields.String(DetalleFacturaRecibida, required=True)
+
+
+class RegistroFacturasRecibidas(Schema):
+    Cabecera = fields.Nested(Cabecera, required=True)
+    RegistroLRFacturasEmitidas = fields.Nested(FacturaRecibida, required=True)
 
 
 class SuministroFacturasRecibidas(Schema):
-    pass  # TODO add missing fields
+    SuministroLRFacturasRecibidas = fields.Nested(
+        RegistroFacturasRecibidas, required=True
+    )
