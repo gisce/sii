@@ -73,13 +73,13 @@ class ExentaAIVA(Schema):  # TODO obligatorio uno de los dos
     NoExenta = fields.Nested(NoExenta)
 
 
-class SujetaAIVA(Schema):  # TODO obligatorio uno de los dos
+class DesgloseFacturaEmitida(Schema):  # TODO obligatorio uno de los dos
     Sujeta = fields.Nested(ExentaAIVA)
     NoSujeta = fields.String()  # TODO
 
 
 class TipoDesglose(Schema):
-    DesgloseFactura = fields.Nested(SujetaAIVA)
+    DesgloseFactura = fields.Nested(DesgloseFacturaEmitida)
     DesgloseTipoOperacion = fields.String()  # TODO to change
 
 
