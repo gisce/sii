@@ -115,8 +115,12 @@ class FacturaEmitida(Factura):
     FacturaExpedida = fields.Nested(DetalleFacturaEmitida, required=True)
 
 
-class RegistroFacturasEmitidas(Schema):
+class RegistroFacturas(Schema):
     Cabecera = fields.Nested(Cabecera, required=True)
+
+
+class RegistroFacturasEmitidas(RegistroFacturas):
+    # Cabecera = fields.Nested(Cabecera(prefix='sii:'), required=True)
     RegistroLRFacturasEmitidas = fields.Nested(FacturaEmitida, required=True)
     # TODO lista_facturas = fields.List(fields.Nested(Factura, dump_to='Factura'), validate=validate.Length(max=10000, error='No puede haber más de 10000 facturas'))
 
@@ -155,8 +159,7 @@ class FacturaRecibida(Factura):
     FacturaRecibida = fields.String(DetalleFacturaRecibida, required=True)
 
 
-class RegistroFacturasRecibidas(Schema):
-    Cabecera = fields.Nested(Cabecera, required=True)
+class RegistroFacturasRecibidas(RegistroFacturas):
     RegistroLRFacturasRecibidas = fields.Nested(FacturaRecibida, required=True)
 
 
