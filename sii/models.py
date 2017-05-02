@@ -73,13 +73,13 @@ class ExentaAIVA(Schema):  # TODO obligatorio uno de los dos
     NoExenta = fields.Nested(NoExenta)
 
 
-class SujetaAIVA(Schema):  # TODO obligatorio uno de los dos
+class DesgloseFacturaEmitida(Schema):  # TODO obligatorio uno de los dos
     Sujeta = fields.Nested(ExentaAIVA)
     NoSujeta = fields.String()  # TODO
 
 
 class TipoDesglose(Schema):
-    DesgloseFactura = fields.Nested(SujetaAIVA)
+    DesgloseFactura = fields.Nested(DesgloseFacturaEmitida)
     DesgloseTipoOperacion = fields.String()  # TODO to change
 
 
@@ -94,6 +94,11 @@ class Contraparte(Schema):
     )
 
 
+class ImporteRectificacion(Schema):
+    BaseRectificada = fields.Float(required=True)
+    CuotaRectificada = fields.Float(required=True)
+
+
 class DetalleFacturaEmitida(Schema):
     TipoFactura = fields.String(required=True)
     ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
@@ -101,6 +106,8 @@ class DetalleFacturaEmitida(Schema):
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     ImporteTotal = fields.Float()
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
+    TipoRectificativa = fields.String()  # TODO obligatorio si es una rectificativa
+    ImporteRectificacion = fields.Nested(ImporteRectificacion) # TODO obligatorio si es una rectificativa
 
 
 class FacturaEmitida(Factura):
@@ -108,8 +115,12 @@ class FacturaEmitida(Factura):
     FacturaExpedida = fields.Nested(DetalleFacturaEmitida, required=True)
 
 
-class RegistroFacturasEmitidas(Schema):
+class RegistroFacturas(Schema):
     Cabecera = fields.Nested(Cabecera, required=True)
+
+
+class RegistroFacturasEmitidas(RegistroFacturas):
+    # Cabecera = fields.Nested(Cabecera(prefix='sii:'), required=True)
     RegistroLRFacturasEmitidas = fields.Nested(FacturaEmitida, required=True)
     # TODO lista_facturas = fields.List(fields.Nested(Factura, dump_to='Factura'), validate=validate.Length(max=10000, error='No puede haber más de 10000 facturas'))
 
@@ -128,7 +139,7 @@ class DetalleIVARecibida2(Schema):
     BaseImponible = fields.Float(required=True)
 
 
-class DesgloseFactura(Schema):
+class DesgloseFacturaRecibida(Schema):  # TODO obligatorio uno de los dos
     InversionSujetoPasivo = fields.Nested(DetalleIVARecibida)
     DesgloseIVA = fields.Nested(DetalleIVARecibida2)
 
@@ -137,7 +148,7 @@ class DetalleFacturaRecibida(Schema):
     TipoFactura = fields.String(required=True)
     ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
     DescripcionOperacion = fields.String(required=True)
-    DesgloseFactura = fields.Nested(DesgloseFactura, required=True)
+    DesgloseFactura = fields.Nested(DesgloseFacturaRecibida, required=True)
     Contraparte = fields.Nested(Contraparte, required=True)
     FechaRegContable = fields.String(required=True)  # TODO change to Date, max length 10 chars,
     CuotaDeducible = fields.Float(required=True)
@@ -148,8 +159,7 @@ class FacturaRecibida(Factura):
     FacturaRecibida = fields.String(DetalleFacturaRecibida, required=True)
 
 
-class RegistroFacturasRecibidas(Schema):
-    Cabecera = fields.Nested(Cabecera, required=True)
+class RegistroFacturasRecibidas(RegistroFacturas):
     RegistroLRFacturasRecibidas = fields.Nested(FacturaRecibida, required=True)
 
 

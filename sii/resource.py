@@ -3,14 +3,17 @@ from sii import models, __SII_VERSION__
 from datetime import datetime
 
 
+def get_base_imponible_iva(tax_line):
+    for tax in tax_line:
+        if 'IVA' in tax.name:
+            return tax.base
+    return ''
+
 
 def get_factura_expedida(invoice):
 
-    base_imponible = ''
-    for tax in invoice.tax_line:
-        if 'IVA' in tax.name:
-            base_imponible = tax.base
-            break
+    base_imponible = get_base_imponible_iva(invoice.tax_line)
+
     if base_imponible:
         tipo_desglose = {
             'DesgloseFactura': {
@@ -51,24 +54,24 @@ def get_factura_expedida(invoice):
 
 
 def get_factura_recibida(invoice):
-    base_imponible = ''
-    for tax in invoice.tax_line:
-        if 'IVA' in tax.name:
-            base_imponible = tax.base
-            break
+
+    base_imponible = get_base_imponible_iva(invoice.tax_line)
+
     if base_imponible:
         tipo_desglose = {
+            'InversionSujetoPasivo': {
+                'DesgloseIVA': {
+                    'DetalleIVA': {
+                        'TipoImpositivo': '',  # TODO
+                        'BaseImponible': base_imponible,
+                        'CuotaRepercutida': '0'  # TODO
+                    }
+                }
+            },
             'DesgloseFactura': {
-                'Sujeta': {
-                    'NoExenta': {  # TODO Exenta o no exenta??
-                        'TipoNoExenta': 'S1',  # TODO to change
-                        'DesgloseIVA': {
-                            'DetalleIVA': {
-                                'TipoImpositivo': '',
-                                'BaseImponible': base_imponible,
-                                'CuotaRepercutida': '0'  # TODO
-                            }
-                        }
+                'DesgloseIVA': {
+                    'DetalleIVA': {
+                        'BaseImponible': base_imponible
                     }
                 }
             }
@@ -100,7 +103,7 @@ def get_header(invoice):
         'IDVersionSii': __SII_VERSION__,
         'Titular': {
             'NombreRazon': invoice.partner_id.name,
-            'NIF': invoice.partner_id.nif
+            'NIF': invoice.partner_id.vat
         },
         'TipoComunicacion': 'A0'
     }
@@ -108,7 +111,19 @@ def get_header(invoice):
     return cabecera
 
 
-def get_factura_emitida_dict(invoice):
+def get_factura_rectificativa_fields():
+    rectificativa_fields = {
+        'TipoRectificativa': 'S',  # Por sustitución,
+        'ImporteRectificacion': {
+            'BaseRectificada': 0,
+            'CuotaRectificada': 0
+        }
+    }
+
+    return rectificativa_fields
+
+
+def get_factura_emitida_dict(invoice, rectificativa=False):
 
     obj = {
         'SuministroLRFacturasEmitidas': {
@@ -132,10 +147,15 @@ def get_factura_emitida_dict(invoice):
         }
     }
 
+    if rectificativa:
+        vals = get_factura_rectificativa_fields()
+
+        obj['SuministroLRFacturasEmitidas']['RegistroLRFacturasEmitidas']['FacturaExpedida'].update(vals)
+
     return obj
 
 
-def get_factura_recibida_dict(invoice):
+def get_factura_recibida_dict(invoice, rectificativa=False):
 
     obj = {
         'SuministroLRFacturasRecibidas': {
@@ -159,6 +179,11 @@ def get_factura_recibida_dict(invoice):
         }
     }
 
+    if rectificativa:
+        vals = get_factura_rectificativa_fields()
+
+        obj['SuministroLRFacturasRecibidas']['RegistroLRFacturasRecibidas']['FacturaRecibida'].update(vals)
+
     return obj
 
 
@@ -172,6 +197,12 @@ class SII(object):
         elif invoice.type == 'out_invoice':
             invoice_model = models.SuministroFacturasEmitidas()
             invoice_dict = get_factura_emitida_dict(invoice)
+        elif invoice.type == 'in_refund':
+            invoice_model = models.SuministroFacturasRecibidas()
+            invoice_dict = get_factura_recibida_dict(invoice, rectificativa=True)
+        elif invoice.type == 'out_refund':
+            invoice_model = models.SuministroFacturasEmitidas()
+            invoice_dict = get_factura_emitida_dict(invoice, rectificativa=True)
         else:
             raise Exception('Error in invoice.type')
 
