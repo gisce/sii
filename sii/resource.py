@@ -103,7 +103,7 @@ def get_header(invoice):
         'IDVersionSii': __SII_VERSION__,
         'Titular': {
             'NombreRazon': invoice.partner_id.name,
-            'NIF': invoice.partner_id.nif
+            'NIF': invoice.partner_id.vat
         },
         'TipoComunicacion': 'A0'
     }
