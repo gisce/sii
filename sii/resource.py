@@ -111,7 +111,19 @@ def get_header(invoice):
     return cabecera
 
 
-def get_factura_emitida_dict(invoice):
+def get_factura_rectificativa_fields():
+    rectificativa_fields = {
+        'TipoRectificativa': 'S',  # Por sustitución,
+        'ImporteRectificacion': {
+            'BaseRectificada': 0,
+            'CuotaRectificada': 0
+        }
+    }
+
+    return rectificativa_fields
+
+
+def get_factura_emitida_dict(invoice, rectificativa=False):
 
     obj = {
         'SuministroLRFacturasEmitidas': {
@@ -135,10 +147,15 @@ def get_factura_emitida_dict(invoice):
         }
     }
 
+    if rectificativa:
+        vals = get_factura_rectificativa_fields()
+
+        obj['SuministroLRFacturasEmitidas']['RegistroLRFacturasEmitidas']['FacturaExpedida'].update(vals)
+
     return obj
 
 
-def get_factura_recibida_dict(invoice):
+def get_factura_recibida_dict(invoice, rectificativa=False):
 
     obj = {
         'SuministroLRFacturasRecibidas': {
@@ -162,6 +179,11 @@ def get_factura_recibida_dict(invoice):
         }
     }
 
+    if rectificativa:
+        vals = get_factura_rectificativa_fields()
+
+        obj['SuministroLRFacturasRecibidas']['RegistroLRFacturasRecibidas']['FacturaRecibida'].update(vals)
+
     return obj
 
 
@@ -175,6 +197,12 @@ class SII(object):
         elif invoice.type == 'out_invoice':
             invoice_model = models.SuministroFacturasEmitidas()
             invoice_dict = get_factura_emitida_dict(invoice)
+        elif invoice.type == 'in_refund':
+            invoice_model = models.SuministroFacturasRecibidas()
+            invoice_dict = get_factura_recibida_dict(invoice, rectificativa=True)
+        elif invoice.type == 'out_refund':
+            invoice_model = models.SuministroFacturasEmitidas()
+            invoice_dict = get_factura_emitida_dict(invoice, rectificativa=True)
         else:
             raise Exception('Error in invoice.type')
 
