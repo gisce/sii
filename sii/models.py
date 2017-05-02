@@ -94,6 +94,11 @@ class Contraparte(Schema):
     )
 
 
+class ImporteRectificacion(Schema):
+    BaseRectificada = fields.Float(required=True)
+    CuotaRectificada = fields.Float(required=True)
+
+
 class DetalleFacturaEmitida(Schema):
     TipoFactura = fields.String(required=True)
     ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
@@ -101,6 +106,8 @@ class DetalleFacturaEmitida(Schema):
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     ImporteTotal = fields.Float()
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
+    TipoRectificativa = fields.String()  # TODO obligatorio si es una rectificativa
+    ImporteRectificacion = fields.Nested(ImporteRectificacion) # TODO obligatorio si es una rectificativa
 
 
 class FacturaEmitida(Factura):
