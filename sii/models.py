@@ -139,7 +139,7 @@ class DetalleIVARecibida2(Schema):
     BaseImponible = fields.Float(required=True)
 
 
-class DesgloseFactura(Schema):
+class DesgloseFacturaRecibida(Schema):  # TODO obligatorio uno de los dos
     InversionSujetoPasivo = fields.Nested(DetalleIVARecibida)
     DesgloseIVA = fields.Nested(DetalleIVARecibida2)
 
@@ -148,7 +148,7 @@ class DetalleFacturaRecibida(Schema):
     TipoFactura = fields.String(required=True)
     ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
     DescripcionOperacion = fields.String(required=True)
-    DesgloseFactura = fields.Nested(DesgloseFactura, required=True)
+    DesgloseFactura = fields.Nested(DesgloseFacturaRecibida, required=True)
     Contraparte = fields.Nested(Contraparte, required=True)
     FechaRegContable = fields.String(required=True)  # TODO change to Date, max length 10 chars,
     CuotaDeducible = fields.Float(required=True)
