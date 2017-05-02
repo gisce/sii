@@ -3,14 +3,17 @@ from sii import models, __SII_VERSION__
 from datetime import datetime
 
 
+def get_base_imponible_iva(tax_line):
+    for tax in tax_line:
+        if 'IVA' in tax.name:
+            return tax.base
+    return ''
+
 
 def get_factura_expedida(invoice):
 
-    base_imponible = ''
-    for tax in invoice.tax_line:
-        if 'IVA' in tax.name:
-            base_imponible = tax.base
-            break
+    base_imponible = get_base_imponible_iva(invoice.tax_line)
+
     if base_imponible:
         tipo_desglose = {
             'DesgloseFactura': {
@@ -51,11 +54,9 @@ def get_factura_expedida(invoice):
 
 
 def get_factura_recibida(invoice):
-    base_imponible = ''
-    for tax in invoice.tax_line:
-        if 'IVA' in tax.name:
-            base_imponible = tax.base
-            break
+
+    base_imponible = get_base_imponible_iva(invoice.tax_line)
+
     if base_imponible:
         tipo_desglose = {
             'DesgloseFactura': {
