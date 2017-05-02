@@ -59,17 +59,19 @@ def get_factura_recibida(invoice):
 
     if base_imponible:
         tipo_desglose = {
+            'InversionSujetoPasivo': {
+                'DesgloseIVA': {
+                    'DetalleIVA': {
+                        'TipoImpositivo': '',  # TODO
+                        'BaseImponible': base_imponible,
+                        'CuotaRepercutida': '0'  # TODO
+                    }
+                }
+            },
             'DesgloseFactura': {
-                'Sujeta': {
-                    'NoExenta': {  # TODO Exenta o no exenta??
-                        'TipoNoExenta': 'S1',  # TODO to change
-                        'DesgloseIVA': {
-                            'DetalleIVA': {
-                                'TipoImpositivo': '',
-                                'BaseImponible': base_imponible,
-                                'CuotaRepercutida': '0'  # TODO
-                            }
-                        }
+                'DesgloseIVA': {
+                    'DetalleIVA': {
+                        'BaseImponible': base_imponible
                     }
                 }
             }
