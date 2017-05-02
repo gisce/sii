@@ -13,57 +13,83 @@ class Period():
 class Partner():
     def __init__(self, name, nif):
         self.name = name
-        self.nif = nif
+        self.vat = nif
 
 
 class InvoiceLineTaxes():
-    def __init__(self, name, base_imponible):
+    def __init__(self, name, base):
         self.name = name
-        self.base = base_imponible
+        self.base = base  # base imponible
 
 
 class Invoice():
-    def __init__(self, number, type, partner, amount_total, period_id, date_invoice, tax_line_ids):
+
+    def __init__(self, number, type, partner_id, amount_total, period_id, date_invoice, tax_line):
         self.number = number
         self.type = type
-        self.partner_id = partner
+        self.partner_id = partner_id
         self.period_id = period_id
         self.amount_total = amount_total
         self.date_invoice = date_invoice
-        self.tax_line = tax_line_ids
+        self.tax_line = tax_line
 
 
 with description("El XML Generado"):
     with before.all:
-        period = Period(name='03/2016')
+        self.period = Period(name='03/2016')
         tax_line = [
-            InvoiceLineTaxes('IVA 21%', base_imponible=12.34),
-            InvoiceLineTaxes('IBI 15%', base_imponible=56.78)
+            InvoiceLineTaxes('IVA 21%', base=12.34),
+            InvoiceLineTaxes('IBI 15%', base=56.78)
         ]
         self.partner = Partner(name='Francisco García', nif='12345678T')
-        self.invoice = Invoice(
-            number='F012345', type='out_invoice', partner=self.partner,
-            amount_total=15, period_id=period, date_invoice='2016-03-25',
-            tax_line_ids=tax_line
+
+        invoice_number = 'F012345'
+        date_invoice = '2016-03-25'
+        amount_total = 15
+        self.out_invoice = Invoice(
+            number=invoice_number, type='out_invoice', partner_id=self.partner,
+            amount_total=amount_total, period_id=self.period, date_invoice=date_invoice,
+            tax_line=tax_line
+        )
+
+        self.in_invoice = Invoice(
+            number=invoice_number, type='in_invoice', partner_id=self.partner,
+            amount_total=amount_total, period_id=self.period,
+            date_invoice=date_invoice,
+            tax_line=tax_line
+        )
+
+        self.out_refund = Invoice(
+            number=invoice_number, type='out_refund', partner_id=self.partner,
+            amount_total=amount_total, period_id=self.period,
+            date_invoice=date_invoice,
+            tax_line=tax_line
+        )
+
+        self.in_refund = Invoice(
+            number=invoice_number, type='in_refund', partner_id=self.partner,
+            amount_total=amount_total, period_id=self.period,
+            date_invoice=date_invoice,
+            tax_line=tax_line
         )
 
         # TODO delete print object
         print '\n'
         print '========= FACTURA EJEMPLO ================'
         from pprintpp import pprint
-        pprint(vars(self.invoice))
+        pprint(vars(self.out_invoice))
         print '=========================================='
 
-        self.obj = SII.generate_object(self.invoice)
+        obj = SII.generate_object(self.out_invoice)
 
         # TODO delete print object
         print '\n'
         print '============ RESULTADO DEL DUMP ====================='
-        pprint(self.obj)
+        pprint(obj)
         print '====================================================='
 
-        self.cabecera = self.obj['SuministroLRFacturasEmitidas']['Cabecera']
-        self.factura = self.obj[
+        self.cabecera = obj['SuministroLRFacturasEmitidas']['Cabecera']
+        self.factura_emitida = obj[
             'SuministroLRFacturasEmitidas']['RegistroLRFacturasEmitidas']
 
     with description("en la cabecera"):
