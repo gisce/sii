@@ -97,14 +97,17 @@ with description("El XML Generado"):
             expect(self.cabecera['IDVersionSii']).to(equal(sii.__SII_VERSION__))
         with context("cuando es de tipo alta"):
             with it("el tipo de comunicación debe ser 'A0'"):
-                expect(
-                    self.cabecera['TipoComunicacion']).to(equal('A0'))
+                expect(self.cabecera['TipoComunicacion']).to(equal('A0'))
 
-    with _description("en los datos del período"):
+    with description("en los datos del período"):
         with it("el ejercicio es el correspondiente al año de la factura"):
-            pass
+            expect(
+                self.factura_emitida['PeriodoImpositivo']['Ejercicio']
+            ).to(equal(self.period.name[3:7]))
         with it("el período es el correspondiente al mes de la factura"):
-            pass
+            expect(
+                self.factura_emitida['PeriodoImpositivo']['Periodo']
+            ).to(equal(self.period.name[0:2]))
 
     with _description("en los datos de la identificación de la factura"):
         with it("el NIF de la factura es el NIF del emisor"):
@@ -120,7 +123,11 @@ with description("El XML Generado"):
 
     with description("en la factura"):
         with it("el número de la factura debe ser igual que el de la factura original"):
-            expect(self.factura['IDFactura']['NumSerieFacturaEmisor']).to(equal(self.invoice.number))
+            expect(
+                self.factura_emitida['IDFactura']['NumSerieFacturaEmisor']
+            ).to(equal(self.out_invoice.number))
 
         with it("el tipo de la factura es 'F1'"):
-            expect(self.factura['FacturaExpedida']['TipoFactura']).to(equal('F1'))
+            expect(
+                self.factura_emitida['FacturaExpedida']['TipoFactura']
+            ).to(equal('F1'))
