@@ -60,7 +60,7 @@ class Exenta(Schema):
 
 
 class DetalleIVAEmitida(Schema):
-    TipoImpositivo = fields.String(required=True)
+    TipoImpositivo = fields.Float(required=True)
     BaseImponible = fields.Float(required=True)
     CuotaRepercutida = fields.Float(required=True)
 
