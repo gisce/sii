@@ -3,6 +3,12 @@
 from marshmallow import Schema, fields, validate, validates, ValidationError
 from sii import __SII_VERSION__
 
+PERIODO_VALUES = [
+    '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '0A'
+]
+
+TIPO_NO_EXENTA_VALUES = ['S1', 'S2']
+
 
 class Titular(Schema):
     NombreRazon = fields.String(
@@ -23,7 +29,14 @@ class Cabecera(Schema):
 
 class PeriodoImpositivo(Schema):
     Ejercicio = fields.String(required=True)  # TODO validate Año en formato 'YYYY'
-    Periodo = fields.String(required=True)  # TODO validate Enumeration '01' para enero, '02' para febrero, ..., '0A' Periodicidad anual
+    Periodo = fields.String(required=True)
+
+    @validates('Periodo')
+    def validate_periodo(self, value):
+        if value not in PERIODO_VALUES:
+            raise ValidationError(
+                'El Periodo es incorrecto: {}'.format(value)
+            )
 
 
 class EmisorFactura(Schema):
@@ -62,7 +75,7 @@ class NoExenta(Schema):
 
     @validates('TipoNoExenta')
     def validate_tipo_no_exenta(self, value):
-        if value not in ['S1', 'S2']:
+        if value not in TIPO_NO_EXENTA_VALUES:
             raise ValidationError(
                 'El TipoNoExenta es incorrecto: {}'.format(value)
             )
