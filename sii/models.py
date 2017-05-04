@@ -117,12 +117,15 @@ class ImporteRectificacion(Schema):
     CuotaRectificada = fields.Float(required=True)
 
 
-class DetalleFacturaEmitida(Schema):
+class DetalleFactura(Schema):
     TipoFactura = fields.String(required=True)
     ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
     DescripcionOperacion = fields.String(required=True)
-    TipoDesglose = fields.Nested(TipoDesglose, required=True)
     ImporteTotal = fields.Float()
+
+
+class DetalleFacturaEmitida(DetalleFactura):
+    TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
     TipoRectificativa = fields.String()  # TODO obligatorio si es una rectificativa
     ImporteRectificacion = fields.Nested(ImporteRectificacion) # TODO obligatorio si es una rectificativa
@@ -162,10 +165,7 @@ class DesgloseFacturaRecibida(Schema):  # TODO obligatorio uno de los dos
     DesgloseIVA = fields.Nested(DetalleIVARecibida2)
 
 
-class DetalleFacturaRecibida(Schema):
-    TipoFactura = fields.String(required=True)
-    ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
-    DescripcionOperacion = fields.String(required=True)
+class DetalleFacturaRecibida(DetalleFactura):
     DesgloseFactura = fields.Nested(DesgloseFacturaRecibida, required=True)
     Contraparte = fields.Nested(Contraparte, required=True)
     FechaRegContable = fields.String(required=True)  # TODO change to Date, max length 10 chars,
