@@ -3,18 +3,26 @@ from sii import models, __SII_VERSION__
 from datetime import datetime
 
 
-def get_base_imponible_iva(tax_line):
+def get_iva_values(tax_line):
+    vals = {
+        'sujeta_a_iva': False
+    }
     for tax in tax_line:
         if 'IVA' in tax.name:
-            return tax.base
-    return ''
+            vals.update({
+                'sujeta_a_iva': True,
+                'base_imponible': tax.base,
+                'tipo_impositivo': tax.tax_id.amount * 100,
+                'cuota_repercutida': tax.tax_amount
+            })
+            break
+    return vals
 
 
-def get_factura_expedida(invoice):
+def get_factura_emitida(invoice):
+    vals = get_iva_values(invoice.tax_line)
 
-    base_imponible = get_base_imponible_iva(invoice.tax_line)
-
-    if base_imponible:
+    if vals['sujeta_a_iva']:
         tipo_desglose = {
             'DesgloseFactura': {
                 'Sujeta': {
@@ -22,9 +30,9 @@ def get_factura_expedida(invoice):
                         'TipoNoExenta': 'S1',  # TODO to change
                         'DesgloseIVA': {
                             'DetalleIVA': {
-                                'TipoImpositivo': '',
-                                'BaseImponible': base_imponible,
-                                'CuotaRepercutida': '0'  # TODO
+                                'TipoImpositivo': vals['tipo_impositivo'],
+                                'BaseImponible': vals['base_imponible'],
+                                'CuotaRepercutida': vals['cuota_repercutida']
                             }
                         }
                     }
@@ -40,10 +48,10 @@ def get_factura_expedida(invoice):
 
     factura_expedida = {
         'TipoFactura': 'F1',
-        'ClaveRegimenEspecialOTrascendencia': '',
+        'ClaveRegimenEspecialOTrascendencia': '01',  # TODO
         'ImporteTotal': invoice.amount_total,
-        'DescripcionOperacion': '',
-        'Contraparte': {
+        'DescripcionOperacion': invoice.name,
+        'Contraparte': {  # TODO
             'NombreRazon': '',
             'NIF': ''
         },
@@ -54,45 +62,38 @@ def get_factura_expedida(invoice):
 
 
 def get_factura_recibida(invoice):
+    vals = get_iva_values(invoice.tax_line)
 
-    base_imponible = get_base_imponible_iva(invoice.tax_line)
-
-    if base_imponible:
+    if vals['sujeta_a_iva']:
         tipo_desglose = {
             'InversionSujetoPasivo': {
-                'DesgloseIVA': {
-                    'DetalleIVA': {
-                        'TipoImpositivo': '',  # TODO
-                        'BaseImponible': base_imponible,
-                        'CuotaRepercutida': '0'  # TODO
-                    }
+                'DetalleIVA': {
+                    'TipoImpositivo': vals['tipo_impositivo'],
+                    'BaseImponible': vals['base_imponible'],
+                    'CuotaRepercutida': vals['cuota_repercutida']
                 }
             },
-            'DesgloseFactura': {
-                'DesgloseIVA': {
-                    'DetalleIVA': {
-                        'BaseImponible': base_imponible
-                    }
+            'DesgloseIVA': {
+                'DetalleIVA': {
+                    'BaseImponible': vals['base_imponible']
                 }
             }
         }
     else:
-        tipo_desglose = {
-            'DesgloseFactura': {
-                'NoSujeta': ''
-            }
-        }
+        raise Exception("Missing 'IVA' in invoice.tax_line")
 
     factura_recibida = {
         'TipoFactura': 'F1',
-        'ClaveRegimenEspecialOTrascendencia': '',
+        'ClaveRegimenEspecialOTrascendencia': '01',  # TODO
         'ImporteTotal': invoice.amount_total,
-        'DescripcionOperacion': '',
+        'DescripcionOperacion': invoice.name,
         'Contraparte': {
             'NombreRazon': '',
             'NIF': ''
         },
-        'TipoDesglose': tipo_desglose
+        'DesgloseFactura': tipo_desglose,
+        'CuotaDeducible': '0',  # TODO to change
+        'FechaRegContable': ''  # TODO to change
     }
 
     return factura_recibida
@@ -124,7 +125,6 @@ def get_factura_rectificativa_fields():
 
 
 def get_factura_emitida_dict(invoice, rectificativa=False):
-
     obj = {
         'SuministroLRFacturasEmitidas': {
             'Cabecera': get_header(invoice),
@@ -142,7 +142,7 @@ def get_factura_emitida_dict(invoice, rectificativa=False):
                         invoice.date_invoice, '%Y-%m-%d'
                     ).strftime('%d-%m-%Y')
                 },
-                'FacturaExpedida': get_factura_expedida(invoice)
+                'FacturaExpedida': get_factura_emitida(invoice)
             }
         }
     }
@@ -156,7 +156,6 @@ def get_factura_emitida_dict(invoice, rectificativa=False):
 
 
 def get_factura_recibida_dict(invoice, rectificativa=False):
-
     obj = {
         'SuministroLRFacturasRecibidas': {
             'Cabecera': get_header(invoice),
