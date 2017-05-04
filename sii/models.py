@@ -91,9 +91,14 @@ class DesgloseFacturaEmitida(Schema):  # TODO obligatorio uno de los dos
     NoSujeta = fields.String()  # TODO
 
 
-class TipoDesglose(Schema):
+class DesgloseTipoOperacion(Schema):  # TODO obligatorio uno de los dos
+    PrestacionServicios = fields.Nested(DesgloseFacturaEmitida)
+    Entrega = fields.Nested(DesgloseFacturaEmitida)
+
+
+class TipoDesglose(Schema):  # TODO obligatorio uno de los dos
     DesgloseFactura = fields.Nested(DesgloseFacturaEmitida)
-    DesgloseTipoOperacion = fields.String()  # TODO to change
+    DesgloseTipoOperacion = fields.Nested(DesgloseTipoOperacion)
 
 
 class Contraparte(Schema):
