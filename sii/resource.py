@@ -48,10 +48,10 @@ def get_factura_emitida(invoice):
 
     factura_expedida = {
         'TipoFactura': 'F1',
-        'ClaveRegimenEspecialOTrascendencia': '',
+        'ClaveRegimenEspecialOTrascendencia': '01',  # TODO
         'ImporteTotal': invoice.amount_total,
-        'DescripcionOperacion': '',
-        'Contraparte': {
+        'DescripcionOperacion': invoice.name,
+        'Contraparte': {  # TODO
             'NombreRazon': '',
             'NIF': ''
         },
@@ -84,14 +84,16 @@ def get_factura_recibida(invoice):
 
     factura_recibida = {
         'TipoFactura': 'F1',
-        'ClaveRegimenEspecialOTrascendencia': '',
+        'ClaveRegimenEspecialOTrascendencia': '01',  # TODO
         'ImporteTotal': invoice.amount_total,
-        'DescripcionOperacion': '',
+        'DescripcionOperacion': invoice.name,
         'Contraparte': {
             'NombreRazon': '',
             'NIF': ''
         },
-        'TipoDesglose': tipo_desglose
+        'DesgloseFactura': tipo_desglose,
+        'CuotaDeducible': '0',  # TODO to change
+        'FechaRegContable': ''  # TODO to change
     }
 
     return factura_recibida
@@ -123,7 +125,6 @@ def get_factura_rectificativa_fields():
 
 
 def get_factura_emitida_dict(invoice, rectificativa=False):
-
     obj = {
         'SuministroLRFacturasEmitidas': {
             'Cabecera': get_header(invoice),
@@ -155,7 +156,6 @@ def get_factura_emitida_dict(invoice, rectificativa=False):
 
 
 def get_factura_recibida_dict(invoice, rectificativa=False):
-
     obj = {
         'SuministroLRFacturasRecibidas': {
             'Cabecera': get_header(invoice),
