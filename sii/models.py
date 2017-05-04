@@ -152,17 +152,21 @@ class SuministroFacturasEmitidas(Schema):
     )
 
 
-class DetalleIVARecibida(DetalleIVAEmitida):
-    pass
-
-
-class DetalleIVARecibida2(Schema):
+class DetalleIVADesglose(Schema):
     BaseImponible = fields.Float(required=True)
 
 
+class DesgloseIVARecibida(Schema):
+    DetalleIVA = fields.Nested(DetalleIVADesglose, required=True)
+
+
+class DetalleIVAInversionSujetoPasivo(DesgloseIVA):
+    pass
+
+
 class DesgloseFacturaRecibida(Schema):  # TODO obligatorio uno de los dos
-    InversionSujetoPasivo = fields.Nested(DetalleIVARecibida)
-    DesgloseIVA = fields.Nested(DetalleIVARecibida2)
+    InversionSujetoPasivo = fields.Nested(DetalleIVAInversionSujetoPasivo)
+    DesgloseIVA = fields.Nested(DesgloseIVARecibida)
 
 
 class DetalleFacturaRecibida(DetalleFactura):
