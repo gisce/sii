@@ -169,7 +169,7 @@ class DetalleFacturaRecibida(Schema):
 
 class FacturaRecibida(Factura):
     # Campos específicos para facturas recibidas
-    FacturaRecibida = fields.String(DetalleFacturaRecibida, required=True)
+    FacturaRecibida = fields.Nested(DetalleFacturaRecibida, required=True)
 
 
 class RegistroFacturasRecibidas(RegistroFacturas):
