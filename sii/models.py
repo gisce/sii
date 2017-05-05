@@ -1,8 +1,9 @@
 # coding=utf-8
 
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, post_dump
 from marshmallow import validate, validates_schema, ValidationError
 from sii import __SII_VERSION__
+from datetime import datetime
 
 PERIODO_VALUES = [
     '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '0A'
@@ -11,6 +12,20 @@ PERIODO_VALUES = [
 TIPO_NO_EXENTA_VALUES = ['S1', 'S2']
 
 TIPO_RECTIFICATIVA_VALUES = ['S', 'I']
+
+
+class DateString(fields.String):
+    def _validate(self, value):
+        if value is None:
+            return None
+        try:
+            datetime.strptime(value, '%Y-%m-%d')
+        except (ValueError, AttributeError):
+            raise ValidationError('Invalid date string', value)
+
+    @post_dump
+    def _serialize(self, value, attr, obj):
+        return datetime.strptime(value, '%Y-%m-%d').strftime('%d-%m-%Y')
 
 
 class MySchema(Schema):
@@ -55,7 +70,9 @@ class IdentificacionFactura(MySchema):
     NumSerieFacturaEmisor = fields.String(
         required=True, validate=validate.Length(max=60)
     )
-    FechaExpedicionFacturaEmisor = fields.String(required=True)  # TODO fecha en formato DD-MM-AAAA
+    FechaExpedicionFacturaEmisor = DateString(
+        required=True, validate=validate.Length(max=10)
+    )
 
 
 class Factura(MySchema):
@@ -179,7 +196,9 @@ class DesgloseFacturaRecibida(MySchema):  # TODO obligatorio uno de los dos
 class DetalleFacturaRecibida(DetalleFactura):
     DesgloseFactura = fields.Nested(DesgloseFacturaRecibida, required=True)
     Contraparte = fields.Nested(Contraparte, required=True)
-    FechaRegContable = fields.String(required=True)  # TODO change to Date, max length 10 chars,
+    FechaRegContable = DateString(
+        required=True, validate=validate.Length(max=10)
+    )
     CuotaDeducible = fields.Float(required=True)
 
 
