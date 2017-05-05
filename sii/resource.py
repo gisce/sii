@@ -92,7 +92,7 @@ def get_factura_recibida(invoice):
             'NIF': invoice.partner_id.vat
         },
         'DesgloseFactura': tipo_desglose,
-        'CuotaDeducible': '0',  # TODO to change
+        'CuotaDeducible': vals['cuota_repercutida'],
         'FechaRegContable': ''  # TODO to change
     }
 
