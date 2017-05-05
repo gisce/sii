@@ -20,11 +20,13 @@ class Titular(Schema):
 class Cabecera(Schema):
     IDVersionSii = fields.String(required=True, default=__SII_VERSION__)
     Titular = fields.Nested(Titular, required=True)
-    TipoComunicacion = fields.String(required=True)
+    TipoComunicacion = fields.String(
+        required=True, validate=validate.Length(max=2)
+    )
 
 
 class PeriodoImpositivo(Schema):
-    Ejercicio = fields.String(required=True)  # TODO validate Año en formato 'YYYY'
+    Ejercicio = fields.String(required=True, validate=validate.Length(max=4))  # TODO validate Año en formato 'YYYY'
     Periodo = fields.String(
         required=True, validate=validate.OneOf(PERIODO_VALUES)
     )
@@ -36,8 +38,10 @@ class EmisorFactura(Schema):
 
 class IdentificacionFactura(Schema):
     IDEmisorFactura = fields.Nested(EmisorFactura, required=True)
-    NumSerieFacturaEmisor = fields.String(required=True)
-    FechaExpedicionFacturaEmisor = fields.String(required=True)
+    NumSerieFacturaEmisor = fields.String(
+        required=True, validate=validate.Length(max=60)
+    )
+    FechaExpedicionFacturaEmisor = fields.String(required=True)  # TODO fecha en formato DD-MM-AAAA
 
 
 class Factura(Schema):
@@ -62,7 +66,9 @@ class DesgloseIVA(Schema):
 
 class NoExenta(Schema):
     TipoNoExenta = fields.String(
-        required=True, validate=validate.OneOf(TIPO_NO_EXENTA_VALUES)
+        required=True, validate=[
+            validate.OneOf(TIPO_NO_EXENTA_VALUES), validate.Length(max=2)
+        ]
     )
     DesgloseIVA = fields.Nested(DesgloseIVA, required=True)
 
