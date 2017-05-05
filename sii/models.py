@@ -23,14 +23,9 @@ class Cabecera(Schema):
 
 class PeriodoImpositivo(Schema):
     Ejercicio = fields.String(required=True)  # TODO validate Año en formato 'YYYY'
-    Periodo = fields.String(required=True)
-
-    @validates('Periodo')
-    def validate_periodo(self, value):
-        if value not in PERIODO_VALUES:
-            raise ValidationError(
-                'El Periodo es incorrecto: {}'.format(value)
-            )
+    Periodo = fields.String(
+        required=True, validate=validate.OneOf(PERIODO_VALUES)
+    )
 
 
 class EmisorFactura(Schema):
