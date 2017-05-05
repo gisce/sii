@@ -2,7 +2,7 @@
 
 from expects import *
 import xml.dom.minidom
-from sii.resource import SII
+from sii.server import *
 from dicttoxml import dicttoxml
 
 class Period():
@@ -33,7 +33,7 @@ class Invoice():
         self.tax_line = tax_line_ids
 
 
-with description("El XML Generado"):
+with description("The webservice steps: "):
     with before.all:
         print 'Generando obj'
         period = Period(name='03/2016')
@@ -42,14 +42,63 @@ with description("El XML Generado"):
             InvoiceLineTaxes('IBI 15%', base_imponible=56.78)
         ]
         partner = Partner(name='Francisco García', nif='12345678T')
-        invoice = Invoice(
+        self.invoice = Invoice(
             number='F012345', type='out_invoice', partner=partner,
             amount_total=15, period_id=period, date_invoice='2016-03-25',
             tax_line_ids=tax_line
         )
+        self.expected_dict = {
+            u'SuministroLRFacturasEmitidas': {
+                u'Cabecera': {
+                    u'IDVersionSii': u'0.6',
+                    u'TipoComunicacion': u'A0',
+                    u'Titular': {
+                        u'NIF': u'12345678T',
+                        u'NombreRazon': u'Francisco García',
+                    },
+                },
+                u'RegistroLRFacturasEmitidas': {
+                    u'FacturaExpedida': {
+                        u'ClaveRegimenEspecialOTrascendencia': u'',
+                        u'Contraparte': {u'NIF': u'', u'NombreRazon': u''},
+                        u'DescripcionOperacion': u'',
+                        u'ImporteTotal': 15.0,
+                        u'TipoDesglose': {
+                            u'DesgloseFactura': {
+                                u'Sujeta': {
+                                    u'NoExenta': {
+                                        u'DesgloseIVA': {
+                                            u'DetalleIVA': {
+                                                u'BaseImponible': 12.34,
+                                                u'CuotaRepercutida': 0.0,
+                                                u'TipoImpositivo': u'',
+                                            },
+                                        },
+                                        u'TipoNoExenta': u'S1',
+                                    },
+                                },
+                            },
+                        },
+                        u'TipoFactura': u'F1',
+                    },
+                    u'IDFactura': {
+                        u'FechaExpedicionFacturaEmisor': u'25-03-2016',
+                        u'IDEmisorFactura': {u'NIF': u''},
+                        u'NumSerieFacturaEmisor': u'F012345',
+                    },
+                    u'PeriodoImpositivo': {u'Ejercicio': u'2016', u'Periodo': u'03'},
+                },
+            },
+        }
 
-        dict_to_xml = SII.generate_object(invoice)
-        dict_to_xml = dicttoxml(dict_to_xml, root=False, attr_type=False)
-        xml_pretty = xml.dom.minidom.parseString(dict_to_xml)
-        pretty_xml_as_string = xml_pretty.toprettyxml()
-        print 'El XML generado es:\n', pretty_xml_as_string
+        # # xml_pretty = xml.dom.minidom.parseString(xml_from_dict)
+        # # pretty_xml_as_string = xml_pretty.toprettyxml()
+        #
+        # print '\n'
+        # print '============ RESULT FROM DICTTOXML ====================='
+        # print(pretty_xml_as_string)
+        # print '====================================================='
+
+    with description("1. generate the dictionary"):
+        with it(" from an invoice object"):
+            pass
