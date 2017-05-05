@@ -12,9 +12,14 @@ TIPO_NO_EXENTA_VALUES = ['S1', 'S2']
 TIPO_RECTIFICATIVA_VALUES = ['S', 'I']
 
 
-class Titular(Schema):
+class NIF(Schema):
+    NIF = fields.String(
+        required=True, validate=validate.Length(max=9)
+    )  # TODO validate if it belongs to a NIF ??
+
+
+class Titular(NIF):
     NombreRazon = fields.String(required=True, validate=validate.Length(max=40))
-    NIF = fields.String(required=True, validate=validate.Length(max=9))  # TODO validate if it belongs to a NIF ??
 
 
 class Cabecera(Schema):
@@ -32,8 +37,8 @@ class PeriodoImpositivo(Schema):
     )
 
 
-class EmisorFactura(Schema):
-    NIF = fields.String(required=True, validate=validate.Length(max=9))
+class EmisorFactura(NIF):
+    pass
 
 
 class IdentificacionFactura(Schema):
@@ -93,9 +98,8 @@ class TipoDesglose(Schema):  # TODO obligatorio uno de los dos
     DesgloseTipoOperacion = fields.Nested(DesgloseTipoOperacion)
 
 
-class Contraparte(Schema):
-    NombreRazon = fields.String(required=True, validate=validate.Length(max=40))
-    NIF = fields.String(required=True, validate=validate.Length(max=9))  # TODO validate if it belongs to a NIF ??
+class Contraparte(Titular):
+    pass
 
 
 class ImporteRectificacion(Schema):
