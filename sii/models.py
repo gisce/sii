@@ -55,13 +55,16 @@ class Factura(Schema):
     IDFactura = fields.Nested(IdentificacionFactura, required=True)
 
 
-class Exenta(Schema):
+class BaseImponible(Schema):
     BaseImponible = fields.Float(required=True)
 
 
-class DetalleIVAEmitida(Schema):
+class Exenta(BaseImponible):
+    pass
+
+
+class DetalleIVAEmitida(BaseImponible):
     TipoImpositivo = fields.Float(required=True)
-    BaseImponible = fields.Float(required=True)
     CuotaRepercutida = fields.Float(required=True)
 
 
@@ -147,8 +150,8 @@ class SuministroFacturasEmitidas(Schema):
     )
 
 
-class DetalleIVADesglose(Schema):
-    BaseImponible = fields.Float(required=True)
+class DetalleIVADesglose(BaseImponible):
+    pass
 
 
 class DesgloseIVARecibida(Schema):
