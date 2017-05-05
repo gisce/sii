@@ -9,6 +9,8 @@ PERIODO_VALUES = [
 
 TIPO_NO_EXENTA_VALUES = ['S1', 'S2']
 
+TIPO_RECTIFICATIVA_VALUES = ['S', 'I']
+
 
 class Titular(Schema):
     NombreRazon = fields.String(required=True, validate=validate.Length(max=40))
@@ -96,16 +98,22 @@ class ImporteRectificacion(Schema):
 
 
 class DetalleFactura(Schema):
-    TipoFactura = fields.String(required=True)
-    ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
-    DescripcionOperacion = fields.String(required=True)
+    TipoFactura = fields.String(required=True, validate=validate.Length(max=2))
+    ClaveRegimenEspecialOTrascendencia = fields.String(
+        required=True, validate=validate.Length(max=2)
+    )
+    DescripcionOperacion = fields.String(
+        required=True, validate=validate.Length(max=500)
+    )
     ImporteTotal = fields.Float()
 
 
 class DetalleFacturaEmitida(DetalleFactura):
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
-    TipoRectificativa = fields.String()  # TODO obligatorio si es una rectificativa
+    TipoRectificativa = fields.String(
+        validate=validate.OneOf(TIPO_RECTIFICATIVA_VALUES)
+    )  # TODO obligatorio si es una rectificativa
     ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si es una rectificativa
 
 
