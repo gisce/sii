@@ -11,14 +11,8 @@ TIPO_NO_EXENTA_VALUES = ['S1', 'S2']
 
 
 class Titular(Schema):
-    NombreRazon = fields.String(
-        required=True,
-        validate=validate.Length(max=40, error='Nombre demasiado largo')
-    )
-    NIF = fields.String(
-        required=True,
-        validate=validate.Length(max=9, error='NIF demasiado largo')  # TODO validate if it belongs to a NIF ??
-    )
+    NombreRazon = fields.String(required=True, validate=validate.Length(max=40))
+    NIF = fields.String(required=True, validate=validate.Length(max=9))  # TODO validate if it belongs to a NIF ??
 
 
 class Cabecera(Schema):
@@ -102,14 +96,8 @@ class TipoDesglose(Schema):  # TODO obligatorio uno de los dos
 
 
 class Contraparte(Schema):
-    NombreRazon = fields.String(
-        required=True,
-        validate=validate.Length(max=40, error='Nombre demasiado largo')
-    )
-    NIF = fields.String(
-        required=True,
-        validate=validate.Length(max=9, error='NIF demasiado largo')  # TODO validate if it belongs to a NIF ??
-    )
+    NombreRazon = fields.String(required=True, validate=validate.Length(max=40))
+    NIF = fields.String(required=True, validate=validate.Length(max=9))  # TODO validate if it belongs to a NIF ??
 
 
 class ImporteRectificacion(Schema):
@@ -128,7 +116,7 @@ class DetalleFacturaEmitida(DetalleFactura):
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
     TipoRectificativa = fields.String()  # TODO obligatorio si es una rectificativa
-    ImporteRectificacion = fields.Nested(ImporteRectificacion) # TODO obligatorio si es una rectificativa
+    ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si es una rectificativa
 
 
 class FacturaEmitida(Factura):
@@ -141,7 +129,6 @@ class RegistroFacturas(Schema):
 
 
 class RegistroFacturasEmitidas(RegistroFacturas):
-    # Cabecera = fields.Nested(Cabecera(prefix='sii:'), required=True)
     RegistroLRFacturasEmitidas = fields.Nested(FacturaEmitida, required=True)
     # TODO lista_facturas = fields.List(fields.Nested(Factura, dump_to='Factura'), validate=validate.Length(max=10000, error='No puede haber más de 10000 facturas'))
 
