@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from sii.resource import SII
-import sii
+from sii import __SII_VERSION__
 from expects import *
 
 
@@ -51,7 +51,7 @@ class Invoice():
 
 with description("El XML Generado"):
     with before.all:
-        self.period = Period(name='03/2016')
+        period = Period(name='03/2016')
         tax_ibi = Tax(amount=0.15)
         tax_iva = Tax(amount=0.21)
         tax_line = [
@@ -62,9 +62,9 @@ with description("El XML Generado"):
                 name='IBI 15%', base=1000, tax_amount=150, tax_id=tax_ibi
             )
         ]
-        self.partner_invoice = Partner(name='Francisco García', nif='12345678T')
-        self.partner_company = Partner(name='Compañía Eléctrica S.A.', nif='55555555T')
-        self.company = Company(partner_id=self.partner_company)
+        partner_invoice = Partner(name='Francisco García', nif='12345678T')
+        partner_company = Partner(name='Compañía Eléctrica S.A.', nif='55555555T')
+        company = Company(partner_id=partner_company)
 
         invoice_number = 'F012345'
         date_invoice = '2016-03-25'
@@ -73,10 +73,10 @@ with description("El XML Generado"):
             type='out_invoice',
             description='Factura emitida',
             number=invoice_number,
-            partner_id=self.partner_invoice,
-            company_id=self.company,
+            partner_id=partner_invoice,
+            company_id=company,
             amount_total=amount_total,
-            period_id=self.period,
+            period_id=period,
             date_invoice=date_invoice,
             tax_line=tax_line,
         )
@@ -85,10 +85,10 @@ with description("El XML Generado"):
             type='in_invoice',
             description='Factura recibida',
             number=invoice_number,
-            partner_id=self.partner_invoice,
-            company_id=self.company,
+            partner_id=partner_invoice,
+            company_id=company,
             amount_total=amount_total,
-            period_id=self.period,
+            period_id=period,
             date_invoice=date_invoice,
             tax_line=tax_line,
         )
@@ -97,10 +97,10 @@ with description("El XML Generado"):
             type='out_refund',
             description='Factura rectificativa emitida',
             number=invoice_number,
-            partner_id=self.partner_invoice,
-            company_id=self.company,
+            partner_id=partner_invoice,
+            company_id=company,
             amount_total=amount_total,
-            period_id=self.period,
+            period_id=period,
             date_invoice=date_invoice,
             tax_line=tax_line,
         )
@@ -109,17 +109,17 @@ with description("El XML Generado"):
             type='in_refund',
             description='Factura rectificativa recibida',
             number=invoice_number,
-            partner_id=self.partner_invoice,
-            company_id=self.company,
+            partner_id=partner_invoice,
+            company_id=company,
             amount_total=amount_total,
-            period_id=self.period,
+            period_id=period,
             date_invoice=date_invoice,
             tax_line=tax_line,
         )
 
         # TODO delete print object
         print '\n'
-        print '========= FACTURA EJEMPLO ================'
+        print '========= FACTURA EMITIDA EJEMPLO ========'
         from pprintpp import pprint
         pprint(vars(self.out_invoice))
         print '=========================================='
@@ -138,7 +138,7 @@ with description("El XML Generado"):
 
     with description("en la cabecera"):
         with it("la versión es la versión del SII"):
-            expect(self.cabecera['IDVersionSii']).to(equal(sii.__SII_VERSION__))
+            expect(self.cabecera['IDVersionSii']).to(equal(__SII_VERSION__))
         with context("cuando es de tipo alta"):
             with it("el tipo de comunicación debe ser 'A0'"):
                 expect(self.cabecera['TipoComunicacion']).to(equal('A0'))
@@ -147,11 +147,11 @@ with description("El XML Generado"):
         with it("el ejercicio es el correspondiente al año de la factura"):
             expect(
                 self.factura_emitida['PeriodoImpositivo']['Ejercicio']
-            ).to(equal(self.period.name[3:7]))
+            ).to(equal(self.out_invoice.period_id.name[3:7]))
         with it("el período es el correspondiente al mes de la factura"):
             expect(
                 self.factura_emitida['PeriodoImpositivo']['Periodo']
-            ).to(equal(self.period.name[0:2]))
+            ).to(equal(self.out_invoice.period_id.name[0:2]))
 
     with _description("en los datos de la identificación de la factura"):
         with it("el NIF de la factura es el NIF del emisor"):
