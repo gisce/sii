@@ -32,7 +32,7 @@ class EmisorFactura(Schema):
     NIF = fields.String(required=True, validate=validate.Length(max=9))
 
 
-class DetalleFactura(Schema):
+class IdentificacionFactura(Schema):
     IDEmisorFactura = fields.Nested(EmisorFactura, required=True)
     NumSerieFacturaEmisor = fields.String(required=True)
     FechaExpedicionFacturaEmisor = fields.String(required=True)
@@ -41,7 +41,7 @@ class DetalleFactura(Schema):
 class Factura(Schema):
     # Campos comunes de una factura
     PeriodoImpositivo = fields.Nested(PeriodoImpositivo, required=True)
-    IDFactura = fields.Nested(DetalleFactura, required=True)
+    IDFactura = fields.Nested(IdentificacionFactura, required=True)
 
 
 class Exenta(Schema):
