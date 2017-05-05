@@ -1,6 +1,5 @@
 # coding=utf-8
 from sii import models, __SII_VERSION__
-from datetime import datetime
 
 
 def get_iva_values(tax_line):
@@ -138,9 +137,7 @@ def get_factura_emitida_dict(invoice, rectificativa=False):
                         'NIF': invoice.company_id.partner_id.vat
                     },
                     'NumSerieFacturaEmisor': invoice.number,
-                    'FechaExpedicionFacturaEmisor': datetime.strptime(
-                        invoice.date_invoice, '%Y-%m-%d'
-                    ).strftime('%d-%m-%Y')
+                    'FechaExpedicionFacturaEmisor': invoice.date_invoice
                 },
                 'FacturaExpedida': get_factura_emitida(invoice)
             }
@@ -169,9 +166,7 @@ def get_factura_recibida_dict(invoice, rectificativa=False):
                         'NIF': invoice.partner_id.vat
                     },
                     'NumSerieFacturaEmisor': invoice.number,
-                    'FechaExpedicionFacturaEmisor': datetime.strptime(
-                        invoice.date_invoice, '%Y-%m-%d'
-                    ).strftime('%d-%m-%Y')
+                    'FechaExpedicionFacturaEmisor': invoice.date_invoice
                 },
                 'FacturaRecibida': get_factura_recibida(invoice)
             }
