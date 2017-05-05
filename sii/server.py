@@ -1,39 +1,58 @@
 # -*- coding: UTF-8 -*-
 
 from sii.resource import SII
-from requests import Session
+
 from zeep import Client
+from requests import Session
+from zeep.cache import SqliteCache
 from zeep.transports import Transport
 from zeep.plugins import HistoryPlugin
 
+from dicttoxml import dicttoxml
 from lxml import etree, objectify
 
-with open('/home/miquel/codi/sii/sii/xml_examples/ejemplo_xml_alta_factura_emitida.xml', 'r') as myfile:
-    xml_read = myfile.read().replace('\n', '')
-    # from pprintpp import pprint
-    # pprint(xml_da)
+wsdl_files = {'emitted_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_06/SuministroFactEmitidas.wsdl',
+              'received_invoice': '',
+              }
 
-# def get_xsd_path(self):
-#     return "{}/giscedata_switching_cnmc_reports/xml/{}".format(
-#         config['addons_path'], self.xsd_file
-#     )
 
-xmlschema = etree.XMLSchema(file='/home/miquel/codi/sii/sii/data/SuministroLR.xsd')
+def get_dict_data(invoice):
+    return SII.generate_object(invoice)
 
-parser = objectify.makeparser(schema=xmlschema)
-a = objectify.fromstring(xml_read, parser)
 
-wsdl_out_invoice = 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_06/SuministroFactEmitidas.wsdl'
+class ServiceSII():
 
-session = Session()
+    @staticmethod
+    def send_emitted_invoice(invoice):
+        dict_from_marsh = get_dict_data(invoice=invoice)
+        header = dict_from_marsh['SuministroLRFacturasEmitidas']['Cabecera']
+        invoices = dict_from_marsh['SuministroLRFacturasEmitidas'][
+            'RegistroLRFacturasEmitidas']
+        xml_from_dict = dicttoxml(dict_from_marsh, root=False, attr_type=False)
+        from pprintpp import pprint
+        print '=========================================='
+        pprint(header)
+        print '=========================================='
+        pprint(invoices)
+        print '=========================================='
+        # session = Session()
+        # transport = Transport(session=session, cache=SqliteCache())
+        # history = HistoryPlugin()
+        # client = Client(wsdl=wsdl_out_invoice, transport=transport,
+        #                 plugins=[history])
+
+ServiceSII()
+# session = Session()
 # session.cert = (publicCrt, privateKey)
-transport = Transport(session=session)
-history = HistoryPlugin()
+# Cache es guarda el fitxer wsdl i els xsd en memoria durant un temps per
+# millorar el rendiment
+# transport = Transport(session=session, cache=SqliteCache())
+# history = HistoryPlugin()
 # client = Client(wsdl=wsdl_out_invoice, transport=transport, plugins=[history])
-client = Client(wsdl=wsdl_out_invoice, transport=transport)
+# client = Client(wsdl=wsdl_out_invoice, transport=transport, plugins=[history])
+# port_name = 'SuministroFactEmitidasPruebas'
+# serv = client.bind('siiService', port_name)
+# res = serv.SuministroLRFacturasEmitidas(header, invoices)
 
-port_name = 'SuministroFactEmitidasPruebas'
-serv = client.bind('siiService', port_name)
-
-res = serv.SuministroLRFacturasEmitidas(header, invoices)
-
+# print(history.last_sent)
+# print(history.last_received)
