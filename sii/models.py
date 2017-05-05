@@ -59,15 +59,10 @@ class DesgloseIVA(Schema):
 
 
 class NoExenta(Schema):
-    TipoNoExenta = fields.String(required=True)
+    TipoNoExenta = fields.String(
+        required=True, validate=validate.OneOf(TIPO_NO_EXENTA_VALUES)
+    )
     DesgloseIVA = fields.Nested(DesgloseIVA, required=True)
-
-    @validates('TipoNoExenta')
-    def validate_tipo_no_exenta(self, value):
-        if value not in TIPO_NO_EXENTA_VALUES:
-            raise ValidationError(
-                'El TipoNoExenta es incorrecto: {}'.format(value)
-            )
 
 
 class ExentaAIVA(Schema):  # TODO obligatorio uno de los dos
