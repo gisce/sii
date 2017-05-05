@@ -1,6 +1,7 @@
 # coding=utf-8
 
-from marshmallow import Schema, fields, validate, validates, ValidationError
+from marshmallow import Schema, fields
+from marshmallow import validate, validates_schema, ValidationError
 from sii import __SII_VERSION__
 
 PERIODO_VALUES = [
@@ -12,7 +13,15 @@ TIPO_NO_EXENTA_VALUES = ['S1', 'S2']
 TIPO_RECTIFICATIVA_VALUES = ['S', 'I']
 
 
-class NIF(Schema):
+class MySchema(Schema):
+    @validates_schema(pass_original=True)
+    def check_unknown_fields(self, data, original_data):
+        unknown = list(set(original_data) - set(self.fields))
+        if unknown:
+            raise ValidationError('Unknown field', unknown)
+
+
+class NIF(MySchema):
     NIF = fields.String(
         required=True, validate=validate.Length(max=9)
     )  # TODO validate if it belongs to a NIF ??
@@ -22,7 +31,7 @@ class Titular(NIF):
     NombreRazon = fields.String(required=True, validate=validate.Length(max=40))
 
 
-class Cabecera(Schema):
+class Cabecera(MySchema):
     IDVersionSii = fields.String(required=True, default=__SII_VERSION__)
     Titular = fields.Nested(Titular, required=True)
     TipoComunicacion = fields.String(
@@ -30,7 +39,7 @@ class Cabecera(Schema):
     )
 
 
-class PeriodoImpositivo(Schema):
+class PeriodoImpositivo(MySchema):
     Ejercicio = fields.String(required=True, validate=validate.Length(max=4))  # TODO validate Año en formato 'YYYY'
     Periodo = fields.String(
         required=True, validate=validate.OneOf(PERIODO_VALUES)
@@ -41,7 +50,7 @@ class EmisorFactura(NIF):
     pass
 
 
-class IdentificacionFactura(Schema):
+class IdentificacionFactura(MySchema):
     IDEmisorFactura = fields.Nested(EmisorFactura, required=True)
     NumSerieFacturaEmisor = fields.String(
         required=True, validate=validate.Length(max=60)
@@ -49,13 +58,13 @@ class IdentificacionFactura(Schema):
     FechaExpedicionFacturaEmisor = fields.String(required=True)  # TODO fecha en formato DD-MM-AAAA
 
 
-class Factura(Schema):
+class Factura(MySchema):
     # Campos comunes de una factura
     PeriodoImpositivo = fields.Nested(PeriodoImpositivo, required=True)
     IDFactura = fields.Nested(IdentificacionFactura, required=True)
 
 
-class BaseImponible(Schema):
+class BaseImponible(MySchema):
     BaseImponible = fields.Float(required=True)
 
 
@@ -68,11 +77,11 @@ class DetalleIVAEmitida(BaseImponible):
     CuotaRepercutida = fields.Float(required=True)
 
 
-class DesgloseIVA(Schema):
+class DesgloseIVA(MySchema):
     DetalleIVA = fields.Nested(DetalleIVAEmitida, required=True)
 
 
-class NoExenta(Schema):
+class NoExenta(MySchema):
     TipoNoExenta = fields.String(
         required=True, validate=[
             validate.OneOf(TIPO_NO_EXENTA_VALUES), validate.Length(max=2)
@@ -81,22 +90,22 @@ class NoExenta(Schema):
     DesgloseIVA = fields.Nested(DesgloseIVA, required=True)
 
 
-class ExentaAIVA(Schema):  # TODO obligatorio uno de los dos
+class ExentaAIVA(MySchema):  # TODO obligatorio uno de los dos
     Exenta = fields.Nested(Exenta)
     NoExenta = fields.Nested(NoExenta)
 
 
-class DesgloseFacturaEmitida(Schema):  # TODO obligatorio uno de los dos
+class DesgloseFacturaEmitida(MySchema):  # TODO obligatorio uno de los dos
     Sujeta = fields.Nested(ExentaAIVA)
     NoSujeta = fields.String()  # TODO
 
 
-class DesgloseTipoOperacion(Schema):  # TODO obligatorio uno de los dos
+class DesgloseTipoOperacion(MySchema):  # TODO obligatorio uno de los dos
     PrestacionServicios = fields.Nested(DesgloseFacturaEmitida)
     Entrega = fields.Nested(DesgloseFacturaEmitida)
 
 
-class TipoDesglose(Schema):  # TODO obligatorio uno de los dos
+class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos
     DesgloseFactura = fields.Nested(DesgloseFacturaEmitida)
     DesgloseTipoOperacion = fields.Nested(DesgloseTipoOperacion)
 
@@ -105,12 +114,12 @@ class Contraparte(Titular):
     pass
 
 
-class ImporteRectificacion(Schema):
+class ImporteRectificacion(MySchema):
     BaseRectificada = fields.Float(required=True)
     CuotaRectificada = fields.Float(required=True)
 
 
-class DetalleFactura(Schema):
+class DetalleFactura(MySchema):
     TipoFactura = fields.String(required=True, validate=validate.Length(max=2))
     ClaveRegimenEspecialOTrascendencia = fields.String(
         required=True, validate=validate.Length(max=2)
@@ -135,7 +144,7 @@ class FacturaEmitida(Factura):
     FacturaExpedida = fields.Nested(DetalleFacturaEmitida, required=True)
 
 
-class RegistroFacturas(Schema):
+class RegistroFacturas(MySchema):
     Cabecera = fields.Nested(Cabecera, required=True)
 
 
@@ -144,7 +153,7 @@ class RegistroFacturasEmitidas(RegistroFacturas):
     # TODO lista_facturas = fields.List(fields.Nested(Factura, dump_to='Factura'), validate=validate.Length(max=10000, error='No puede haber más de 10000 facturas'))
 
 
-class SuministroFacturasEmitidas(Schema):
+class SuministroFacturasEmitidas(MySchema):
     SuministroLRFacturasEmitidas = fields.Nested(
         RegistroFacturasEmitidas, required=True
     )
@@ -154,7 +163,7 @@ class DetalleIVADesglose(BaseImponible):
     pass
 
 
-class DesgloseIVARecibida(Schema):
+class DesgloseIVARecibida(MySchema):
     DetalleIVA = fields.Nested(DetalleIVADesglose, required=True)
 
 
@@ -162,7 +171,7 @@ class DetalleIVAInversionSujetoPasivo(DesgloseIVA):
     pass
 
 
-class DesgloseFacturaRecibida(Schema):  # TODO obligatorio uno de los dos
+class DesgloseFacturaRecibida(MySchema):  # TODO obligatorio uno de los dos
     InversionSujetoPasivo = fields.Nested(DetalleIVAInversionSujetoPasivo)
     DesgloseIVA = fields.Nested(DesgloseIVARecibida)
 
@@ -183,7 +192,7 @@ class RegistroFacturasRecibidas(RegistroFacturas):
     RegistroLRFacturasRecibidas = fields.Nested(FacturaRecibida, required=True)
 
 
-class SuministroFacturasRecibidas(Schema):
+class SuministroFacturasRecibidas(MySchema):
     SuministroLRFacturasRecibidas = fields.Nested(
         RegistroFacturasRecibidas, required=True
     )
