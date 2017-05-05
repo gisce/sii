@@ -29,7 +29,7 @@ class PeriodoImpositivo(Schema):
 
 
 class EmisorFactura(Schema):
-    NIF = fields.String(required=True)
+    NIF = fields.String(required=True, validate=validate.Length(max=9))
 
 
 class DetalleFactura(Schema):
