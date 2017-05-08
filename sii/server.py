@@ -41,21 +41,20 @@ class ServiceSII(object):
     @staticmethod
     def _get_msg(invoice):
         dict_from_marsh = get_dict_data(invoice=invoice)
-        header = dict_from_marsh['SuministroLRFacturasEmitidas']['Cabecera']
-        invoices = dict_from_marsh['SuministroLRFacturasEmitidas'][
+        res_header = dict_from_marsh['SuministroLRFacturasEmitidas']['Cabecera']
+        res_invoices = dict_from_marsh['SuministroLRFacturasEmitidas'][
             'RegistroLRFacturasEmitidas']
         xml_from_dict = dicttoxml(dict_from_marsh, root=False, attr_type=False)
         from pprintpp import pprint
         print '=========================================='
-        pprint(header)
+        pprint(res_header)
         print '=========================================='
-        pprint(invoices)
+        pprint(res_invoices)
         print '=========================================='
-        # session = Session()
-        # transport = Transport(session=session, cache=SqliteCache())
-        # history = HistoryPlugin()
-        # client = Client(wsdl=wsdl_out_invoice, transport=transport,
-        #                 plugins=[history])
+        return res_header, res_invoices
+
+
+
 
 ServiceSII()
 # session = Session()
