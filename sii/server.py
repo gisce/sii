@@ -70,17 +70,10 @@ class ServiceSII(object):
 
 
 ServiceSII()
-# session = Session()
-# session.cert = (publicCrt, privateKey)
+
 # Cache es guarda el fitxer wsdl i els xsd en memoria durant un temps per
 # millorar el rendiment
-# transport = Transport(session=session, cache=SqliteCache())
-# history = HistoryPlugin()
-# client = Client(wsdl=wsdl_out_invoice, transport=transport, plugins=[history])
-# client = Client(wsdl=wsdl_out_invoice, transport=transport, plugins=[history])
-# port_name = 'SuministroFactEmitidasPruebas'
-# serv = client.bind('siiService', port_name)
-# res = serv.SuministroLRFacturasEmitidas(header, invoices)
+
 
 # print(history.last_sent)
 # print(history.last_received)
