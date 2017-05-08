@@ -53,7 +53,20 @@ class ServiceSII(object):
         print '=========================================='
         return res_header, res_invoices
 
+    def send_emitted_invoice(self, invoice):
+        if invoice.type == 'out_invoice' or invoice.type == 'out_refund':
+            wsdl = wsdl_files['emited_invoice']
+            client = self._connect_sii(wsdl, 'a', 'b')
+            port_name = 'SuministroFactEmitidas'
+            port_name += 'Pruebas'
+        elif invoice.type == 'in_invoice' or invoice.type == 'in_refund':
+            wsdl = wsdl_files['received_invoice']
+            client = self._connect_sii(wsdl, 'a', 'b')
+            port_name = 'SuministroFactRecibidas'
+            port_name += 'Pruebas'
+        serv = client.bind('siiService', port_name)
 
+        header, invoice = self._get_msg(invoice)
 
 
 ServiceSII()
