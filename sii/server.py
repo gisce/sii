@@ -22,10 +22,24 @@ def get_dict_data(invoice):
     return SII.generate_object(invoice)
 
 
-class ServiceSII():
+class ServiceSII(object):
 
     @staticmethod
-    def send_emitted_invoice(invoice):
+    def _connect_sii(wsdl, publicCrt, privateKey):
+
+        public_crt = publicCrt
+        priv_key = privateKey
+
+        session = Session()
+        session.cert = (public_crt, priv_key)
+        transport = Transport(session=session)
+
+        history = HistoryPlugin()
+        client = Client(wsdl=wsdl, transport=transport, plugins=[history])
+        return client
+
+    @staticmethod
+    def _get_msg(invoice):
         dict_from_marsh = get_dict_data(invoice=invoice)
         header = dict_from_marsh['SuministroLRFacturasEmitidas']['Cabecera']
         invoices = dict_from_marsh['SuministroLRFacturasEmitidas'][
