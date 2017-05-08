@@ -24,6 +24,9 @@ def get_dict_data(invoice):
 
 class ServiceSII(object):
 
+    def __init__(self):
+        self.result = {}
+
     @staticmethod
     def _connect_sii(wsdl, publicCrt, privateKey):
 
@@ -66,8 +69,17 @@ class ServiceSII(object):
             port_name += 'Pruebas'
         serv = client.bind('siiService', port_name)
 
-        header, invoice = self._get_msg(invoice)
-
+        msg_header, msg_invoice = self._get_msg(invoice)
+        try:
+            if invoice.type == 'out_invoice' or invoice.type == 'out_refund':
+                res = serv.SuministroLRFacturasEmitidas(msg_header, msg_invoice)
+            elif invoice.type == 'in_invoice' or invoice.type == 'in_refund':
+                res = serv.SuministroLRFacturasRecibidas(msg_header, msg_invoice)
+            if res['EstadoEnvio'] == 'Correcto':
+                self.result['sii_sent'] = True
+            self.result['sii_return'] = res
+        except Exception as fault:
+            self.result['sii_return'] = fault
 
 ServiceSII()
 
