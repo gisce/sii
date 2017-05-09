@@ -90,8 +90,8 @@ class Exenta(BaseImponible):
 
 
 class DetalleIVAEmitida(BaseImponible):
-    TipoImpositivo = fields.Float(required=True)
-    CuotaRepercutida = fields.Float(required=True)
+    TipoImpositivo = fields.Float()
+    CuotaRepercutida = fields.Float()
 
 
 class DesgloseIVA(MySchema):
