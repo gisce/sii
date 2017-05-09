@@ -8,6 +8,11 @@
 		<complexContent>
 			<extension base="sii:RegistroSii">
 				<sequence>
+					<element name="IDFactura" type="sii:IDFacturaConsulta2Type" minOccurs="0"/>
+					<element name="Contraparte" type="sii:ContraparteConsultaType" minOccurs="0"/>
+					<element name="FechaPresentacion" type="sii:RangoFechaPresentacionType" minOccurs="0"/>
+					<element name="FacturaModificada" type="sii:FacturaModificadaType" minOccurs="0"/>
+					<element name="EstadoCuadre" type="sii:EstadoCuadreType" minOccurs="0"/>
 					<element name="ClavePaginacion" type="sii:IDFacturaExpedidaBCType" minOccurs="0"/>
 				</sequence>
 			</extension>
@@ -17,6 +22,10 @@
 		<complexContent>
 			<extension base="sii:RegistroSii">
 				<sequence>
+					<element name="IDFactura" type="sii:IDFacturaConsulta1Type" minOccurs="0"/>
+					<element name="FechaPresentacion" type="sii:RangoFechaPresentacionType" minOccurs="0"/>
+					<element name="FacturaModificada" type="sii:FacturaModificadaType" minOccurs="0"/>
+					<element name="EstadoCuadre" type="sii:EstadoCuadreType" minOccurs="0"/>
 					<element name="ClavePaginacion" type="sii:IDFacturaRecibidaNombreBCType" minOccurs="0"/>
 				</sequence>
 			</extension>
@@ -26,7 +35,11 @@
 		<complexContent>
 			<extension base="sii:RegistroSii">
 				<sequence>
-					<element name="ClavePaginacion" type="sii:IDFacturaComunitariaType" minOccurs="0"/>
+					<element name="IDFactura" type="sii:IDFacturaConsulta1Type" minOccurs="0"/>
+					<element name="FechaPresentacion" type="sii:RangoFechaPresentacionType" minOccurs="0"/>
+					<element name="FacturaModificada" type="sii:FacturaModificadaType" minOccurs="0"/>
+					<element name="IdentificacionBien" type="sii:TextMax40Type" minOccurs="0"/>
+					<element name="ClavePaginacion" type="sii:ClavePaginacionBienType" minOccurs="0"/>
 				</sequence>
 			</extension>
 		</complexContent>
@@ -35,6 +48,9 @@
 		<complexContent>
 			<extension base="sii:RegistroSii">
 				<sequence>
+					<element name="IDFactura" type="sii:IDFacturaConsulta1Type" minOccurs="0"/>
+					<element name="FechaPresentacion" type="sii:RangoFechaPresentacionType" minOccurs="0"/>
+					<element name="FacturaModificada" type="sii:FacturaModificadaType" minOccurs="0"/>
 					<element name="ClavePaginacion" type="sii:IDFacturaComunitariaType" minOccurs="0"/>
 				</sequence>
 			</extension>
@@ -44,6 +60,10 @@
 		<complexContent>
 			<extension base="sii:RegistroSii">
 				<sequence>
+					<element name="Contraparte" type="sii:ContraparteConsultaType" minOccurs="0"/>
+					<element name="ClaveOperacion" type="sii:ClaveOperacionType" minOccurs="0"/>
+					<element name="FechaPresentacion" type="sii:RangoFechaPresentacionType" minOccurs="0"/>
+					<element name="OperacionModificada" type="sii:FacturaModificadaType" minOccurs="0"/>
 					<element name="ClavePaginacion" minOccurs="0">
 						<complexType>
 							<sequence>
@@ -60,6 +80,27 @@
 		<complexContent>
 			<extension base="sii:RegistroSii">
 				<sequence>
+					<element name="Contraparte" type="sii:ContraparteConsultaType" minOccurs="0"/>
+					<element name="FechaPresentacion" type="sii:RangoFechaPresentacionType" minOccurs="0"/>
+					<element name="CobroModificado" type="sii:FacturaModificadaType" minOccurs="0"/>
+					<element name="ClavePaginacion" minOccurs="0">
+						<complexType>
+							<sequence>
+								<element name="Contraparte" type="sii:PersonaFisicaJuridicaType"/>
+							</sequence>
+						</complexType>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="LRFiltroAgenciasViajesType">
+		<complexContent>
+			<extension base="sii:RegistroSii">
+				<sequence>
+					<element name="Contraparte" type="sii:ContraparteConsultaType" minOccurs="0"/>
+					<element name="FechaPresentacion" type="sii:RangoFechaPresentacionType" minOccurs="0"/>
+					<element name="RegistroModificado" type="sii:FacturaModificadaType" minOccurs="0"/>
 					<element name="ClavePaginacion" minOccurs="0">
 						<complexType>
 							<sequence>
@@ -128,6 +169,15 @@
 			</extension>
 		</complexContent>
 	</complexType>
+	<complexType name="LRConsultaAgenciasViajesType">
+		<complexContent>
+			<extension base="sii:ConsultaInformacion">
+				<sequence>
+					<element name="FiltroConsulta" type="siiLRC:LRFiltroAgenciasViajesType"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
 	<complexType name="LRConsultaLROperacionesSegurosType">
 		<complexContent>
 			<extension base="sii:ConsultaInformacion">
@@ -176,6 +226,11 @@
 		</annotation>
 	</element>
 	<element name="ConsultaLRCobrosMetalico" type="siiLRC:LRConsultaCobrosMetalicoType">
+		<annotation>
+			<documentation>Servicio de consulta en el libro de registro de Cobros en Metálico</documentation>
+		</annotation>
+	</element>
+	<element name="ConsultaLRAgenciasViajes" type="siiLRC:LRConsultaAgenciasViajesType">
 		<annotation>
 			<documentation>Servicio de consulta en el libro de registro de Cobros en Metálico</documentation>
 		</annotation>

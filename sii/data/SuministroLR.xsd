@@ -164,6 +164,66 @@
 			<extension base="sii:RegistroSii">
 				<sequence>
 					<element name="IDFactura" type="sii:IDFacturaComunitariaType"/>
+					<element name="IdentificacionBien" type="sii:TextMax40Type"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- Datos correspondientes a cobros en metálico.
+    -->
+	<element name="SuministroLRAgenciasViajes">
+		<complexType>
+			<complexContent>
+				<extension base="sii:SuministroInformacion">
+					<sequence>
+						<element name="RegistroLRAgenciasViajes" type="siiLR:LRAgenciasViajesType" maxOccurs="10000"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<!-- Datos de Importes Agencias de viajes.  -->
+	<complexType name="LRAgenciasViajesType">
+		<annotation>
+			<documentation xml:lang="es"> Apunte correspondiente a importes agencias viajes. </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="sii:RegistroSii">
+				<sequence>
+					<element name="Contraparte" type="sii:PersonaFisicaJuridicaType">
+						<annotation>
+							<documentation xml:lang="es"> Contraparte de la operación. Cliente en facturas emitidas. Proveedor en facturas recibidas. </documentation>
+						</annotation>
+					</element>
+					<element name="ImporteTotal" type="sii:ImporteSgn12.2Type"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="BajaLRAgenciasViajes">
+		<complexType>
+			<complexContent>
+				<extension base="sii:SuministroInformacionBaja">
+					<sequence>
+						<element name="RegistroLRBajaAgenciasViajes" type="siiLR:LRBajaAgenciasViajesType" maxOccurs="10000"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<!-- Datos de importes recibidos en metalico.  -->
+	<complexType name="LRBajaAgenciasViajesType">
+		<annotation>
+			<documentation xml:lang="es"> Apunte correspondiente importes agencias viajes. </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="sii:RegistroSii">
+				<sequence>
+					<element name="Contraparte" type="sii:PersonaFisicaJuridicaType">
+						<annotation>
+							<documentation xml:lang="es"> Contraparte de la operación. Cliente en facturas emitidas. Proveedor en facturas recibidas. </documentation>
+						</annotation>
+					</element>
 				</sequence>
 			</extension>
 		</complexContent>
@@ -175,7 +235,7 @@
 			<complexContent>
 				<extension base="sii:SuministroInformacion">
 					<sequence>
-						<element name="RegistroLRCobrosMetalico" type="siiLR:LRCobrosMetalicoType" maxOccurs="10000"/>
+						<element name="RegistroLRBajaCobrosMetalico" type="siiLR:LRCobrosMetalicoType" maxOccurs="10000"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -213,7 +273,7 @@
 	<!-- Datos de importes recibidos en metalico.  -->
 	<complexType name="LRBajaCobrosMetalicoType">
 		<annotation>
-			<documentation xml:lang="es"> Apunte correspondiente al libro de importes recibidos en metalico. </documentation>
+			<documentation xml:lang="es"> Apunte correspondiente a importes recibidos en metalico. </documentation>
 		</annotation>
 		<complexContent>
 			<extension base="sii:RegistroSii">
@@ -264,7 +324,7 @@
 			<complexContent>
 				<extension base="sii:SuministroInformacionBaja">
 					<sequence>
-						<element name="RegistroLROperacionesSeguros" type="siiLR:LRBajaRegistroLROperacionesSegurosType" maxOccurs="10000"/>
+						<element name="RegistroLRBajaOperacionesSeguros" type="siiLR:LRBajaRegistroLROperacionesSegurosType" maxOccurs="10000"/>
 					</sequence>
 				</extension>
 			</complexContent>
