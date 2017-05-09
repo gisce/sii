@@ -43,7 +43,7 @@ class NIF(MySchema):
 
 
 class Titular(NIF):
-    NombreRazon = fields.String(required=True, validate=validate.Length(max=40))
+    NombreRazon = fields.String(required=True, validate=validate.Length(max=120))
 
 
 class Cabecera(MySchema):
