@@ -1,6 +1,5 @@
 # coding=utf-8
 from sii import models, __SII_VERSION__
-from datetime import datetime
 
 
 def get_iva_values(tax_line):
@@ -27,7 +26,7 @@ def get_factura_emitida(invoice):
             'DesgloseFactura': {
                 'Sujeta': {
                     'NoExenta': {  # TODO Exenta o no exenta??
-                        'TipoNoExenta': 'S1',  # TODO to change
+                        'TipoNoExenta': 'S1',
                         'DesgloseIVA': {
                             'DetalleIVA': {
                                 'TipoImpositivo': vals['tipo_impositivo'],
@@ -51,9 +50,9 @@ def get_factura_emitida(invoice):
         'ClaveRegimenEspecialOTrascendencia': '01',  # TODO
         'ImporteTotal': invoice.amount_total,
         'DescripcionOperacion': invoice.name,
-        'Contraparte': {  # TODO
-            'NombreRazon': '',
-            'NIF': ''
+        'Contraparte': {
+            'NombreRazon': invoice.partner_id.name,
+            'NIF': invoice.partner_id.vat
         },
         'TipoDesglose': tipo_desglose
     }
@@ -88,11 +87,11 @@ def get_factura_recibida(invoice):
         'ImporteTotal': invoice.amount_total,
         'DescripcionOperacion': invoice.name,
         'Contraparte': {
-            'NombreRazon': '',
-            'NIF': ''
+            'NombreRazon': invoice.partner_id.name,
+            'NIF': invoice.partner_id.vat
         },
         'DesgloseFactura': tipo_desglose,
-        'CuotaDeducible': '0',  # TODO to change
+        'CuotaDeducible': vals['cuota_repercutida'],
         'FechaRegContable': ''  # TODO to change
     }
 
@@ -103,8 +102,8 @@ def get_header(invoice):
     cabecera = {
         'IDVersionSii': __SII_VERSION__,
         'Titular': {
-            'NombreRazon': invoice.partner_id.name,
-            'NIF': invoice.partner_id.vat
+            'NombreRazon': invoice.company_id.partner_id.name,
+            'NIF': invoice.company_id.partner_id.vat
         },
         'TipoComunicacion': 'A0'
     }
@@ -114,7 +113,7 @@ def get_header(invoice):
 
 def get_factura_rectificativa_fields():
     rectificativa_fields = {
-        'TipoRectificativa': 'S',  # Por sustitución,
+        'TipoRectificativa': 'S',  # Por sustitución
         'ImporteRectificacion': {
             'BaseRectificada': 0,
             'CuotaRectificada': 0
@@ -135,12 +134,10 @@ def get_factura_emitida_dict(invoice, rectificativa=False):
                 },
                 'IDFactura': {
                     'IDEmisorFactura': {
-                        'NIF': ''
+                        'NIF': invoice.company_id.partner_id.vat
                     },
                     'NumSerieFacturaEmisor': invoice.number,
-                    'FechaExpedicionFacturaEmisor': datetime.strptime(
-                        invoice.date_invoice, '%Y-%m-%d'
-                    ).strftime('%d-%m-%Y')
+                    'FechaExpedicionFacturaEmisor': invoice.date_invoice
                 },
                 'FacturaExpedida': get_factura_emitida(invoice)
             }
@@ -166,12 +163,10 @@ def get_factura_recibida_dict(invoice, rectificativa=False):
                 },
                 'IDFactura': {
                     'IDEmisorFactura': {
-                        'NIF': ''
+                        'NIF': invoice.partner_id.vat
                     },
                     'NumSerieFacturaEmisor': invoice.number,
-                    'FechaExpedicionFacturaEmisor': datetime.strptime(
-                        invoice.date_invoice, '%Y-%m-%d'
-                    ).strftime('%d-%m-%Y')
+                    'FechaExpedicionFacturaEmisor': invoice.date_invoice
                 },
                 'FacturaRecibida': get_factura_recibida(invoice)
             }
