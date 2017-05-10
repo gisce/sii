@@ -35,7 +35,6 @@ class Invoice():
 
 with description("The webservice steps: "):
     with before.all:
-        print 'Generando obj'
         period = Period(name='03/2016')
         tax_line = [
             InvoiceLineTaxes('IVA 21%', base_imponible=12.34),
@@ -101,4 +100,7 @@ with description("The webservice steps: "):
 
     with description("1. generate the dictionary"):
         with it(" from an invoice object"):
-            pass
+
+            s = ServiceSII()
+            head, body = s.get_msg(invoice=self.invoice)
+

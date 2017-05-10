@@ -28,7 +28,7 @@ class ServiceSII(object):
         self.result = {}
 
     @staticmethod
-    def _connect_sii(wsdl, publicCrt, privateKey):
+    def connect_sii(wsdl, publicCrt, privateKey):
 
         public_crt = publicCrt
         priv_key = privateKey
@@ -42,16 +42,16 @@ class ServiceSII(object):
         return client
 
     @staticmethod
-    def _get_msg(invoice):
+    def get_msg(invoice):
         dict_from_marsh = get_dict_data(invoice=invoice)
         res_header = dict_from_marsh['SuministroLRFacturasEmitidas']['Cabecera']
         res_invoices = dict_from_marsh['SuministroLRFacturasEmitidas'][
             'RegistroLRFacturasEmitidas']
         xml_from_dict = dicttoxml(dict_from_marsh, root=False, attr_type=False)
         from pprintpp import pprint
-        print '=========================================='
+        print '=================HEADER==================='
         pprint(res_header)
-        print '=========================================='
+        print '==================BODY===================='
         pprint(res_invoices)
         print '=========================================='
         return res_header, res_invoices
