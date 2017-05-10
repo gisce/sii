@@ -11,5 +11,7 @@ script:
 #- mamba --enable-coverage
 - mamba --format documentation tests/test_object_serialization.py
 after_success:
-- coveralls
-- coverage report
+  - coveralls
+  - coverage report
+notifications:
+  email: false
