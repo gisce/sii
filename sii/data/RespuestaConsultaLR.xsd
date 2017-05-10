@@ -29,6 +29,11 @@
 			<documentation>Servicio de consulta de Cobros en Metálico</documentation>
 		</annotation>
 	</element>
+	<element name="RespuestaConsultaLRAgenciasViajes" type="siiLRRC:RespuestaConsultaLRAgenciasViajesType">
+		<annotation>
+			<documentation>Servicio de consulta de Agencias Viajes</documentation>
+		</annotation>
+	</element>
 	<element name="RespuestaConsultaLROperacionesSeguros" type="siiLRRC:RespuestaConsultaLROperacionesSegurosType">
 		<annotation>
 			<documentation>Servicio de consulta de OperacionesSeguros</documentation>
@@ -89,6 +94,15 @@
 			</extension>
 		</complexContent>
 	</complexType>
+	<complexType name="RespuestaConsultaLRAgenciasViajesType">
+		<complexContent>
+			<extension base="siiLRRC:RespuestaConsultaLRFacturasType">
+				<sequence>
+					<element name="RegistroRespuestaConsultaLRAgenciasViajes" type="siiLRRC:RegistroRespuestaConsultaAgenciasViajesType" minOccurs="0" maxOccurs="10000"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
 	<complexType name="RespuestaConsultaLROperacionesSegurosType">
 		<complexContent>
 			<extension base="siiLRRC:RespuestaConsultaLRFacturasType">
@@ -142,8 +156,51 @@
 	</complexType>
 	<complexType name="EstadoFacturaType">
 		<sequence>
+			<element name="EstadoCuadre" type="sii:EstadoCuadreType" minOccurs="0"/>
+			<element name="TimestampEstadoCuadre" type="sii:Timestamp" minOccurs="0"/>
 			<element name="TimestampUltimaModificacion" type="sii:Timestamp"/>
-			<element name="EstadoRegistro" type="sii:TextMax40Type"/>
+			<element name="EstadoRegistro" type="siiLRRC:EstadoRegistroSIIType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro almacenado en SII. Los estados posibles son: Correcta, AceptadaConErrores y Anulada
+											</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiLRRC:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="DatosDescuadreContraparteType">
+		<sequence>
+			<element name="SumBaseImponibleISP" type="sii:ImporteSgn14.2Type" minOccurs="0"/>
+			<element name="SumBaseImponible" type="sii:ImporteSgn14.2Type" minOccurs="0"/>
+			<element name="SumCuota" type="sii:ImporteSgn14.2Type" minOccurs="0"/>
+			<element name="SumCuotaRecargoEquivalencia" type="sii:ImporteSgn14.2Type" minOccurs="0"/>
+			<element name="ImporteTotal" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="EstadoFactura2Type">
+		<sequence>
+			<element name="TimestampUltimaModificacion" type="sii:Timestamp"/>
+			<element name="EstadoRegistro" type="siiLRRC:EstadoRegistroSIIType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro almacenado en SII 
+											</documentation>
+				</annotation>
+			</element>
 			<element name="CodigoErrorRegistro" type="siiLRRC:ErrorDetalleType" minOccurs="0">
 				<annotation>
 					<documentation xml:lang="es"> 
@@ -164,58 +221,67 @@
 		<sequence>
 			<element name="IDFactura" type="sii:IDFacturaExpedidaType"/>
 			<element name="DatosFacturaEmitida" type="siiLRRC:FacturaRespuestaExpedidaType"/>
-			<element name="DatosPresentacion" type="sii:DatosPresentacionType"/>
+			<element name="DatosPresentacion" type="sii:DatosPresentacion2Type"/>
 			<element name="EstadoFactura" type="siiLRRC:EstadoFacturaType"/>
+			<element name="DatosDescuadreContraparte" type="siiLRRC:DatosDescuadreContraparteType" minOccurs="0"/>
 		</sequence>
 	</complexType>
 	<complexType name="RegistroRespuestaConsultaRecibidasType">
 		<sequence>
 			<element name="IDFactura" type="sii:IDFacturaRecibidaType"/>
 			<element name="DatosFacturaRecibida" type="siiLRRC:FacturaRespuestaRecibidaType"/>
-			<element name="DatosPresentacion" type="sii:DatosPresentacionType"/>
+			<element name="DatosPresentacion" type="sii:DatosPresentacion2Type"/>
 			<element name="EstadoFactura" type="siiLRRC:EstadoFacturaType"/>
+			<element name="DatosDescuadreContraparte" type="siiLRRC:DatosDescuadreContraparteType" minOccurs="0"/>
 		</sequence>
 	</complexType>
 	<complexType name="RegistroRespuestaConsultaBienesType">
 		<sequence>
 			<element name="IDFactura" type="sii:IDFacturaComunitariaType"/>
 			<element name="DatosBienInversion" type="sii:BienDeInversionType"/>
-			<element name="DatosPresentacion" type="sii:DatosPresentacionType"/>
-			<element name="EstadoFactura" type="siiLRRC:EstadoFacturaType"/>
+			<element name="DatosPresentacion" type="sii:DatosPresentacion2Type"/>
+			<element name="EstadoFactura" type="siiLRRC:EstadoFactura2Type"/>
 		</sequence>
 	</complexType>
 	<complexType name="RegistroRespuestaConsultaDetOperIntracomunitariasType">
 		<sequence>
 			<element name="IDFactura" type="sii:IDFacturaComunitariaType"/>
 			<element name="DatosDetOperIntracomunitarias" type="siiLRRC:RespuestaDetOperIntracomunitariaType"/>
-			<element name="DatosPresentacion" type="sii:DatosPresentacionType"/>
-			<element name="EstadoFactura" type="siiLRRC:EstadoFacturaType"/>
+			<element name="DatosPresentacion" type="sii:DatosPresentacion2Type"/>
+			<element name="EstadoFactura" type="siiLRRC:EstadoFactura2Type"/>
 		</sequence>
 	</complexType>
 	<complexType name="RegistroRespuestaConsultaCobrosMetalicoType">
 		<sequence>
 			<element name="DatosCobroMetalico" type="siiLRRC:RespuestaCobrosMetalicoType"/>
-			<element name="DatosPresentacion" type="sii:DatosPresentacionType"/>
-			<element name="EstadoCobroMetalico" type="siiLRRC:EstadoFacturaType"/>
+			<element name="DatosPresentacion" type="sii:DatosPresentacion2Type"/>
+			<element name="EstadoCobroMetalico" type="siiLRRC:EstadoFactura2Type"/>
+		</sequence>
+	</complexType>
+	<complexType name="RegistroRespuestaConsultaAgenciasViajesType">
+		<sequence>
+			<element name="DatosAgenciasViajes" type="siiLRRC:RespuestaCobrosMetalicoType"/>
+			<element name="DatosPresentacion" type="sii:DatosPresentacion2Type"/>
+			<element name="EstadoAgenciasViajes" type="siiLRRC:EstadoFactura2Type"/>
 		</sequence>
 	</complexType>
 	<complexType name="RegistroRespuestaConsultaOperacionesSegurosType">
 		<sequence>
 			<element name="DatosOperacionesSeguros" type="siiLRRC:RespuestaOperacionesSegurosType"/>
-			<element name="DatosPresentacion" type="sii:DatosPresentacionType"/>
-			<element name="EstadoOperacionesSeguros" type="siiLRRC:EstadoFacturaType"/>
+			<element name="DatosPresentacion" type="sii:DatosPresentacion2Type"/>
+			<element name="EstadoOperacionesSeguros" type="siiLRRC:EstadoFactura2Type"/>
 		</sequence>
 	</complexType>
 	<complexType name="RegistroRespuestaConsultaCobrosType">
 		<sequence>
 			<element name="DatosCobro" type="sii:DatosPagoCobroType"/>
-			<element name="DatosPresentacion" type="sii:DatosPresentacionType"/>
+			<element name="DatosPresentacion" type="sii:DatosPresentacion2Type"/>
 		</sequence>
 	</complexType>
 	<complexType name="RegistroRespuestaConsultaPagosType">
 		<sequence>
 			<element name="DatosPago" type="sii:DatosPagoCobroType"/>
-			<element name="DatosPresentacion" type="sii:DatosPresentacionType"/>
+			<element name="DatosPresentacion" type="sii:DatosPresentacion2Type"/>
 		</sequence>
 	</complexType>
 	<complexType name="RespuestaDetOperIntracomunitariaType">
@@ -319,6 +385,9 @@
 			<element name="ImporteRectificacion" type="sii:DesgloseRectificacionType" minOccurs="0"/>
 			<element name="FechaOperacion" type="sii:fecha" minOccurs="0"/>
 			<element name="ClaveRegimenEspecialOTrascendencia" type="sii:IdOperacionesTrascendenciaTributariaType"/>
+			<element name="ClaveRegimenEspecialOTrascendenciaAdicional1" type="sii:IdOperacionesTrascendenciaTributariaType" minOccurs="0"/>
+			<element name="ClaveRegimenEspecialOTrascendenciaAdicional2" type="sii:IdOperacionesTrascendenciaTributariaType" minOccurs="0"/>
+			<element name="NumRegistroAcuerdoFacturacion" type="sii:TextMax15Type" minOccurs="0"/>
 			<element name="ImporteTotal" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
 			<element name="BaseImponibleACoste" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
 			<element name="DescripcionOperacion" type="sii:TextMax500Type"/>
@@ -372,7 +441,6 @@
 		<complexContent>
 			<extension base="siiLRRC:FacturaRespuestaType">
 				<sequence>
-					<element name="Aduanas" type="sii:AduanasType" minOccurs="0"/>
 					<element name="DesgloseFactura" type="sii:DesgloseFacturaRecibidasType"/>
 					<element name="Contraparte" type="sii:PersonaFisicaJuridicaType">
 						<annotation>
@@ -406,6 +474,26 @@
 		<restriction base="string">
 			<enumeration value="S"/>
 			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<!-- Estado del registro almacenado en SII -->
+	<simpleType name="EstadoRegistroSIIType">
+		<restriction base="string">
+			<enumeration value="Correcta">
+				<annotation>
+					<documentation xml:lang="es">El registro se almacenado sin errores</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="AceptadaConErrores">
+				<annotation>
+					<documentation xml:lang="es">El registro se almacenado tiene algunos errores. Ver detalle del error</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Anulada">
+				<annotation>
+					<documentation xml:lang="es">El registro almacenado ha sido anulado</documentation>
+				</annotation>
+			</enumeration>
 		</restriction>
 	</simpleType>
 </schema>
