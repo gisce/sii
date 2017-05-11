@@ -3,7 +3,7 @@
 from sii.resource import SII
 from sii import __SII_VERSION__
 from expects import *
-from .testing_data import *
+from spec.testing_data import DataGenerator
 
 
 with description("El XML Generado"):
@@ -16,7 +16,7 @@ with description("El XML Generado"):
         self.out_refund = data_gen.get_out_refund_invoice()
 
         # Example invoice to check common fields
-        self.invoice = self.in_invoice
+        self.invoice = self.out_invoice
 
         # TODO delete print object
         print '\n'
