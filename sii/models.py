@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from marshmallow import Schema, fields, post_dump
-from marshmallow import validate, validates_schema, ValidationError
+from marshmallow import validate, validates, validates_schema, ValidationError
 from sii import __SII_VERSION__
 from datetime import datetime
 
@@ -18,6 +18,13 @@ PERIODO_VALUES = [
 TIPO_NO_EXENTA_VALUES = ['S1', 'S2', 'S3']
 
 TIPO_RECTIFICATIVA_VALUES = ['S', 'I']
+
+CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS = ['01', '02', '03', '04', '05', '06',
+                                            '07', '08', '09', '10', '11', '12',
+                                            '13', '14', '15', '16']
+
+CLAVE_REGIMEN_ESPECIAL_FACTURAS_RECIBIDAS = ['01', '02', '03', '04', '05', '06',
+                                             '07', '08', '09', '12', '13', '14']
 
 
 class DateString(fields.String):
@@ -165,7 +172,13 @@ class DetalleFacturaEmitida(DetalleFactura):
     TipoRectificativa = fields.String(
         validate=validate.OneOf(TIPO_RECTIFICATIVA_VALUES)
     )  # TODO obligatorio si es una rectificativa
-    ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si es una rectificativa
+    ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si TipoRectificativa = 'S'
+
+    @validates('ClaveRegimenEspecialOTrascendencia')
+    def validate_clave_regimen_especial_factura_emitida(self, value):
+        if value not in CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS:
+            raise ValidationError
+
 
 
 class FacturaEmitida(Factura):
