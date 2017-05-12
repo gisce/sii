@@ -5,6 +5,12 @@ from marshmallow import validate, validates_schema, ValidationError
 from sii import __SII_VERSION__
 from datetime import datetime
 
+TIPO_COMUNICACION_VALUES = ['A0', 'A1', 'A4']
+
+TIPO_FACTURA_VALUES = [
+    'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'R1', 'R2', 'R3', 'R4', 'R5'
+]
+
 PERIODO_VALUES = [
     '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '0A'
 ]
@@ -50,7 +56,9 @@ class Cabecera(MySchema):
     IDVersionSii = fields.String(required=True, default=__SII_VERSION__)
     Titular = fields.Nested(Titular, required=True)
     TipoComunicacion = fields.String(
-        required=True, validate=validate.Length(max=2)
+        required=True, validate=[
+            validate.OneOf(TIPO_COMUNICACION_VALUES), validate.Length(max=2)
+        ]
     )
 
 
