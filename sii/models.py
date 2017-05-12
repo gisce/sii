@@ -65,9 +65,7 @@ class Cabecera(MySchema):
     IDVersionSii = fields.String(required=True, default=__SII_VERSION__)
     Titular = fields.Nested(Titular, required=True)
     TipoComunicacion = fields.String(
-        required=True, validate=[
-            validate.OneOf(TIPO_COMUNICACION_VALUES), validate.Length(max=2)
-        ]
+        required=True, validate=validate.OneOf(TIPO_COMUNICACION_VALUES)
     )
 
 
@@ -117,9 +115,7 @@ class DesgloseIVA(MySchema):
 
 class NoExenta(MySchema):
     TipoNoExenta = fields.String(
-        required=True, validate=[
-            validate.OneOf(TIPO_NO_EXENTA_VALUES), validate.Length(max=2)
-        ]
+        required=True, validate=validate.OneOf(TIPO_NO_EXENTA_VALUES)
     )
     DesgloseIVA = fields.Nested(DesgloseIVA, required=True)
 
@@ -155,12 +151,7 @@ class ImporteRectificacion(MySchema):
 
 class DetalleFactura(MySchema):
     TipoFactura = fields.String(
-        required=True, validate=[
-            validate.OneOf(TIPO_FACTURA_VALUES), validate.Length(max=2)
-        ]
-    )
-    ClaveRegimenEspecialOTrascendencia = fields.String(
-        required=True, validate=validate.Length(max=2)
+        required=True, validate=validate.OneOf(TIPO_FACTURA_VALUES)
     )
     DescripcionOperacion = fields.String(
         required=True, validate=validate.Length(max=500)
