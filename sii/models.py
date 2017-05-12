@@ -145,7 +145,11 @@ class ImporteRectificacion(MySchema):
 
 
 class DetalleFactura(MySchema):
-    TipoFactura = fields.String(required=True, validate=validate.Length(max=2))
+    TipoFactura = fields.String(
+        required=True, validate=[
+            validate.OneOf(TIPO_FACTURA_VALUES), validate.Length(max=2)
+        ]
+    )
     ClaveRegimenEspecialOTrascendencia = fields.String(
         required=True, validate=validate.Length(max=2)
     )
