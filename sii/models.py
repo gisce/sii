@@ -226,6 +226,11 @@ class DetalleFacturaRecibida(DetalleFactura):
     )
     CuotaDeducible = fields.Float(required=True)
 
+    @validates('ClaveRegimenEspecialOTrascendencia')
+    def validate_clave_regimen_especial_factura_recibida(self, value):
+        if value not in CLAVE_REGIMEN_ESPECIAL_FACTURAS_RECIBIDAS:
+            raise ValidationError
+
 
 class FacturaRecibida(Factura):
     # Campos específicos para facturas recibidas
