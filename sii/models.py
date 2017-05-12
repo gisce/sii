@@ -160,18 +160,16 @@ class DetalleFactura(MySchema):
 
 
 class DetalleFacturaEmitida(DetalleFactura):
+    ClaveRegimenEspecialOTrascendencia = fields.String(
+        required=True,
+        validate=validate.OneOf(CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS)
+    )
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
     TipoRectificativa = fields.String(
         validate=validate.OneOf(TIPO_RECTIFICATIVA_VALUES)
     )  # TODO obligatorio si es una rectificativa
     ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si TipoRectificativa = 'S'
-
-    @validates('ClaveRegimenEspecialOTrascendencia')
-    def validate_clave_regimen_especial_factura_emitida(self, value):
-        if value not in CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS:
-            raise ValidationError
-
 
 
 class FacturaEmitida(Factura):
