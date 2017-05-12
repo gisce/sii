@@ -1,9 +1,15 @@
 # coding=utf-8
 
 from marshmallow import Schema, fields, post_dump
-from marshmallow import validate, validates_schema, ValidationError
+from marshmallow import validate, validates, validates_schema, ValidationError
 from sii import __SII_VERSION__
 from datetime import datetime
+
+TIPO_COMUNICACION_VALUES = ['A0', 'A1', 'A4']
+
+TIPO_FACTURA_VALUES = [
+    'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'R1', 'R2', 'R3', 'R4', 'R5'
+]
 
 PERIODO_VALUES = [
     '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '0A'
@@ -12,6 +18,13 @@ PERIODO_VALUES = [
 TIPO_NO_EXENTA_VALUES = ['S1', 'S2', 'S3']
 
 TIPO_RECTIFICATIVA_VALUES = ['S', 'I']
+
+CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS = ['01', '02', '03', '04', '05', '06',
+                                            '07', '08', '09', '10', '11', '12',
+                                            '13', '14', '15', '16']
+
+CLAVE_REGIMEN_ESPECIAL_FACTURAS_RECIBIDAS = ['01', '02', '03', '04', '05', '06',
+                                             '07', '08', '09', '12', '13', '14']
 
 
 class DateString(fields.String):
@@ -43,14 +56,16 @@ class NIF(MySchema):
 
 
 class Titular(NIF):
-    NombreRazon = fields.String(required=True, validate=validate.Length(max=120))
+    NombreRazon = fields.String(
+        required=True, validate=validate.Length(max=120)
+    )
 
 
 class Cabecera(MySchema):
     IDVersionSii = fields.String(required=True, default=__SII_VERSION__)
     Titular = fields.Nested(Titular, required=True)
     TipoComunicacion = fields.String(
-        required=True, validate=validate.Length(max=2)
+        required=True, validate=validate.OneOf(TIPO_COMUNICACION_VALUES)
     )
 
 
@@ -100,9 +115,7 @@ class DesgloseIVA(MySchema):
 
 class NoExenta(MySchema):
     TipoNoExenta = fields.String(
-        required=True, validate=[
-            validate.OneOf(TIPO_NO_EXENTA_VALUES), validate.Length(max=2)
-        ]
+        required=True, validate=validate.OneOf(TIPO_NO_EXENTA_VALUES)
     )
     DesgloseIVA = fields.Nested(DesgloseIVA, required=True)
 
@@ -137,9 +150,8 @@ class ImporteRectificacion(MySchema):
 
 
 class DetalleFactura(MySchema):
-    TipoFactura = fields.String(required=True, validate=validate.Length(max=2))
-    ClaveRegimenEspecialOTrascendencia = fields.String(
-        required=True, validate=validate.Length(max=2)
+    TipoFactura = fields.String(
+        required=True, validate=validate.OneOf(TIPO_FACTURA_VALUES)
     )
     DescripcionOperacion = fields.String(
         required=True, validate=validate.Length(max=500)
@@ -148,12 +160,16 @@ class DetalleFactura(MySchema):
 
 
 class DetalleFacturaEmitida(DetalleFactura):
+    ClaveRegimenEspecialOTrascendencia = fields.String(
+        required=True,
+        validate=validate.OneOf(CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS)
+    )
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
     TipoRectificativa = fields.String(
         validate=validate.OneOf(TIPO_RECTIFICATIVA_VALUES)
     )  # TODO obligatorio si es una rectificativa
-    ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si es una rectificativa
+    ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si TipoRectificativa = 'S'
 
 
 class FacturaEmitida(Factura):
@@ -194,6 +210,10 @@ class DesgloseFacturaRecibida(MySchema):  # TODO obligatorio uno de los dos
 
 
 class DetalleFacturaRecibida(DetalleFactura):
+    ClaveRegimenEspecialOTrascendencia = fields.String(
+        required=True,
+        validate=validate.OneOf(CLAVE_REGIMEN_ESPECIAL_FACTURAS_RECIBIDAS)
+    )
     DesgloseFactura = fields.Nested(DesgloseFacturaRecibida, required=True)
     Contraparte = fields.Nested(Contraparte, required=True)
     FechaRegContable = DateString(

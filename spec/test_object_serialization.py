@@ -1,14 +1,13 @@
 # coding=utf-8
 
 from sii.resource import SII
+from sii.models import *
 from sii import __SII_VERSION__
 from expects import *
 from spec.testing_data import DataGenerator
 
-
 with description("El XML Generado"):
     with before.all:
-
         data_gen = DataGenerator()
         self.in_invoice = data_gen.get_in_invoice()
         self.out_invoice = data_gen.get_out_invoice()
@@ -64,6 +63,13 @@ with description("El XML Generado"):
             expect(
                 self.factura['PeriodoImpositivo']['Periodo']
             ).to(equal(self.invoice.period_id.name[0:2]))
+
+    with description("en los datos de la factura"):
+        with it("la ClaveRegimenEspecialOTrascendencia debe ser '01'"):
+            expect(
+                CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS
+            ).to(contain(self.factura['FacturaExpedida'][
+                                         'ClaveRegimenEspecialOTrascendencia']))
 
     with _description("en los datos de la identificación de la factura"):
         with it("el NIF de la factura es el NIF del emisor"):
