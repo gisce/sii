@@ -210,17 +210,16 @@ class DesgloseFacturaRecibida(MySchema):  # TODO obligatorio uno de los dos
 
 
 class DetalleFacturaRecibida(DetalleFactura):
+    ClaveRegimenEspecialOTrascendencia = fields.String(
+        required=True,
+        validate=validate.OneOf(CLAVE_REGIMEN_ESPECIAL_FACTURAS_RECIBIDAS)
+    )
     DesgloseFactura = fields.Nested(DesgloseFacturaRecibida, required=True)
     Contraparte = fields.Nested(Contraparte, required=True)
     FechaRegContable = DateString(
         required=True, validate=validate.Length(max=10)
     )
     CuotaDeducible = fields.Float(required=True)
-
-    @validates('ClaveRegimenEspecialOTrascendencia')
-    def validate_clave_regimen_especial_factura_recibida(self, value):
-        if value not in CLAVE_REGIMEN_ESPECIAL_FACTURAS_RECIBIDAS:
-            raise ValidationError
 
 
 class FacturaRecibida(Factura):
