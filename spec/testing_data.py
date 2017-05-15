@@ -58,9 +58,11 @@ class DataGenerator:
                 name='IBI 15%', base=1000, tax_amount=150, tax_id=self.tax_ibi
             )
         ]
-        self.partner_invoice = Partner(name='Francisco García', nif='12345678T')
+        self.partner_invoice = Partner(
+            name=unicode('Francisco García', 'utf-8'), nif='12345678T'
+        )
         self.partner_company = Partner(
-            name='Compañía Eléctrica S.A.', nif='55555555T'
+            name=unicode('Compañía Eléctrica S.A.', 'utf-8'), nif='55555555T'
         )
         self.company = Company(partner_id=self.partner_company)
 
