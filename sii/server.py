@@ -11,11 +11,10 @@ from zeep.plugins import HistoryPlugin
 from dicttoxml import dicttoxml
 from lxml import etree, objectify
 
-wsdl_files = {'emited_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_06/SuministroFactEmitidas.wsdl',
-              'received_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_06/SuministroFactRecibidas.wsdl',
-              'cobros_emitidas': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_06/SuministroCobrosEmitidas.wsdl',
-              'pagos_recibidas': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_06/SuministroPagosRecibidas.wsdl',
-              }
+wsdl_files = {
+    'emitted_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_06/SuministroFactEmitidas.wsdl',
+    'received_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_06/SuministroFactRecibidas.wsdl',
+}
 
 
 def get_dict_data(invoice):
@@ -24,20 +23,37 @@ def get_dict_data(invoice):
 
 class ServiceSII(object):
 
-    def __init__(self):
-        self.result = {}
+    class Service(object):
+        def __init__(self, certificate, key, test_mode=False):
+            self.certificate = certificate
+            self.key = key
+            self.test_mode = True  # Force now work in test mode
+            self.emitted_service = None
+            self.received_service = None
 
-    @staticmethod
-    def connect_sii(wsdl, publicCrt, privateKey):
+        def send(self, invoice):
+            if invoice.type.startswith('out_'):
+                if self.emitted_service is None:
+                    self.emitted_service = self.create_service(invoice.type)
+                self.send_invoice(invoice)
+            else:
+                if self.received_service is None:
+                    self.received_service = self.create_service(invoice.type)
+                self.received_service.send()
 
-        public_crt = publicCrt
-        priv_key = privateKey
+    def create_service(self, i_type):
 
         session = Session()
-        session.cert = (public_crt, priv_key)
+        session.cert = (self.certificate, self.key)
         transport = Transport(session=session)
-
         history = HistoryPlugin()
+
+        if i_type.startswith('out_'):
+            wsdl = wsdl_files['emitted_invoice']
+            port_name = 'SuministroFactEmitidasPruebas'
+        else:
+            wsdl = wsdl_files['received_invoice']
+            port_name = 'SuministroFactRecibidasPruebas'
         client = Client(wsdl=wsdl, transport=transport, plugins=[history])
         return client
 
