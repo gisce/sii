@@ -70,7 +70,9 @@ class Cabecera(MySchema):
 
 
 class PeriodoImpositivo(MySchema):
-    Ejercicio = fields.String(required=True, validate=validate.Length(max=4))  # TODO validate Año en formato 'YYYY'
+    Ejercicio = fields.String(required=True, validate=validate.OneOf(
+        [str(x) for x in range(0, 10000)]
+    ))
     Periodo = fields.String(
         required=True, validate=validate.OneOf(PERIODO_VALUES)
     )
