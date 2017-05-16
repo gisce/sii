@@ -68,6 +68,17 @@
 			<element name="TimestampPresentacion" type="sii:Timestamp"/>
 		</sequence>
 	</complexType>
+	<complexType name="DatosPresentacion2Type">
+		<sequence>
+			<element name="NIFPresentador" type="sii:NIFType"/>
+			<element name="TimestampPresentacion" type="sii:Timestamp"/>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> CSV asociado al registro </documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
 	<!-- Información básica que contienen los registros del suministro de información
      -->
 	<complexType name="CabeceraConsultaSii">
@@ -177,7 +188,7 @@
 			<element name="IDEmisorFactura">
 				<complexType>
 					<sequence>
-						<element name="NombreRazon" type="sii:TextMax40Type"/>
+						<element name="NombreRazon" type="sii:TextMax120Type"/>
 						<choice>
 							<element name="NIF" type="sii:NIFType"/>
 							<element name="IDOtro" type="sii:IDOtroType"/>
@@ -187,10 +198,67 @@
 			</element>
 			<element name="NumSerieFacturaEmisor" type="sii:TextoIDFacturaType">
 				<annotation>
-					<documentation xml:lang="es"> Número y serie de la Factura del Emisor.</documentation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura  de la Factura del Emisor.</documentation>
 				</annotation>
 			</element>
 			<element name="FechaExpedicionFacturaEmisor" type="sii:fecha">
+				<annotation>
+					<documentation xml:lang="es"> Fecha de emisión de la factura</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="ClavePaginacionBienType">
+		<annotation>
+			<documentation xml:lang="es"> Datos de identificación de factura </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDEmisorFactura">
+				<complexType>
+					<sequence>
+						<element name="NombreRazon" type="sii:TextMax120Type"/>
+						<choice>
+							<element name="NIF" type="sii:NIFType"/>
+							<element name="IDOtro" type="sii:IDOtroType"/>
+						</choice>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="NumSerieFacturaEmisor" type="sii:TextoIDFacturaType">
+				<annotation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura de la Factura del Emisor.</documentation>
+				</annotation>
+			</element>
+			<element name="FechaExpedicionFacturaEmisor" type="sii:fecha">
+				<annotation>
+					<documentation xml:lang="es"> Fecha de emisión de la factura</documentation>
+				</annotation>
+			</element>
+			<element name="IdentificacionBien" type="sii:TextMax40Type"/>
+		</sequence>
+	</complexType>
+	<complexType name="IDFacturaConsulta1Type">
+		<annotation>
+			<documentation xml:lang="es"> Datos de identificación de factura </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDEmisorFactura" minOccurs="0">
+				<complexType>
+					<sequence>
+						<element name="NombreRazon" type="sii:TextMax120Type"/>
+						<choice>
+							<element name="NIF" type="sii:NIFType"/>
+							<element name="IDOtro" type="sii:IDOtroType"/>
+						</choice>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="NumSerieFacturaEmisor" type="sii:TextoIDFacturaType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura de la Factura del Emisor.</documentation>
+				</annotation>
+			</element>
+			<element name="FechaExpedicionFacturaEmisor" type="sii:fecha" minOccurs="0">
 				<annotation>
 					<documentation xml:lang="es"> Fecha de emisión de la factura</documentation>
 				</annotation>
@@ -211,10 +279,27 @@
 			</element>
 			<element name="NumSerieFacturaEmisor" type="sii:TextoIDFacturaType">
 				<annotation>
-					<documentation xml:lang="es"> Número y serie de la Factura del Emisor.</documentation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura de la Factura del Emisor.</documentation>
 				</annotation>
 			</element>
 			<element name="FechaExpedicionFacturaEmisor" type="sii:fecha">
+				<annotation>
+					<documentation xml:lang="es"> Fecha de emisión de la factura</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="IDFacturaConsulta2Type">
+		<annotation>
+			<documentation xml:lang="es"> Datos de identificación de factura expedida para operaciones de baja y consulta</documentation>
+		</annotation>
+		<sequence>
+			<element name="NumSerieFacturaEmisor" type="sii:TextoIDFacturaType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura de la Factura del Emisor.</documentation>
+				</annotation>
+			</element>
+			<element name="FechaExpedicionFacturaEmisor" type="sii:fecha" minOccurs="0">
 				<annotation>
 					<documentation xml:lang="es"> Fecha de emisión de la factura</documentation>
 				</annotation>
@@ -235,12 +320,12 @@
 			</element>
 			<element name="NumSerieFacturaEmisor" type="sii:TextoIDFacturaType">
 				<annotation>
-					<documentation xml:lang="es"> Número de la Factura del Emisor. En caso de asientos resúmenes número inicial de factura</documentation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura de la Factura del Emisor. En caso de asientos resúmenes número inicial de factura</documentation>
 				</annotation>
 			</element>
 			<element name="NumSerieFacturaEmisorResumenFin" type="sii:TextoIDFacturaType" minOccurs="0">
 				<annotation>
-					<documentation xml:lang="es"> Campo específico para asientos resumen. Se corresponde con el número y serie de la última factura </documentation>
+					<documentation xml:lang="es"> Campo específico para asientos resumen. Se corresponde con el Nº Serie+Nº Factura de la última factura </documentation>
 				</annotation>
 			</element>
 			<element name="FechaExpedicionFacturaEmisor" type="sii:fecha">
@@ -267,12 +352,12 @@
 			</element>
 			<element name="NumSerieFacturaEmisor" type="sii:TextoIDFacturaType">
 				<annotation>
-					<documentation xml:lang="es"> Número de la Factura del Emisor. En caso de asientos resúmenes número inicial de factura</documentation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura de la Factura del Emisor. En caso de asientos resúmenes número inicial de factura</documentation>
 				</annotation>
 			</element>
 			<element name="NumSerieFacturaEmisorResumenFin" type="sii:TextoIDFacturaType" minOccurs="0">
 				<annotation>
-					<documentation xml:lang="es"> Campo específico para asientos resumen. Se corresponde con el número y serie de la última factura </documentation>
+					<documentation xml:lang="es"> Campo específico para asientos resumen. Se corresponde con el Nº Serie+Nº Factura de la última factura </documentation>
 				</annotation>
 			</element>
 			<element name="FechaExpedicionFacturaEmisor" type="sii:fecha">
@@ -290,7 +375,7 @@
 			<element name="IDEmisorFactura">
 				<complexType>
 					<sequence>
-						<element name="NombreRazon" type="sii:TextMax40Type"/>
+						<element name="NombreRazon" type="sii:TextMax120Type"/>
 						<choice>
 							<element name="NIF" type="sii:NIFType"/>
 							<element name="IDOtro" type="sii:IDOtroType"/>
@@ -300,12 +385,12 @@
 			</element>
 			<element name="NumSerieFacturaEmisor" type="sii:TextoIDFacturaType">
 				<annotation>
-					<documentation xml:lang="es"> Número de la Factura del Emisor. En caso de asientos resúmenes número inicial de factura</documentation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura de la Factura del Emisor. En caso de asientos resúmenes Nº Serie+Nº Factura inicial de factura</documentation>
 				</annotation>
 			</element>
 			<element name="NumSerieFacturaEmisorResumenFin" type="sii:TextoIDFacturaType" minOccurs="0">
 				<annotation>
-					<documentation xml:lang="es"> Campo específico para asientos resumen. Se corresponde con el número y serie de la última factura </documentation>
+					<documentation xml:lang="es"> Campo específico para asientos resumen. Se corresponde con el Nº Serie+Nº Factura de la última factura </documentation>
 				</annotation>
 			</element>
 			<element name="FechaExpedicionFacturaEmisor" type="sii:fecha">
@@ -324,7 +409,7 @@
 			<element name="IDEmisorFactura">
 				<complexType>
 					<sequence>
-						<element name="NombreRazon" type="sii:TextMax40Type"/>
+						<element name="NombreRazon" type="sii:TextMax120Type"/>
 						<choice>
 							<element name="NIF" type="sii:NIFType"/>
 							<element name="IDOtro" type="sii:IDOtroType"/>
@@ -334,7 +419,7 @@
 			</element>
 			<element name="NumSerieFacturaEmisor" type="sii:TextoIDFacturaType">
 				<annotation>
-					<documentation xml:lang="es"> Número de la Factura del Emisor. En caso de asientos resúmenes número inicial de factura</documentation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura de la Factura del Emisor. En caso de asientos resúmenes Nº Serie+Nº Factura inicial de factura</documentation>
 				</annotation>
 			</element>
 			<element name="FechaExpedicionFacturaEmisor" type="sii:fecha">
@@ -352,7 +437,7 @@
 		<sequence>
 			<element name="NumSerieFacturaEmisor" type="sii:TextoIDFacturaType">
 				<annotation>
-					<documentation xml:lang="es">Numero y serie de la factura</documentation>
+					<documentation xml:lang="es">Nº Serie+Nº Factura de la factura</documentation>
 				</annotation>
 			</element>
 			<element name="FechaExpedicionFacturaEmisor" type="sii:fecha">
@@ -401,6 +486,9 @@
 			<element name="ImporteRectificacion" type="sii:DesgloseRectificacionType" minOccurs="0"/>
 			<element name="FechaOperacion" type="sii:fecha" minOccurs="0"/>
 			<element name="ClaveRegimenEspecialOTrascendencia" type="sii:IdOperacionesTrascendenciaTributariaType"/>
+			<element name="ClaveRegimenEspecialOTrascendenciaAdicional1" type="sii:IdOperacionesTrascendenciaTributariaType" minOccurs="0"/>
+			<element name="ClaveRegimenEspecialOTrascendenciaAdicional2" type="sii:IdOperacionesTrascendenciaTributariaType" minOccurs="0"/>
+			<element name="NumRegistroAcuerdoFacturacion" type="sii:TextMax15Type" minOccurs="0"/>
 			<element name="ImporteTotal" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
 			<element name="BaseImponibleACoste" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
 			<element name="DescripcionOperacion" type="sii:TextMax500Type"/>
@@ -477,7 +565,6 @@
 		<complexContent>
 			<extension base="sii:FacturaType">
 				<sequence>
-					<element name="Aduanas" type="sii:AduanasType" minOccurs="0"/>
 					<element name="DesgloseFactura" type="sii:DesgloseFacturaRecibidasType"/>
 					<element name="Contraparte" type="sii:PersonaFisicaJuridicaType">
 						<annotation>
@@ -505,9 +592,9 @@
 	<!--  de tipos, importes y cuotas de IVA -->
 	<complexType name="DetalleIVAEmitidaType">
 		<sequence>
-			<element name="TipoImpositivo" type="sii:Tipo2.2Type"/>
+			<element name="TipoImpositivo" type="sii:Tipo2.2Type" minOccurs="0"/>
 			<element name="BaseImponible" type="sii:ImporteSgn12.2Type"/>
-			<element name="CuotaRepercutida" type="sii:ImporteSgn12.2Type"/>
+			<element name="CuotaRepercutida" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
 			<element name="TipoRecargoEquivalencia" type="sii:Tipo2.2Type" minOccurs="0"/>
 			<element name="CuotaRecargoEquivalencia" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
 		</sequence>
@@ -523,9 +610,9 @@
 	</complexType>
 	<complexType name="DetalleIVAEmitidaPrestacionType">
 		<sequence>
-			<element name="TipoImpositivo" type="sii:Tipo2.2Type"/>
+			<element name="TipoImpositivo" type="sii:Tipo2.2Type" minOccurs="0"/>
 			<element name="BaseImponible" type="sii:ImporteSgn12.2Type"/>
-			<element name="CuotaRepercutida" type="sii:ImporteSgn12.2Type"/>
+			<element name="CuotaRepercutida" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
 		</sequence>
 	</complexType>
 	<complexType name="DetalleIVARecibidaType">
@@ -582,7 +669,7 @@
 			<documentation xml:lang="es">Datos de una persona física o jurídica Española con un NIF asociado</documentation>
 		</annotation>
 		<sequence>
-			<element name="NombreRazon" type="sii:TextMax40Type"/>
+			<element name="NombreRazon" type="sii:TextMax120Type"/>
 			<element name="NIFRepresentante" type="sii:NIFType" minOccurs="0"/>
 			<element name="NIF" type="sii:NIFType"/>
 		</sequence>
@@ -593,7 +680,7 @@
 			<documentation xml:lang="es">Datos de una persona física o jurídica Española con un NIF asociado</documentation>
 		</annotation>
 		<sequence>
-			<element name="NombreRazon" type="sii:TextMax40Type"/>
+			<element name="NombreRazon" type="sii:TextMax120Type"/>
 			<element name="NIF" type="sii:NIFType"/>
 		</sequence>
 	</complexType>
@@ -603,8 +690,20 @@
 			<documentation xml:lang="es">Datos de una persona física o jurídica Española o Extranjera</documentation>
 		</annotation>
 		<sequence>
-			<element name="NombreRazon" type="sii:TextMax40Type"/>
+			<element name="NombreRazon" type="sii:TextMax120Type"/>
 			<element name="NIFRepresentante" type="sii:NIFType" minOccurs="0"/>
+			<choice>
+				<element name="NIF" type="sii:NIFType"/>
+				<element name="IDOtro" type="sii:IDOtroType"/>
+			</choice>
+		</sequence>
+	</complexType>
+	<complexType name="ContraparteConsultaType">
+		<annotation>
+			<documentation xml:lang="es">Datos de una persona física o jurídica Española o Extranjera</documentation>
+		</annotation>
+		<sequence>
+			<element name="NombreRazon" type="sii:TextMax120Type"/>
 			<choice>
 				<element name="NIF" type="sii:NIFType"/>
 				<element name="IDOtro" type="sii:IDOtroType"/>
@@ -726,9 +825,18 @@
 			</element>
 		</sequence>
 	</complexType>
+	<complexType name="RangoFechaPresentacionType">
+		<annotation>
+			<documentation xml:lang="es">Rango de fechas de presentacion</documentation>
+		</annotation>
+		<sequence>
+			<element name="Desde" type="sii:fecha" minOccurs="0"/>
+			<element name="Hasta" type="sii:fecha" minOccurs="0"/>
+		</sequence>
+	</complexType>
 	<simpleType name="VersionSiiType">
 		<restriction base="string">
-			<enumeration value="0.6"/>
+			<enumeration value="0.7"/>
 		</restriction>
 	</simpleType>
 	<!-- ==== Tipos básicos (Listas de claves y patrones) ============================================= -->
@@ -856,7 +964,13 @@
 			<pattern value="(\+|-)?\d{1,12}(\.\d{0,2})?"/>
 		</restriction>
 	</simpleType>
-	<!-- Tipo de 5 dígitos (2+2) "." como separador decimal -->
+	<!-- Importe de 17 dígitos (14+2) "." como separador decimal -->
+	<simpleType name="ImporteSgn14.2Type">
+		<restriction base="string">
+			<pattern value="(\+|-)?\d{1,14}(\.\d{0,2})?"/>
+		</restriction>
+	</simpleType>
+	<!-- Tipo de 6 dígitos (3+2) "." como separador decimal -->
 	<simpleType name="Tipo2.2Type">
 		<restriction base="string">
 			<pattern value="\d{1,3}(\.\d{0,2})?"/>
@@ -910,6 +1024,12 @@
 			<maxLength value="20"/>
 		</restriction>
 	</simpleType>
+	<!-- Cadena de 15 caracteres -->
+	<simpleType name="TextMax15Type">
+		<restriction base="string">
+			<maxLength value="15"/>
+		</restriction>
+	</simpleType>
 	<!-- Referencia Catastral -->
 	<simpleType name="ReferenciaCatastralType">
 		<restriction base="string">
@@ -944,12 +1064,17 @@
 		<restriction base="string">
 			<enumeration value="S1">
 				<annotation>
-					<documentation xml:lang="es">SUJETA (ENTREGA DE BIENES / PRESTACIÓN DE SERVICIOS) - 	NO EXENTA - </documentation>
+					<documentation xml:lang="es">No exenta- Sin inversion sujeto pasivo </documentation>
 				</annotation>
 			</enumeration>
 			<enumeration value="S2">
 				<annotation>
-					<documentation xml:lang="es">SUJETA (ENTREGA DE BIENES / PRESTACIÓN DE SERVICIOS) - 	NO EXENTA - Inv. Suj. Pasivo</documentation>
+					<documentation xml:lang="es">No exenta - Con Inversion sujeto pasivo</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="S3">
+				<annotation>
+					<documentation xml:lang="es">No exenta - Sin inversion sujeto pasivo y con inversion sujeto Pasivo</documentation>
 				</annotation>
 			</enumeration>
 		</restriction>
@@ -1127,11 +1252,48 @@
 			<enumeration value="N"/>
 		</restriction>
 	</simpleType>
+	<!-- Factura modificada -->
+	<simpleType name="FacturaModificadaType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
 	<!-- Minoración de la base imponible por la concesión de cupones, bonificaciones o descuentos cuando solo se expide el original de la factura -->
 	<simpleType name="CuponType">
 		<restriction base="string">
 			<enumeration value="S"/>
 			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<!-- Estados del cuadre -->
+	<simpleType name="EstadoCuadreType">
+		<restriction base="string">
+			<enumeration value="1">
+				<annotation>
+					<documentation xml:lang="es">No aplica contraste</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="2">
+				<annotation>
+					<documentation xml:lang="es">En proceso de contraste</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="3">
+				<annotation>
+					<documentation xml:lang="es">No contrastada</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="4">
+				<annotation>
+					<documentation xml:lang="es">Parcialmente contrastada</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="5">
+				<annotation>
+					<documentation xml:lang="es">Contrastada</documentation>
+				</annotation>
+			</enumeration>
 		</restriction>
 	</simpleType>
 	<!-- Tipo de medio de pago -->
@@ -1164,7 +1326,7 @@
 		<restriction base="string">
 			<enumeration value="02">
 				<annotation>
-					<documentation xml:lang="es">NIFIVAContraparte</documentation>
+					<documentation xml:lang="es">NIF-IVA</documentation>
 				</annotation>
 			</enumeration>
 			<enumeration value="03">
@@ -1179,12 +1341,17 @@
 			</enumeration>
 			<enumeration value="05">
 				<annotation>
-					<documentation xml:lang="es">CertificadoResidencia</documentation>
+					<documentation xml:lang="es">Certificado Residencia</documentation>
 				</annotation>
 			</enumeration>
 			<enumeration value="06">
 				<annotation>
-					<documentation xml:lang="es">IDOtro</documentation>
+					<documentation xml:lang="es">Otro documento Probatorio</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="07">
+				<annotation>
+					<documentation xml:lang="es">No Censado</documentation>
 				</annotation>
 			</enumeration>
 		</restriction>
@@ -1209,21 +1376,22 @@
 			<enumeration value="13"/>
 			<enumeration value="14"/>
 			<enumeration value="15"/>
+			<enumeration value="16"/>
 		</restriction>
 	</simpleType>
 	<!-- ISO 3166-1 alpha-2 codes -->
 	<simpleType name="CountryType2">
 		<restriction base="string">
 			<enumeration value="AF"/>
-			<enumeration value="AX"/>
 			<enumeration value="AL"/>
-			<enumeration value="DZ"/>
-			<enumeration value="AS"/>
+			<enumeration value="DE"/>
 			<enumeration value="AD"/>
 			<enumeration value="AO"/>
 			<enumeration value="AI"/>
 			<enumeration value="AQ"/>
 			<enumeration value="AG"/>
+			<enumeration value="SA"/>
+			<enumeration value="DZ"/>
 			<enumeration value="AR"/>
 			<enumeration value="AM"/>
 			<enumeration value="AW"/>
@@ -1234,92 +1402,91 @@
 			<enumeration value="BH"/>
 			<enumeration value="BD"/>
 			<enumeration value="BB"/>
-			<enumeration value="BY"/>
 			<enumeration value="BE"/>
 			<enumeration value="BZ"/>
 			<enumeration value="BJ"/>
 			<enumeration value="BM"/>
-			<enumeration value="BT"/>
+			<enumeration value="BY"/>
 			<enumeration value="BO"/>
 			<enumeration value="BA"/>
 			<enumeration value="BW"/>
 			<enumeration value="BV"/>
 			<enumeration value="BR"/>
-			<enumeration value="IO"/>
 			<enumeration value="BN"/>
 			<enumeration value="BG"/>
 			<enumeration value="BF"/>
 			<enumeration value="BI"/>
+			<enumeration value="BT"/>
+			<enumeration value="CV"/>
+			<enumeration value="KY"/>
 			<enumeration value="KH"/>
 			<enumeration value="CM"/>
 			<enumeration value="CA"/>
-			<enumeration value="CV"/>
-			<enumeration value="KY"/>
 			<enumeration value="CF"/>
-			<enumeration value="TD"/>
-			<enumeration value="CL"/>
-			<enumeration value="CN"/>
-			<enumeration value="CX"/>
 			<enumeration value="CC"/>
 			<enumeration value="CO"/>
 			<enumeration value="KM"/>
 			<enumeration value="CG"/>
 			<enumeration value="CD"/>
 			<enumeration value="CK"/>
-			<enumeration value="CR"/>
+			<enumeration value="KP"/>
+			<enumeration value="KR"/>
 			<enumeration value="CI"/>
+			<enumeration value="CR"/>
 			<enumeration value="HR"/>
 			<enumeration value="CU"/>
-			<enumeration value="CY"/>
+			<enumeration value="TD"/>
 			<enumeration value="CZ"/>
+			<enumeration value="CL"/>
+			<enumeration value="CN"/>
+			<enumeration value="CY"/>
+			<enumeration value="CW"/>
 			<enumeration value="DK"/>
-			<enumeration value="DJ"/>
 			<enumeration value="DM"/>
 			<enumeration value="DO"/>
 			<enumeration value="EC"/>
 			<enumeration value="EG"/>
-			<enumeration value="SV"/>
-			<enumeration value="GQ"/>
+			<enumeration value="AE"/>
 			<enumeration value="ER"/>
+			<enumeration value="SK"/>
+			<enumeration value="SI"/>
+			<enumeration value="ES"/>
+			<enumeration value="US"/>
 			<enumeration value="EE"/>
 			<enumeration value="ET"/>
-			<enumeration value="FK"/>
 			<enumeration value="FO"/>
-			<enumeration value="FJ"/>
+			<enumeration value="PH"/>
 			<enumeration value="FI"/>
+			<enumeration value="FJ"/>
 			<enumeration value="FR"/>
-			<enumeration value="GF"/>
-			<enumeration value="PF"/>
-			<enumeration value="TF"/>
 			<enumeration value="GA"/>
 			<enumeration value="GM"/>
 			<enumeration value="GE"/>
-			<enumeration value="DE"/>
+			<enumeration value="GS"/>
 			<enumeration value="GH"/>
 			<enumeration value="GI"/>
+			<enumeration value="GD"/>
 			<enumeration value="GR"/>
 			<enumeration value="GL"/>
-			<enumeration value="GD"/>
-			<enumeration value="GP"/>
 			<enumeration value="GU"/>
 			<enumeration value="GT"/>
 			<enumeration value="GG"/>
 			<enumeration value="GN"/>
+			<enumeration value="GQ"/>
 			<enumeration value="GW"/>
 			<enumeration value="GY"/>
 			<enumeration value="HT"/>
 			<enumeration value="HM"/>
-			<enumeration value="VA"/>
 			<enumeration value="HN"/>
 			<enumeration value="HK"/>
 			<enumeration value="HU"/>
-			<enumeration value="IS"/>
 			<enumeration value="IN"/>
 			<enumeration value="ID"/>
 			<enumeration value="IR"/>
 			<enumeration value="IQ"/>
 			<enumeration value="IE"/>
 			<enumeration value="IM"/>
+			<enumeration value="IS"/>
 			<enumeration value="IL"/>
 			<enumeration value="IT"/>
 			<enumeration value="JM"/>
@@ -1328,133 +1495,132 @@
 			<enumeration value="JO"/>
 			<enumeration value="KZ"/>
 			<enumeration value="KE"/>
-			<enumeration value="KI"/>
-			<enumeration value="KP"/>
-			<enumeration value="KR"/>
-			<enumeration value="KW"/>
 			<enumeration value="KG"/>
+			<enumeration value="KI"/>
+			<enumeration value="KW"/>
 			<enumeration value="LA"/>
+			<enumeration value="LS"/>
 			<enumeration value="LV"/>
 			<enumeration value="LB"/>
-			<enumeration value="LS"/>
 			<enumeration value="LR"/>
 			<enumeration value="LY"/>
 			<enumeration value="LI"/>
 			<enumeration value="LT"/>
 			<enumeration value="LU"/>
+			<enumeration value="XG"/>
 			<enumeration value="MO"/>
 			<enumeration value="MK"/>
 			<enumeration value="MG"/>
-			<enumeration value="MW"/>
 			<enumeration value="MY"/>
+			<enumeration value="MW"/>
 			<enumeration value="MV"/>
 			<enumeration value="ML"/>
 			<enumeration value="MT"/>
+			<enumeration value="FK"/>
+			<enumeration value="MP"/>
+			<enumeration value="MA"/>
 			<enumeration value="MH"/>
-			<enumeration value="MQ"/>
-			<enumeration value="MR"/>
 			<enumeration value="MU"/>
+			<enumeration value="MR"/>
 			<enumeration value="YT"/>
+			<enumeration value="UM"/>
 			<enumeration value="MX"/>
 			<enumeration value="FM"/>
 			<enumeration value="MD"/>
 			<enumeration value="MC"/>
 			<enumeration value="MN"/>
+			<enumeration value="ME"/>
 			<enumeration value="MS"/>
-			<enumeration value="MA"/>
 			<enumeration value="MZ"/>
 			<enumeration value="MM"/>
 			<enumeration value="NA"/>
 			<enumeration value="NR"/>
+			<enumeration value="CX"/>
 			<enumeration value="NP"/>
-			<enumeration value="NL"/>
-			<enumeration value="AN"/>
-			<enumeration value="NC"/>
-			<enumeration value="NZ"/>
 			<enumeration value="NI"/>
 			<enumeration value="NE"/>
 			<enumeration value="NG"/>
 			<enumeration value="NU"/>
 			<enumeration value="NF"/>
-			<enumeration value="MP"/>
 			<enumeration value="NO"/>
+			<enumeration value="NC"/>
+			<enumeration value="NZ"/>
+			<enumeration value="IO"/>
 			<enumeration value="OM"/>
+			<enumeration value="NL"/>
+			<enumeration value="BQ"/>
 			<enumeration value="PK"/>
 			<enumeration value="PW"/>
-			<enumeration value="PS"/>
 			<enumeration value="PA"/>
 			<enumeration value="PG"/>
 			<enumeration value="PY"/>
 			<enumeration value="PE"/>
-			<enumeration value="PH"/>
 			<enumeration value="PN"/>
+			<enumeration value="PF"/>
 			<enumeration value="PL"/>
 			<enumeration value="PT"/>
 			<enumeration value="PR"/>
 			<enumeration value="QA"/>
-			<enumeration value="RE"/>
+			<enumeration value="GB"/>
+			<enumeration value="RW"/>
 			<enumeration value="RO"/>
 			<enumeration value="RU"/>
-			<enumeration value="RW"/>
-			<enumeration value="SH"/>
+			<enumeration value="SB"/>
+			<enumeration value="SV"/>
+			<enumeration value="WS"/>
+			<enumeration value="AS"/>
 			<enumeration value="KN"/>
-			<enumeration value="LC"/>
+			<enumeration value="SM"/>
+			<enumeration value="SX"/>
 			<enumeration value="PM"/>
 			<enumeration value="VC"/>
-			<enumeration value="WS"/>
-			<enumeration value="SM"/>
+			<enumeration value="SH"/>
+			<enumeration value="LC"/>
 			<enumeration value="ST"/>
-			<enumeration value="SA"/>
 			<enumeration value="SN"/>
-			<enumeration value="CS"/>
+			<enumeration value="RS"/>
 			<enumeration value="SC"/>
 			<enumeration value="SL"/>
 			<enumeration value="SG"/>
-			<enumeration value="SK"/>
-			<enumeration value="SI"/>
-			<enumeration value="SB"/>
+			<enumeration value="SY"/>
 			<enumeration value="SO"/>
-			<enumeration value="ZA"/>
-			<enumeration value="GS"/>
-			<enumeration value="ES"/>
 			<enumeration value="LK"/>
-			<enumeration value="SD"/>
-			<enumeration value="SR"/>
-			<enumeration value="SJ"/>
 			<enumeration value="SZ"/>
+			<enumeration value="ZA"/>
+			<enumeration value="SD"/>
+			<enumeration value="SS"/>
 			<enumeration value="SE"/>
 			<enumeration value="CH"/>
-			<enumeration value="SY"/>
-			<enumeration value="TW"/>
-			<enumeration value="TJ"/>
-			<enumeration value="TZ"/>
+			<enumeration value="SR"/>
 			<enumeration value="TH"/>
+			<enumeration value="TW"/>
+			<enumeration value="TZ"/>
+			<enumeration value="TJ"/>
+			<enumeration value="PS"/>
+			<enumeration value="TF"/>
 			<enumeration value="TL"/>
 			<enumeration value="TG"/>
 			<enumeration value="TK"/>
 			<enumeration value="TO"/>
 			<enumeration value="TT"/>
 			<enumeration value="TN"/>
-			<enumeration value="TR"/>
-			<enumeration value="TM"/>
 			<enumeration value="TC"/>
+			<enumeration value="TM"/>
+			<enumeration value="TR"/>
 			<enumeration value="TV"/>
-			<enumeration value="UG"/>
 			<enumeration value="UA"/>
-			<enumeration value="AE"/>
-			<enumeration value="GB"/>
-			<enumeration value="US"/>
-			<enumeration value="UM"/>
+			<enumeration value="UG"/>
 			<enumeration value="UY"/>
 			<enumeration value="UZ"/>
 			<enumeration value="VU"/>
+			<enumeration value="VA"/>
 			<enumeration value="VE"/>
 			<enumeration value="VN"/>
 			<enumeration value="VG"/>
 			<enumeration value="VI"/>
 			<enumeration value="WF"/>
-			<enumeration value="EH"/>
 			<enumeration value="YE"/>
+			<enumeration value="DJ"/>
 			<enumeration value="ZM"/>
 			<enumeration value="ZW"/>
 		</restriction>
@@ -1471,7 +1637,6 @@
 			<enumeration value="DK"/>
 			<enumeration value="SK"/>
 			<enumeration value="SI"/>
-			<enumeration value="ES"/>
 			<enumeration value="EE"/>
 			<enumeration value="FI"/>
 			<enumeration value="FR"/>
