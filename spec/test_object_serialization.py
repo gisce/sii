@@ -22,6 +22,7 @@ with description("El XML Generado"):
         # TODO delete print object
         print '\n'
         print '============ RESULTADO DEL DUMP ====================='
+        from pprintpp import pprint
         pprint(obj)
         print '====================================================='
 
