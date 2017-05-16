@@ -17,13 +17,6 @@ with description("El XML Generado"):
         # Example invoice to check common fields
         self.invoice = self.out_invoice
 
-        # TODO delete print object
-        print '\n'
-        print '========= FACTURA EMITIDA EJEMPLO ========'
-        from pprintpp import pprint
-        pprint(vars(self.invoice))
-        print '=========================================='
-
         obj = SII.generate_object(self.invoice)
 
         # TODO delete print object
