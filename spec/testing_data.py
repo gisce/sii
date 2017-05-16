@@ -67,7 +67,7 @@ class DataGenerator:
         self.company = Company(partner_id=self.partner_company)
 
         self.invoice_number = 'F012345'
-        self.date_invoice = '2016-03-25'
+        self.date_invoice = '2016-12-31'
         self.amount_total = 15
 
     def get_in_invoice(self):
