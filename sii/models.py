@@ -70,7 +70,9 @@ class Cabecera(MySchema):
 
 
 class PeriodoImpositivo(MySchema):
-    Ejercicio = fields.String(required=True, validate=validate.Length(max=4))  # TODO validate Año en formato 'YYYY'
+    Ejercicio = fields.String(required=True, validate=validate.OneOf(
+        [str(x) for x in range(0, 10000)]
+    ))
     Periodo = fields.String(
         required=True, validate=validate.OneOf(PERIODO_VALUES)
     )
@@ -156,6 +158,9 @@ class DetalleFactura(MySchema):
     DescripcionOperacion = fields.String(
         required=True, validate=validate.Length(max=500)
     )
+    # TODO ImporteTotal OBLIGATORIO si:
+    # 1.Obligatorio si Baseimponible=0 y TipoFactura=”F2” o “R5”
+    # 2.Obligatorio si Baseimponible=0 y ClaveRegimenEspecialOTranscedencia = “05”o “03”
     ImporteTotal = fields.Float()
 
 
@@ -193,7 +198,17 @@ class SuministroFacturasEmitidas(MySchema):
 
 
 class DetalleIVADesglose(BaseImponible):
-    pass
+    # TODO 1.Sólo se podrá rellenar ( y es obligatorio) si
+    # ClaveRegimenEspecialOTranscedencia="02" (Operaciones por las que los
+    # Empresarios satisfacen compensaciones REAGYP)
+    # 2. Solo se permiten los valores 12% y 10,5 %.
+    PorcentCompensacionREAGYP = fields.String()
+    # TODO 1.Sólo se podrá rellenar (y es obligatorio) si
+    # ClaveRegimenEspecialOTranscedencia="02" (Operaciones por las que los
+    # Empresarios satisfacen compensaciones REAGYP)
+    # 2. Importe compensación = Base * Porcentaje compensación +/-1 % de la
+    # Base
+    ImporteCompensacionREAGYP = fields.String()
 
 
 class DesgloseIVARecibida(MySchema):
@@ -218,7 +233,7 @@ class DetalleFacturaRecibida(DetalleFactura):
     Contraparte = fields.Nested(Contraparte, required=True)
     FechaRegContable = DateString(
         required=True, validate=validate.Length(max=10)
-    )
+    )  # TODO FechaRegContable ≥ FechaExpedicionFacturaEmisor
     CuotaDeducible = fields.Float(required=True)
 
 

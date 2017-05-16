@@ -17,18 +17,12 @@ with description("El XML Generado"):
         # Example invoice to check common fields
         self.invoice = self.out_invoice
 
-        # TODO delete print object
-        print '\n'
-        print '========= FACTURA EMITIDA EJEMPLO ========'
-        from pprintpp import pprint
-        pprint(vars(self.invoice))
-        print '=========================================='
-
         obj = SII.generate_object(self.invoice)
 
         # TODO delete print object
         print '\n'
         print '============ RESULTADO DEL DUMP ====================='
+        from pprintpp import pprint
         pprint(obj)
         print '====================================================='
 
@@ -52,7 +46,7 @@ with description("El XML Generado"):
             with it("el nombre y apellidos deben ser los del titular"):
                 expect(
                     self.cabecera['Titular']['NombreRazon']
-                ).to(equal(unicode(self.invoice.company_id.partner_id.name, "utf-8")))
+                ).to(equal(self.invoice.company_id.partner_id.name))
 
     with description("en los datos del período"):
         with it("el ejercicio es el correspondiente al año de la factura"):

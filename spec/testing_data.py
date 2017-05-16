@@ -58,14 +58,16 @@ class DataGenerator:
                 name='IBI 15%', base=1000, tax_amount=150, tax_id=self.tax_ibi
             )
         ]
-        self.partner_invoice = Partner(name='Francisco García', nif='12345678T')
+        self.partner_invoice = Partner(
+            name=unicode('Francisco García', 'utf-8'), nif='12345678T'
+        )
         self.partner_company = Partner(
-            name='Compañía Eléctrica S.A.', nif='55555555T'
+            name=unicode('Compañía Eléctrica S.A.', 'utf-8'), nif='55555555T'
         )
         self.company = Company(partner_id=self.partner_company)
 
         self.invoice_number = 'F012345'
-        self.date_invoice = '2016-03-25'
+        self.date_invoice = '2016-12-31'
         self.amount_total = 15
 
     def get_in_invoice(self):
