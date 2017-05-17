@@ -1,25 +1,30 @@
 # coding=utf-8
-from sii import models, __SII_VERSION__
+from sii import __SII_VERSION__
+from sii.models import invoices_record
 
 
-def get_iva_values(tax_line):
+def get_iva_values(tax_line, in_invoice):
     vals = {
-        'sujeta_a_iva': False
+        'sujeta_a_iva': False,
+        'detalle_iva': []
     }
     for tax in tax_line:
         if 'IVA' in tax.name:
-            vals.update({
-                'sujeta_a_iva': True,
-                'base_imponible': tax.base,
-                'tipo_impositivo': tax.tax_id.amount * 100,
-                'cuota_repercutida': tax.tax_amount
-            })
-            break
+            iva = {
+                'BaseImponible': tax.base,
+                'TipoImpositivo': tax.tax_id.amount * 100
+            }
+            if in_invoice:
+                iva.update({'CuotaRepercutida': tax.tax_amount})
+            else:
+                iva.update({'CuotaSoportada': tax.tax_amount})
+            vals['sujeta_a_iva'] = True
+            vals['detalle_iva'].append(iva)
     return vals
 
 
 def get_factura_emitida(invoice):
-    vals = get_iva_values(invoice.tax_line)
+    vals = get_iva_values(invoice.tax_line, in_invoice=True)
 
     if vals['sujeta_a_iva']:
         tipo_desglose = {
@@ -28,11 +33,7 @@ def get_factura_emitida(invoice):
                     'NoExenta': {  # TODO Exenta o no exenta??
                         'TipoNoExenta': 'S1',
                         'DesgloseIVA': {
-                            'DetalleIVA': {
-                                'TipoImpositivo': vals['tipo_impositivo'],
-                                'BaseImponible': vals['base_imponible'],
-                                'CuotaRepercutida': vals['cuota_repercutida']
-                            }
+                            'DetalleIVA': vals['detalle_iva']
                         }
                     }
                 }
@@ -61,23 +62,21 @@ def get_factura_emitida(invoice):
 
 
 def get_factura_recibida(invoice):
-    vals = get_iva_values(invoice.tax_line)
+    vals = get_iva_values(invoice.tax_line, in_invoice=False)
 
     if vals['sujeta_a_iva']:
-        tipo_desglose = {
+        tipo_desglose = {  # TODO to change
             'InversionSujetoPasivo': {
-                'DetalleIVA': {
-                    'TipoImpositivo': vals['tipo_impositivo'],
-                    'BaseImponible': vals['base_imponible'],
-                    'CuotaRepercutida': vals['cuota_repercutida']
-                }
+                'DetalleIVA': vals['detalle_iva']
             },
             'DesgloseIVA': {
-                'DetalleIVA': {
-                    'BaseImponible': vals['base_imponible']
-                }
+                'DetalleIVA': vals['detalle_iva']
             }
         }
+
+        cuota_deducible = 0
+        for detalle_iva in vals['detalle_iva']:
+            cuota_deducible += detalle_iva['CuotaSoportada']
     else:
         raise Exception("Missing 'IVA' in invoice.tax_line")
 
@@ -91,8 +90,8 @@ def get_factura_recibida(invoice):
             'NIF': invoice.partner_id.vat
         },
         'DesgloseFactura': tipo_desglose,
-        'CuotaDeducible': vals['cuota_repercutida'],
-        'FechaRegContable': ''  # TODO to change
+        'CuotaDeducible': cuota_deducible,
+        'FechaRegContable': '2017-12-31'  # TODO to change
     }
 
     return factura_recibida
@@ -186,16 +185,16 @@ class SII(object):
     def generate_object(invoice):
 
         if invoice.type == 'in_invoice':
-            invoice_model = models.SuministroFacturasRecibidas()
+            invoice_model = invoices_record.SuministroFacturasRecibidas()
             invoice_dict = get_factura_recibida_dict(invoice)
         elif invoice.type == 'out_invoice':
-            invoice_model = models.SuministroFacturasEmitidas()
+            invoice_model = invoices_record.SuministroFacturasEmitidas()
             invoice_dict = get_factura_emitida_dict(invoice)
         elif invoice.type == 'in_refund':
-            invoice_model = models.SuministroFacturasRecibidas()
+            invoice_model = invoices_record.SuministroFacturasRecibidas()
             invoice_dict = get_factura_recibida_dict(invoice, rectificativa=True)
         elif invoice.type == 'out_refund':
-            invoice_model = models.SuministroFacturasEmitidas()
+            invoice_model = invoices_record.SuministroFacturasEmitidas()
             invoice_dict = get_factura_emitida_dict(invoice, rectificativa=True)
         else:
             raise Exception('Error in invoice.type')

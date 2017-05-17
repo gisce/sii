@@ -49,10 +49,15 @@ class DataGenerator:
     def __init__(self):
         self.period = Period(name='03/2016')
         self.tax_ibi = Tax(amount=0.15)
-        self.tax_iva = Tax(amount=0.21)
+        self.tax_iva_21 = Tax(amount=0.21)
+        self.tax_iva_4 = Tax(amount=0.04)
         self.tax_line = [
             InvoiceLineTaxes(
-                name='IVA 21%', base=1000, tax_amount=210, tax_id=self.tax_iva
+                name='IVA 21%', base=1000, tax_amount=210,
+                tax_id=self.tax_iva_21
+            ),
+            InvoiceLineTaxes(
+                name='IVA 4%', base=1000, tax_amount=40, tax_id=self.tax_iva_4
             ),
             InvoiceLineTaxes(
                 name='IBI 15%', base=1000, tax_amount=150, tax_id=self.tax_ibi

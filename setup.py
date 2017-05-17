@@ -22,6 +22,5 @@ setup(
     install_requires=INSTALL_REQUIRES,
     tests_require=TESTS_REQUIRE,
     packages=find_packages(exclude=['spec']),
-    package_data=PACKAGES_DATA,
-    test_suite='spec',
+    package_data=PACKAGES_DATA
 )
