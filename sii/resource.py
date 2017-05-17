@@ -3,7 +3,7 @@ from sii import __SII_VERSION__
 from sii.models import invoices_record
 
 
-def get_iva_values(tax_line):
+def get_iva_values(tax_line, in_invoice):
     vals = {
         'sujeta_a_iva': False,
         'detalle_iva': []
@@ -12,16 +12,19 @@ def get_iva_values(tax_line):
         if 'IVA' in tax.name:
             iva = {
                 'BaseImponible': tax.base,
-                'TipoImpositivo': tax.tax_id.amount * 100,
-                'CuotaRepercutida': tax.tax_amount
+                'TipoImpositivo': tax.tax_id.amount * 100
             }
+            if in_invoice:
+                iva.update({'CuotaRepercutida': tax.tax_amount})
+            else:
+                iva.update({'CuotaSoportada': tax.tax_amount})
             vals['sujeta_a_iva'] = True
             vals['detalle_iva'].append(iva)
     return vals
 
 
 def get_factura_emitida(invoice):
-    vals = get_iva_values(invoice.tax_line)
+    vals = get_iva_values(invoice.tax_line, in_invoice=True)
 
     if vals['sujeta_a_iva']:
         tipo_desglose = {
@@ -59,7 +62,7 @@ def get_factura_emitida(invoice):
 
 
 def get_factura_recibida(invoice):
-    vals = get_iva_values(invoice.tax_line)
+    vals = get_iva_values(invoice.tax_line, in_invoice=False)
 
     if vals['sujeta_a_iva']:
         tipo_desglose = {  # TODO to change
