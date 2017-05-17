@@ -98,15 +98,15 @@ class Factura(MySchema):
     IDFactura = fields.Nested(IdentificacionFactura, required=True)
 
 
-class BaseImponible(MySchema):
+class DetalleIVA(MySchema):
     BaseImponible = fields.Float(required=True)
 
 
-class Exenta(BaseImponible):
+class Exenta(DetalleIVA):
     pass
 
 
-class DetalleIVAEmitida(BaseImponible):
+class DetalleIVAEmitida(DetalleIVA):
     TipoImpositivo = fields.Float()
     CuotaRepercutida = fields.Float()
 
@@ -197,7 +197,9 @@ class SuministroFacturasEmitidas(MySchema):
     )
 
 
-class DetalleIVADesglose(BaseImponible):
+class DetalleIVADesglose(DetalleIVA):
+    CuotaSoportada = fields.Float()
+    TipoImpositivo = fields.Float()
     # TODO 1.Sólo se podrá rellenar ( y es obligatorio) si
     # ClaveRegimenEspecialOTranscedencia="02" (Operaciones por las que los
     # Empresarios satisfacen compensaciones REAGYP)
@@ -212,11 +214,16 @@ class DetalleIVADesglose(BaseImponible):
 
 
 class DesgloseIVARecibida(MySchema):
-    DetalleIVA = fields.Nested(DetalleIVADesglose, required=True)
+    DetalleIVA = fields.List(fields.Nested(DetalleIVADesglose), required=True)
+
+
+class DetalleIVARecibida(DetalleIVA):
+    CuotaSoportada = fields.Float(required=True)
+    TipoImpositivo = fields.Float(required=True)
 
 
 class DetalleIVAInversionSujetoPasivo(DesgloseIVA):
-    pass
+    DetalleIVA = fields.List(fields.Nested(DetalleIVARecibida), required=True)
 
 
 class DesgloseFacturaRecibida(MySchema):  # TODO obligatorio uno de los dos
