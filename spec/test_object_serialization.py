@@ -16,11 +16,14 @@ with description('El XML Generado'):
         # Example invoice to check common fields
         self.invoice = self.out_invoice
 
-        self.obj = SII.generate_object(self.invoice)
+        self.invoice_obj = SII.generate_object(self.invoice)
+        self.in_invoice_obj = SII.generate_object(self.in_invoice)
 
     with description('en la cabecera'):
         with before.all:
-            self.cabecera = self.obj['SuministroLRFacturasEmitidas']['Cabecera']
+            self.cabecera = (
+                self.invoice_obj['SuministroLRFacturasEmitidas']['Cabecera']
+            )
 
         with it('la versión es la "0.7"'):
             expect(self.cabecera['IDVersionSii']).to(equal('0.7'))
@@ -40,10 +43,10 @@ with description('El XML Generado'):
                     self.cabecera['Titular']['NombreRazon']
                 ).to(equal(self.invoice.company_id.partner_id.name))
 
-    with description('en los datos de la factura'):
+    with description('en los datos comunes de una factura'):
         with before.all:
             self.factura = (
-                self.obj['SuministroLRFacturasEmitidas'][
+                self.invoice_obj['SuministroLRFacturasEmitidas'][
                     'RegistroLRFacturasEmitidas']
             )
 
@@ -79,10 +82,17 @@ with description('El XML Generado'):
                     self.periodo['Periodo']
                 ).to(equal(self.invoice.period_id.name[0:2]))
 
+    with description('en los datos de una factura emitida'):
+        with before.all:
+            self.factura_emitida = (
+                self.invoice_obj['SuministroLRFacturasEmitidas'][
+                    'RegistroLRFacturasEmitidas']
+            )
+
         with context('en los detalles del IVA'):
             with before.all:
                 self.detalle_iva = (
-                    self.factura['FacturaExpedida']['TipoDesglose']
+                    self.factura_emitida['FacturaExpedida']['TipoDesglose']
                     ['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']
                     ['DetalleIVA']
                 )
@@ -100,9 +110,54 @@ with description('El XML Generado'):
                     self.invoice.tax_line[0].tax_id.amount * 100)
                 )
 
-    with description('en la factura'):
+    with description('en los datos de una factura recibida'):
         with before.all:
-            self.factura = (
-                self.obj['SuministroLRFacturasEmitidas']
-                ['RegistroLRFacturasEmitidas']
+            self.factura_recibida = (
+                self.in_invoice_obj['SuministroLRFacturasRecibidas'][
+                    'RegistroLRFacturasRecibidas']
             )
+
+        with context('en los detalles del IVA'):
+            with before.all:
+                self.detalle_iva_inv_suj_pasivo = (
+                    self.factura_recibida['FacturaRecibida']['DesgloseFactura']
+                    ['InversionSujetoPasivo']['DetalleIVA']
+                )
+                self.detalle_iva_desglose_iva = (
+                    self.factura_recibida['FacturaRecibida']['DesgloseFactura']
+                    ['DesgloseIVA']['DetalleIVA']
+                )
+
+            with it('el detalle de InversionSujetoPasivo debe ser la original'):
+                expect(
+                    self.detalle_iva_inv_suj_pasivo[0]['BaseImponible']
+                ).to(equal(
+                    self.in_invoice.tax_line[0].base)
+                )
+                expect(
+                    self.detalle_iva_inv_suj_pasivo[0]['CuotaSoportada']
+                ).to(equal(
+                    self.in_invoice.tax_line[0].tax_amount)
+                )
+                expect(
+                    self.detalle_iva_inv_suj_pasivo[0]['TipoImpositivo']
+                ).to(equal(
+                    self.in_invoice.tax_line[0].tax_id.amount * 100)
+                )
+
+            with it('el detalle de DesgloseIVA debe ser la original'):
+                expect(
+                    self.detalle_iva_desglose_iva[0]['BaseImponible']
+                ).to(equal(
+                    self.in_invoice.tax_line[0].base)
+                )
+                expect(
+                    self.detalle_iva_desglose_iva[0]['CuotaSoportada']
+                ).to(equal(
+                    self.in_invoice.tax_line[0].tax_amount)
+                )
+                expect(
+                    self.detalle_iva_desglose_iva[0]['TipoImpositivo']
+                ).to(equal(
+                    self.in_invoice.tax_line[0].tax_id.amount * 100)
+                )
