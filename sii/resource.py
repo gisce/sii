@@ -91,7 +91,7 @@ def get_factura_recibida(invoice):
         },
         'DesgloseFactura': tipo_desglose,
         'CuotaDeducible': cuota_deducible,
-        'FechaRegContable': ''  # TODO to change
+        'FechaRegContable': '2017-12-31'  # TODO to change
     }
 
     return factura_recibida
