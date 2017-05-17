@@ -3,26 +3,25 @@ from sii import __SII_VERSION__
 from sii.models import invoices_record
 
 
-def get_iva_values(tax_line, in_invoice):
+def get_iva_values(tax_line):
     vals = {
         'sujeta_a_iva': False,
         'detalle_iva': []
     }
     for tax in tax_line:
         if 'IVA' in tax.name:
-            iva = {'BaseImponible': tax.base}
-            if in_invoice:
-                iva.update({
-                    'TipoImpositivo': tax.tax_id.amount * 100,
-                    'CuotaRepercutida': tax.tax_amount
-                })
+            iva = {
+                'BaseImponible': tax.base,
+                'TipoImpositivo': tax.tax_id.amount * 100,
+                'CuotaRepercutida': tax.tax_amount
+            }
             vals['sujeta_a_iva'] = True
             vals['detalle_iva'].append(iva)
     return vals
 
 
 def get_factura_emitida(invoice):
-    vals = get_iva_values(invoice.tax_line, in_invoice=True)
+    vals = get_iva_values(invoice.tax_line)
 
     if vals['sujeta_a_iva']:
         tipo_desglose = {
@@ -60,17 +59,15 @@ def get_factura_emitida(invoice):
 
 
 def get_factura_recibida(invoice):
-    vals = get_iva_values(invoice.tax_line, in_invoice=False)
+    vals = get_iva_values(invoice.tax_line)
 
     if vals['sujeta_a_iva']:
-        tipo_desglose = {
+        tipo_desglose = {  # TODO to change
             'InversionSujetoPasivo': {
                 'DetalleIVA': vals['detalle_iva']
             },
             'DesgloseIVA': {
-                'DetalleIVA': {
-                    'BaseImponible': vals['base_imponible']
-                }
+                'DetalleIVA': vals['detalle_iva']
             }
         }
     else:
