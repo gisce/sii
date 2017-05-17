@@ -5,17 +5,20 @@ from sii.models import invoices_record
 
 def get_iva_values(tax_line):
     vals = {
-        'sujeta_a_iva': False
+        'sujeta_a_iva': False,
+        'detalle_iva': []
     }
     for tax in tax_line:
         if 'IVA' in tax.name:
+            iva = {
+                'BaseImponible': tax.base,
+                'TipoImpositivo': tax.tax_id.amount * 100,
+                'CuotaRepercutida': tax.tax_amount
+            }
             vals.update({
                 'sujeta_a_iva': True,
-                'base_imponible': tax.base,
-                'tipo_impositivo': tax.tax_id.amount * 100,
-                'cuota_repercutida': tax.tax_amount
             })
-            break
+            vals['detalle_iva'].append(iva)
     return vals
 
 
@@ -29,18 +32,7 @@ def get_factura_emitida(invoice):
                     'NoExenta': {  # TODO Exenta o no exenta??
                         'TipoNoExenta': 'S1',
                         'DesgloseIVA': {
-                            'DetalleIVA': [
-                                {
-                                    'TipoImpositivo': vals['tipo_impositivo'],
-                                    'BaseImponible': vals['base_imponible'],
-                                    'CuotaRepercutida': vals['cuota_repercutida']
-                                },
-                                {
-                                    'TipoImpositivo': vals['tipo_impositivo'],
-                                    'BaseImponible': vals['base_imponible'],
-                                    'CuotaRepercutida': vals['cuota_repercutida']
-                                }
-                            ]
+                            'DetalleIVA': vals['detalle_iva']
                         }
                     }
                 }
