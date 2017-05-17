@@ -64,11 +64,7 @@ def get_factura_recibida(invoice):
     if vals['sujeta_a_iva']:
         tipo_desglose = {
             'InversionSujetoPasivo': {
-                'DetalleIVA': {
-                    'TipoImpositivo': vals['tipo_impositivo'],
-                    'BaseImponible': vals['base_imponible'],
-                    'CuotaRepercutida': vals['cuota_repercutida']
-                }
+                'DetalleIVA': vals['detalle_iva']
             },
             'DesgloseIVA': {
                 'DetalleIVA': {
