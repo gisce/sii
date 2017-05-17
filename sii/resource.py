@@ -28,11 +28,18 @@ def get_factura_emitida(invoice):
                     'NoExenta': {  # TODO Exenta o no exenta??
                         'TipoNoExenta': 'S1',
                         'DesgloseIVA': {
-                            'DetalleIVA': {
-                                'TipoImpositivo': vals['tipo_impositivo'],
-                                'BaseImponible': vals['base_imponible'],
-                                'CuotaRepercutida': vals['cuota_repercutida']
-                            }
+                            'DetalleIVA': [
+                                {
+                                    'TipoImpositivo': vals['tipo_impositivo'],
+                                    'BaseImponible': vals['base_imponible'],
+                                    'CuotaRepercutida': vals['cuota_repercutida']
+                                },
+                                {
+                                    'TipoImpositivo': vals['tipo_impositivo'],
+                                    'BaseImponible': vals['base_imponible'],
+                                    'CuotaRepercutida': vals['cuota_repercutida']
+                                }
+                            ]
                         }
                     }
                 }

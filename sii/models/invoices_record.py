@@ -112,7 +112,7 @@ class DetalleIVAEmitida(BaseImponible):
 
 
 class DesgloseIVA(MySchema):
-    DetalleIVA = fields.Nested(DetalleIVAEmitida, required=True)
+    DetalleIVA = fields.List(fields.Nested(DetalleIVAEmitida), required=True)
 
 
 class NoExenta(MySchema):
