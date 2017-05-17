@@ -1,5 +1,6 @@
 # coding=utf-8
-from sii import models, __SII_VERSION__
+from sii import __SII_VERSION__
+from sii.models import invoices_record
 
 
 def get_iva_values(tax_line):
@@ -193,16 +194,16 @@ class SII(object):
     def generate_object(invoice):
 
         if invoice.type == 'in_invoice':
-            invoice_model = models.SuministroFacturasRecibidas()
+            invoice_model = invoices_record.SuministroFacturasRecibidas()
             invoice_dict = get_factura_recibida_dict(invoice)
         elif invoice.type == 'out_invoice':
-            invoice_model = models.SuministroFacturasEmitidas()
+            invoice_model = invoices_record.SuministroFacturasEmitidas()
             invoice_dict = get_factura_emitida_dict(invoice)
         elif invoice.type == 'in_refund':
-            invoice_model = models.SuministroFacturasRecibidas()
+            invoice_model = invoices_record.SuministroFacturasRecibidas()
             invoice_dict = get_factura_recibida_dict(invoice, rectificativa=True)
         elif invoice.type == 'out_refund':
-            invoice_model = models.SuministroFacturasEmitidas()
+            invoice_model = invoices_record.SuministroFacturasEmitidas()
             invoice_dict = get_factura_emitida_dict(invoice, rectificativa=True)
         else:
             raise Exception('Error in invoice.type')
