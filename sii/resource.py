@@ -73,6 +73,10 @@ def get_factura_recibida(invoice):
                 'DetalleIVA': vals['detalle_iva']
             }
         }
+
+        cuota_deducible = 0
+        for detalle_iva in vals['detalle_iva']:
+            cuota_deducible += detalle_iva['CuotaSoportada']
     else:
         raise Exception("Missing 'IVA' in invoice.tax_line")
 
@@ -86,7 +90,7 @@ def get_factura_recibida(invoice):
             'NIF': invoice.partner_id.vat
         },
         'DesgloseFactura': tipo_desglose,
-        'CuotaDeducible': vals['cuota_repercutida'],
+        'CuotaDeducible': cuota_deducible,
         'FechaRegContable': ''  # TODO to change
     }
 
