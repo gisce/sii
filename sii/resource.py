@@ -15,9 +15,7 @@ def get_iva_values(tax_line):
                 'TipoImpositivo': tax.tax_id.amount * 100,
                 'CuotaRepercutida': tax.tax_amount
             }
-            vals.update({
-                'sujeta_a_iva': True,
-            })
+            vals['sujeta_a_iva'] = True
             vals['detalle_iva'].append(iva)
     return vals
 
