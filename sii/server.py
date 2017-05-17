@@ -1,19 +1,17 @@
 # -*- coding: UTF-8 -*-
 
 from sii.resource import SII
-
 from zeep import Client
 from requests import Session
-from zeep.cache import SqliteCache
+from zeep.wsse.signature import Signature
 from zeep.transports import Transport
-from zeep.plugins import HistoryPlugin
-
+from utils import fix_ssl_verify
 from dicttoxml import dicttoxml
 from lxml import etree, objectify
 
 wsdl_files = {
-    'emitted_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_06/SuministroFactEmitidas.wsdl',
-    'received_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_06/SuministroFactRecibidas.wsdl',
+    'emitted_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_07/SuministroFactEmitidas.wsdl',
+    'received_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_07/SuministroFactRecibidas.wsdl',
 }
 
 
