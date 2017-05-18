@@ -17,6 +17,12 @@ class Partner:
         self.vat = nif
 
 
+class FiscalPosition:
+    def __init__(self, cre_in_invoice, cre_out_invoice):
+        self.sii_in_clave_regimen_especial = cre_in_invoice
+        self.sii_out_clave_regimen_especial = cre_out_invoice
+
+
 class Tax:
     def __init__(self, amount):
         self.amount = amount
