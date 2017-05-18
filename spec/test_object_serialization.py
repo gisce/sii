@@ -49,8 +49,8 @@ with description('El XML Generado'):
     with description('en los datos comunes de una factura'):
         with before.all:
             self.factura = (
-                self.invoice_obj['SuministroLRFacturasEmitidas'][
-                    'RegistroLRFacturasEmitidas']
+                self.invoice_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
             )
 
         with it('la ClaveRegimenEspecialOTrascendencia debe ser "01"'):
@@ -88,8 +88,8 @@ with description('El XML Generado'):
     with description('en los datos de una factura emitida'):
         with before.all:
             self.factura_emitida = (
-                self.invoice_obj['SuministroLRFacturasEmitidas'][
-                    'RegistroLRFacturasEmitidas']
+                self.out_invoice_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
             )
 
         with context('en los detalles del IVA'):
@@ -116,8 +116,8 @@ with description('El XML Generado'):
     with description('en los datos de una factura recibida'):
         with before.all:
             self.factura_recibida = (
-                self.in_invoice_obj['SuministroLRFacturasRecibidas'][
-                    'RegistroLRFacturasRecibidas']
+                self.in_invoice_obj['SuministroLRFacturasRecibidas']
+                ['RegistroLRFacturasRecibidas']
             )
 
         with context('en los detalles del IVA'):
