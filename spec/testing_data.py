@@ -33,7 +33,8 @@ class InvoiceLineTaxes:
 class Invoice:
 
     def __init__(self, description, number, type, partner_id, company_id,
-                 amount_total, period_id, date_invoice, tax_line, sii_sent):
+                 amount_total, period_id, date_invoice, tax_line, sii_sent,
+                 rectificative_type):
         self.name = description
         self.number = number
         self.type = type
@@ -44,6 +45,7 @@ class Invoice:
         self.date_invoice = date_invoice
         self.tax_line = tax_line
         self.sii_sent = sii_sent
+        self.rectificative_type = rectificative_type
 
 
 class DataGenerator:
@@ -81,6 +83,7 @@ class DataGenerator:
         invoice = Invoice(
             type='in_invoice',
             description='Factura recibida',
+            rectificative_type='N',
             number=self.invoice_number,
             partner_id=self.partner_invoice,
             company_id=self.company,
@@ -96,6 +99,7 @@ class DataGenerator:
         invoice = Invoice(
             type='out_invoice',
             description='Factura emitida',
+            rectificative_type='N',
             number=self.invoice_number,
             partner_id=self.partner_invoice,
             company_id=self.company,
@@ -111,6 +115,7 @@ class DataGenerator:
         invoice = Invoice(
             type='in_refund',
             description='Factura rectificativa recibida',
+            rectificative_type='R',
             number=self.invoice_number,
             partner_id=self.partner_invoice,
             company_id=self.company,
@@ -126,6 +131,7 @@ class DataGenerator:
         invoice = Invoice(
             type='out_refund',
             description='Factura rectificativa emitida',
+            rectificative_type='R',
             number=self.invoice_number,
             partner_id=self.partner_invoice,
             company_id=self.company,
