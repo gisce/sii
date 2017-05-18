@@ -202,7 +202,10 @@ class SII(object):
         errors = invoice_model.validate(invoice_dict)
         if errors:
             raise Exception(
-                'Errors were found while trying to generate the dump:', errors)
+                'Errors were found while trying to validate the data:', errors)
 
-        res = invoice_model.dump(invoice_dict).data
-        return res
+        res = invoice_model.dump(invoice_dict)
+        if res.errors:
+            raise Exception(
+                'Errors were found while trying to generate the dump:', errors)
+        return res.data
