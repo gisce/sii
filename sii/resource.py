@@ -65,7 +65,8 @@ def get_factura_emitida(invoice):
 
     factura_expedida = {
         'TipoFactura': 'F1',
-        'ClaveRegimenEspecialOTrascendencia': '01',  # TODO
+        'ClaveRegimenEspecialOTrascendencia':
+            invoice.fiscal_position.sii_out_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.name,
         'Contraparte': {
@@ -99,7 +100,8 @@ def get_factura_recibida(invoice):
 
     factura_recibida = {
         'TipoFactura': 'F1',
-        'ClaveRegimenEspecialOTrascendencia': '01',  # TODO
+        'ClaveRegimenEspecialOTrascendencia':
+            invoice.fiscal_position.sii_in_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.name,
         'Contraparte': {
