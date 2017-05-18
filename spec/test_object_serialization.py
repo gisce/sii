@@ -53,7 +53,7 @@ with description('El XML Generado'):
                 ['RegistroLRFacturasEmitidas']
             )
 
-        with it('la ClaveRegimenEspecialOTrascendencia debe ser "01"'):
+        with it('la ClaveRegimenEspecialOTrascendencia debe ser válido'):
             expect(
                 CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS
             ).to(contain(
