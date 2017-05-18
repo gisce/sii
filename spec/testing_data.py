@@ -33,7 +33,7 @@ class InvoiceLineTaxes:
 class Invoice:
 
     def __init__(self, description, number, type, partner_id, company_id,
-                 amount_total, period_id, date_invoice, tax_line):
+                 amount_total, period_id, date_invoice, tax_line, sii_sent):
         self.name = description
         self.number = number
         self.type = type
@@ -43,10 +43,12 @@ class Invoice:
         self.amount_total = amount_total
         self.date_invoice = date_invoice
         self.tax_line = tax_line
+        self.sii_sent = sii_sent
 
 
 class DataGenerator:
     def __init__(self):
+        self.sii_sent = False
         self.period = Period(name='03/2016')
         self.tax_ibi = Tax(amount=0.15)
         self.tax_iva_21 = Tax(amount=0.21)
@@ -85,7 +87,8 @@ class DataGenerator:
             amount_total=self.amount_total,
             period_id=self.period,
             date_invoice=self.date_invoice,
-            tax_line=self.tax_line
+            tax_line=self.tax_line,
+            sii_sent=self.sii_sent
         )
         return invoice
 
@@ -99,7 +102,8 @@ class DataGenerator:
             amount_total=self.amount_total,
             period_id=self.period,
             date_invoice=self.date_invoice,
-            tax_line=self.tax_line
+            tax_line=self.tax_line,
+            sii_sent=self.sii_sent
         )
         return invoice
 
@@ -113,7 +117,8 @@ class DataGenerator:
             amount_total=self.amount_total,
             period_id=self.period,
             date_invoice=self.date_invoice,
-            tax_line=self.tax_line
+            tax_line=self.tax_line,
+            sii_sent=self.sii_sent
         )
         return invoice
 
@@ -127,6 +132,7 @@ class DataGenerator:
             amount_total=self.amount_total,
             period_id=self.period,
             date_invoice=self.date_invoice,
-            tax_line=self.tax_line
+            tax_line=self.tax_line,
+            sii_sent=self.sii_sent
         )
         return invoice
