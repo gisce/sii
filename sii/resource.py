@@ -163,7 +163,10 @@ def get_factura_emitida_dict(invoice, rectificativa=False):
     if rectificativa:
         vals = get_factura_rectificativa_fields()
 
-        obj['SuministroLRFacturasEmitidas']['RegistroLRFacturasEmitidas']['FacturaExpedida'].update(vals)
+        (
+            obj['SuministroLRFacturasEmitidas']['RegistroLRFacturasEmitidas']
+            ['FacturaExpedida']
+        ).update(vals)
 
     return obj
 
@@ -192,7 +195,10 @@ def get_factura_recibida_dict(invoice, rectificativa=False):
     if rectificativa:
         vals = get_factura_rectificativa_fields()
 
-        obj['SuministroLRFacturasRecibidas']['RegistroLRFacturasRecibidas']['FacturaRecibida'].update(vals)
+        (
+            obj['SuministroLRFacturasRecibidas']['RegistroLRFacturasRecibidas']
+            ['FacturaRecibida']
+        ).update(vals)
 
     return obj
 
@@ -214,7 +220,7 @@ class SII(object):
             invoice_model = invoices_record.SuministroFacturasEmitidas()
             invoice_dict = get_factura_emitida_dict(invoice, rectificativa=True)
         else:
-            raise Exception('Error in invoice.type')
+            raise Exception('Unknown value in invoice.type')
 
         errors = invoice_model.validate(invoice_dict)
         if errors:
