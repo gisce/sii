@@ -158,6 +158,10 @@ class DetalleFactura(MySchema):
     DescripcionOperacion = fields.String(
         required=True, validate=validate.Length(max=500)
     )
+    TipoRectificativa = fields.String(
+        validate=validate.OneOf(TIPO_RECTIFICATIVA_VALUES)
+    )  # TODO obligatorio si es una rectificativa
+    ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si TipoRectificativa = 'S'
     # TODO ImporteTotal OBLIGATORIO si:
     # 1.Obligatorio si Baseimponible=0 y TipoFactura=”F2” o “R5”
     # 2.Obligatorio si Baseimponible=0 y ClaveRegimenEspecialOTranscedencia = “05”o “03”
@@ -171,10 +175,6 @@ class DetalleFacturaEmitida(DetalleFactura):
     )
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
-    TipoRectificativa = fields.String(
-        validate=validate.OneOf(TIPO_RECTIFICATIVA_VALUES)
-    )  # TODO obligatorio si es una rectificativa
-    ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si TipoRectificativa = 'S'
 
 
 class FacturaEmitida(Factura):
