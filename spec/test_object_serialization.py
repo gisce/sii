@@ -18,6 +18,9 @@ with description('El XML Generado'):
 
         self.invoice_obj = SII.generate_object(self.invoice)
         self.in_invoice_obj = SII.generate_object(self.in_invoice)
+        self.out_invoice_obj = SII.generate_object(self.out_invoice)
+        self.in_refund_obj = SII.generate_object(self.in_refund)
+        self.out_refund_obj = SII.generate_object(self.out_refund)
 
     with description('en la cabecera'):
         with before.all:
