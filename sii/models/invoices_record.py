@@ -142,7 +142,7 @@ class DesgloseTipoOperacion(MySchema):  # TODO obligatorio uno de los dos
     Entrega = fields.Nested(DesgloseFacturaEmitida)
 
 
-class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos
+class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos pero sólo puede haber uno
     DesgloseFactura = fields.Nested(DesgloseFacturaEmitida)
     DesgloseTipoOperacion = fields.Nested(DesgloseTipoOperacion)
 
