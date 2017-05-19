@@ -8,14 +8,14 @@ SIGN = {'B': -1, 'A': -1, 'N': 1, 'R': 1}
 def get_importe_no_sujeto_a_iva(invoice):
     importe_no_sujeto = 0
 
-    for linia in invoice.linia_ids:
+    for line in invoice.invoice_line:
         no_iva = True
-        for t in linia.invoice_line_tax_id:
-            if 'iva' in t.name.lower():
+        for tax in line.invoice_line_tax_id:
+            if 'iva' in tax.name.lower():
                 no_iva = False
                 break
         if no_iva:
-            importe_no_sujeto += linia.price_subtotal
+            importe_no_sujeto += line.price_subtotal
 
     return importe_no_sujeto
 
