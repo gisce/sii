@@ -68,7 +68,7 @@ def get_factura_emitida(invoice):
             }
 
     factura_expedida = {
-        'TipoFactura': 'F1',
+        'TipoFactura': 'F1',  # TODO change to rectificativa
         'ClaveRegimenEspecialOTrascendencia':
             invoice.fiscal_position.sii_out_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
@@ -103,7 +103,7 @@ def get_factura_recibida(invoice):
         raise Exception("Missing 'IVA' in invoice.tax_line")
 
     factura_recibida = {
-        'TipoFactura': 'F1',
+        'TipoFactura': 'F1',  # TODO change to rectificativa
         'ClaveRegimenEspecialOTrascendencia':
             invoice.fiscal_position.sii_in_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
