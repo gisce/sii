@@ -23,10 +23,11 @@ def get_importe_no_sujeto_a_iva(invoice):
 def get_iva_values(tax_line, in_invoice):
     vals = {
         'sujeta_a_iva': False,
-        'detalle_iva': []
+        'detalle_iva': [],
+        'no_sujeta_a_iva': False
     }
     for tax in tax_line:
-        if 'IVA' in tax.name:
+        if 'iva' in tax.name.lower():
             iva = {
                 'BaseImponible': tax.base,
                 'TipoImpositivo': tax.tax_id.amount * 100
@@ -37,6 +38,8 @@ def get_iva_values(tax_line, in_invoice):
                 iva.update({'CuotaSoportada': tax.tax_amount})
             vals['sujeta_a_iva'] = True
             vals['detalle_iva'].append(iva)
+        else:
+            vals['no_sujeta_a_iva'] = True
     return vals
 
 
