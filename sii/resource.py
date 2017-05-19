@@ -77,30 +77,38 @@ def get_factura_emitida(invoice):
             'NombreRazon': invoice.partner_id.name,
             'NIF': invoice.partner_id.vat
         },
-        'TipoDesglose': tipo_desglose
+        'TipoDesglose': {
+            'DesgloseFactura': desglose_factura
+        }
     }
 
     return factura_expedida
 
 
 def get_factura_recibida(invoice):
-    vals = get_iva_values(invoice.tax_line, in_invoice=False)
+    iva_values = get_iva_values(invoice.tax_line, in_invoice=False)
+    cuota_deducible = 0
 
-    if vals['sujeta_a_iva']:
-        tipo_desglose = {  # TODO to change
-            'InversionSujetoPasivo': {
-                'DetalleIVA': vals['detalle_iva']
-            },
+    if iva_values['sujeta_a_iva']:
+        desglose_factura = {  # TODO to change
+            # 'InversionSujetoPasivo': {
+            #     'DetalleIVA': iva_values['detalle_iva']
+            # },
             'DesgloseIVA': {
-                'DetalleIVA': vals['detalle_iva']
+                'DetalleIVA': iva_values['detalle_iva']
             }
         }
 
-        cuota_deducible = 0
-        for detalle_iva in vals['detalle_iva']:
+        for detalle_iva in iva_values['detalle_iva']:
             cuota_deducible += detalle_iva['CuotaSoportada']
     else:
-        raise Exception("Missing 'IVA' in invoice.tax_line")
+        desglose_factura = {
+            'DesgloseIVA': {
+                'DetalleIVA': {
+                    'BaseImponible': 0  # TODO deixem de moment 0 perquè no tindrem inversio sujeto pasivo
+                }
+            }
+        }
 
     factura_recibida = {
         'TipoFactura': 'F1',  # TODO change to rectificativa
@@ -112,7 +120,7 @@ def get_factura_recibida(invoice):
             'NombreRazon': invoice.partner_id.name,
             'NIF': invoice.partner_id.vat
         },
-        'DesgloseFactura': tipo_desglose,
+        'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
         'FechaRegContable': '2017-12-31'  # TODO to change
     }
