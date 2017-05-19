@@ -44,27 +44,28 @@ def get_iva_values(tax_line, in_invoice):
 
 
 def get_factura_emitida(invoice):
-    vals = get_iva_values(invoice.tax_line, in_invoice=True)
+    iva_values = get_iva_values(invoice.tax_line, in_invoice=True)
+    desglose_factura = {}
 
-    if vals['sujeta_a_iva']:
-        tipo_desglose = {
-            'DesgloseFactura': {
-                'Sujeta': {
-                    'NoExenta': {  # TODO Exenta o no exenta??
-                        'TipoNoExenta': 'S1',
-                        'DesgloseIVA': {
-                            'DetalleIVA': vals['detalle_iva']
-                        }
-                    }
+    if iva_values['sujeta_a_iva']:
+        desglose_factura['Sujeta'] = {
+            'NoExenta': {  # TODO Exenta o no exenta??
+                'TipoNoExenta': 'S1',
+                'DesgloseIVA': {
+                    'DetalleIVA': iva_values['detalle_iva']
                 }
             }
         }
-    else:
-        tipo_desglose = {
-            'DesgloseFactura': {
-                'NoSujeta': ''
+    if iva_values['no_sujeta_a_iva']:
+        importe_no_sujeto = get_importe_no_sujeto_a_iva(invoice)
+        if 'islas canarias' not in invoice.fiscal_position.name.lower():
+            desglose_factura['NoSujeta'] = {
+                'ImportePorArticulos7_14_Otros': importe_no_sujeto
             }
-        }
+        else:
+            desglose_factura['NoSujeta'] = {
+                'ImporteTAIReglasLocalizacion': importe_no_sujeto
+            }
 
     factura_expedida = {
         'TipoFactura': 'F1',
