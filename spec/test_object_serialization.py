@@ -18,6 +18,9 @@ with description('El XML Generado'):
 
         self.invoice_obj = SII.generate_object(self.invoice)
         self.in_invoice_obj = SII.generate_object(self.in_invoice)
+        self.out_invoice_obj = SII.generate_object(self.out_invoice)
+        self.in_refund_obj = SII.generate_object(self.in_refund)
+        self.out_refund_obj = SII.generate_object(self.out_refund)
 
     with description('en la cabecera'):
         with before.all:
@@ -46,11 +49,11 @@ with description('El XML Generado'):
     with description('en los datos comunes de una factura'):
         with before.all:
             self.factura = (
-                self.invoice_obj['SuministroLRFacturasEmitidas'][
-                    'RegistroLRFacturasEmitidas']
+                self.invoice_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
             )
 
-        with it('la ClaveRegimenEspecialOTrascendencia debe ser "01"'):
+        with it('la ClaveRegimenEspecialOTrascendencia debe ser válido'):
             expect(
                 CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS
             ).to(contain(
@@ -85,8 +88,8 @@ with description('El XML Generado'):
     with description('en los datos de una factura emitida'):
         with before.all:
             self.factura_emitida = (
-                self.invoice_obj['SuministroLRFacturasEmitidas'][
-                    'RegistroLRFacturasEmitidas']
+                self.out_invoice_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
             )
 
         with context('en los detalles del IVA'):
@@ -113,8 +116,8 @@ with description('El XML Generado'):
     with description('en los datos de una factura recibida'):
         with before.all:
             self.factura_recibida = (
-                self.in_invoice_obj['SuministroLRFacturasRecibidas'][
-                    'RegistroLRFacturasRecibidas']
+                self.in_invoice_obj['SuministroLRFacturasRecibidas']
+                ['RegistroLRFacturasRecibidas']
             )
 
         with context('en los detalles del IVA'):
