@@ -25,7 +25,8 @@ class FiscalPosition:
 
 
 class Tax:
-    def __init__(self, amount):
+    def __init__(self, name, amount):
+        self.name = name
         self.amount = amount
 
 
