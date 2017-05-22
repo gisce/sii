@@ -127,9 +127,14 @@ class ExentaAIVA(MySchema):  # TODO obligatorio uno de los dos
     NoExenta = fields.Nested(NoExenta)
 
 
+class NoSujeta(MySchema):
+    ImportePorArticulos7_14_Otros = fields.Float()
+    ImporteTAIReglasLocalizacion = fields.Float()
+
+
 class DesgloseFacturaEmitida(MySchema):  # TODO obligatorio uno de los dos
     Sujeta = fields.Nested(ExentaAIVA)
-    NoSujeta = fields.String()  # TODO
+    NoSujeta = fields.Nested(NoSujeta)
 
 
 class DesgloseTipoOperacion(MySchema):  # TODO obligatorio uno de los dos
@@ -137,7 +142,7 @@ class DesgloseTipoOperacion(MySchema):  # TODO obligatorio uno de los dos
     Entrega = fields.Nested(DesgloseFacturaEmitida)
 
 
-class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos
+class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos pero sólo puede haber uno
     DesgloseFactura = fields.Nested(DesgloseFacturaEmitida)
     DesgloseTipoOperacion = fields.Nested(DesgloseTipoOperacion)
 

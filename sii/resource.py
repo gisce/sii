@@ -8,14 +8,14 @@ SIGN = {'B': -1, 'A': -1, 'N': 1, 'R': 1}
 def get_importe_no_sujeto_a_iva(invoice):
     importe_no_sujeto = 0
 
-    for linia in invoice.linia_ids:
+    for line in invoice.invoice_line:
         no_iva = True
-        for t in linia.invoice_line_tax_id:
-            if 'iva' in t.name.lower():
+        for tax in line.invoice_line_tax_id:
+            if 'iva' in tax.name.lower():
                 no_iva = False
                 break
         if no_iva:
-            importe_no_sujeto += linia.price_subtotal
+            importe_no_sujeto += line.price_subtotal
 
     return importe_no_sujeto
 
@@ -23,10 +23,11 @@ def get_importe_no_sujeto_a_iva(invoice):
 def get_iva_values(tax_line, in_invoice):
     vals = {
         'sujeta_a_iva': False,
-        'detalle_iva': []
+        'detalle_iva': [],
+        'no_sujeta_a_iva': False
     }
     for tax in tax_line:
-        if 'IVA' in tax.name:
+        if 'iva' in tax.name.lower():
             iva = {
                 'BaseImponible': tax.base,
                 'TipoImpositivo': tax.tax_id.amount * 100
@@ -37,34 +38,37 @@ def get_iva_values(tax_line, in_invoice):
                 iva.update({'CuotaSoportada': tax.tax_amount})
             vals['sujeta_a_iva'] = True
             vals['detalle_iva'].append(iva)
+        else:
+            vals['no_sujeta_a_iva'] = True
     return vals
 
 
 def get_factura_emitida(invoice):
-    vals = get_iva_values(invoice.tax_line, in_invoice=True)
+    iva_values = get_iva_values(invoice.tax_line, in_invoice=True)
+    desglose_factura = {}
 
-    if vals['sujeta_a_iva']:
-        tipo_desglose = {
-            'DesgloseFactura': {
-                'Sujeta': {
-                    'NoExenta': {  # TODO Exenta o no exenta??
-                        'TipoNoExenta': 'S1',
-                        'DesgloseIVA': {
-                            'DetalleIVA': vals['detalle_iva']
-                        }
-                    }
+    if iva_values['sujeta_a_iva']:
+        desglose_factura['Sujeta'] = {
+            'NoExenta': {  # TODO Exenta o no exenta??
+                'TipoNoExenta': 'S1',
+                'DesgloseIVA': {
+                    'DetalleIVA': iva_values['detalle_iva']
                 }
             }
         }
-    else:
-        tipo_desglose = {
-            'DesgloseFactura': {
-                'NoSujeta': ''
+    if iva_values['no_sujeta_a_iva']:
+        importe_no_sujeto = get_importe_no_sujeto_a_iva(invoice)
+        if 'islas canarias' not in invoice.fiscal_position.name.lower():
+            desglose_factura['NoSujeta'] = {
+                'ImportePorArticulos7_14_Otros': importe_no_sujeto
             }
-        }
+        else:
+            desglose_factura['NoSujeta'] = {
+                'ImporteTAIReglasLocalizacion': importe_no_sujeto
+            }
 
     factura_expedida = {
-        'TipoFactura': 'F1',
+        'TipoFactura': 'F1',  # TODO change to rectificativa
         'ClaveRegimenEspecialOTrascendencia':
             invoice.fiscal_position.sii_out_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
@@ -73,33 +77,41 @@ def get_factura_emitida(invoice):
             'NombreRazon': invoice.partner_id.name,
             'NIF': invoice.partner_id.vat
         },
-        'TipoDesglose': tipo_desglose
+        'TipoDesglose': {
+            'DesgloseFactura': desglose_factura
+        }
     }
 
     return factura_expedida
 
 
 def get_factura_recibida(invoice):
-    vals = get_iva_values(invoice.tax_line, in_invoice=False)
+    iva_values = get_iva_values(invoice.tax_line, in_invoice=False)
+    cuota_deducible = 0
 
-    if vals['sujeta_a_iva']:
-        tipo_desglose = {  # TODO to change
-            'InversionSujetoPasivo': {
-                'DetalleIVA': vals['detalle_iva']
-            },
+    if iva_values['sujeta_a_iva']:
+        desglose_factura = {  # TODO to change
+            # 'InversionSujetoPasivo': {
+            #     'DetalleIVA': iva_values['detalle_iva']
+            # },
             'DesgloseIVA': {
-                'DetalleIVA': vals['detalle_iva']
+                'DetalleIVA': iva_values['detalle_iva']
             }
         }
 
-        cuota_deducible = 0
-        for detalle_iva in vals['detalle_iva']:
+        for detalle_iva in iva_values['detalle_iva']:
             cuota_deducible += detalle_iva['CuotaSoportada']
     else:
-        raise Exception("Missing 'IVA' in invoice.tax_line")
+        desglose_factura = {
+            'DesgloseIVA': {
+                'DetalleIVA': {
+                    'BaseImponible': 0  # TODO deixem de moment 0 perquè no tindrem inversio sujeto pasivo
+                }
+            }
+        }
 
     factura_recibida = {
-        'TipoFactura': 'F1',
+        'TipoFactura': 'F1',  # TODO change to rectificativa
         'ClaveRegimenEspecialOTrascendencia':
             invoice.fiscal_position.sii_in_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
@@ -108,7 +120,7 @@ def get_factura_recibida(invoice):
             'NombreRazon': invoice.partner_id.name,
             'NIF': invoice.partner_id.vat
         },
-        'DesgloseFactura': tipo_desglose,
+        'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
         'FechaRegContable': '2017-12-31'  # TODO to change
     }

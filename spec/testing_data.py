@@ -18,17 +18,19 @@ class Partner:
 
 
 class FiscalPosition:
-    def __init__(self, cre_in_invoice, cre_out_invoice):
+    def __init__(self, name, cre_in_invoice, cre_out_invoice):
+        self.name = name
         self.sii_in_clave_regimen_especial = cre_in_invoice
         self.sii_out_clave_regimen_especial = cre_out_invoice
 
 
 class Tax:
-    def __init__(self, amount):
+    def __init__(self, name, amount):
+        self.name = name
         self.amount = amount
 
 
-class InvoiceLineTaxes:
+class InvoiceTax:
     def __init__(self, name, base, tax_amount, tax_id):
         self.name = name
         self.base = base  # base imponible
@@ -36,11 +38,16 @@ class InvoiceLineTaxes:
         self.tax_id = tax_id
 
 
-class Invoice:
+class InvoiceLine:
+    def __init__(self, price_subtotal, invoice_line_tax_id):
+        self.price_subtotal = price_subtotal
+        self.invoice_line_tax_id = invoice_line_tax_id
 
+
+class Invoice:
     def __init__(self, description, number, type, partner_id, company_id,
                  amount_total, period_id, date_invoice, tax_line, sii_sent,
-                 rectificative_type, fiscal_position):
+                 rectificative_type, fiscal_position, invoice_line):
         self.name = description
         self.number = number
         self.type = type
@@ -50,6 +57,7 @@ class Invoice:
         self.amount_total = amount_total
         self.date_invoice = date_invoice
         self.tax_line = tax_line
+        self.invoice_line = invoice_line
         self.fiscal_position = fiscal_position
         self.sii_sent = sii_sent
         self.rectificative_type = rectificative_type
@@ -65,35 +73,70 @@ class DataGenerator:
     def __init__(self):
         self.sii_sent = False
         self.period = Period(name='03/2016')
-        tax_ibi = Tax(amount=0.15)
-        tax_iva_21 = Tax(amount=0.21)
-        tax_iva_4 = Tax(amount=0.04)
-        self.tax_line = [
-            InvoiceLineTaxes(
-                name='IVA 21%', base=1000, tax_amount=210, tax_id=tax_iva_21
-            ),
-            InvoiceLineTaxes(
-                name='IVA 4%', base=1000, tax_amount=40, tax_id=tax_iva_4
-            ),
-            InvoiceLineTaxes(
-                name='IBI 15%', base=1000, tax_amount=150, tax_id=tax_ibi
-            )
+        name_iva_21 = 'IVA 21%'
+        name_iva_4 = 'IVA 4%'
+        name_ibi = 'IBI 15%'
+        tax_ibi = Tax(name=name_ibi, amount=0.15)
+        tax_iva_21 = Tax(name=name_iva_21, amount=0.21)
+        tax_iva_4 = Tax(name=name_iva_21, amount=0.04)
+        self.invoice_line = [
+            InvoiceLine(price_subtotal=100, invoice_line_tax_id=[tax_iva_21]),
+            InvoiceLine(price_subtotal=200,
+                        invoice_line_tax_id=[tax_iva_21, tax_ibi]),
+            InvoiceLine(price_subtotal=400, invoice_line_tax_id=[tax_iva_4]),
+            InvoiceLine(price_subtotal=800, invoice_line_tax_id=[tax_ibi])
         ]
+
+        base_iva_21 = sum(
+            [line.price_subtotal
+             for line in self.invoice_line
+             if tax_iva_21.amount
+             in [tax.amount for tax in line.invoice_line_tax_id]]
+        )
+        base_iva_4 = sum(
+            [line.price_subtotal
+             for line in self.invoice_line
+             if tax_iva_4.amount
+             in [tax.amount for tax in line.invoice_line_tax_id]]
+        )
+        base_ibi = sum(
+            [line.price_subtotal
+             for line in self.invoice_line
+             if tax_ibi.amount
+             in [tax.amount for tax in line.invoice_line_tax_id]]
+        )
+        invoice_tax_iva_21 = InvoiceTax(  # TODO les tax_line són una per cada tipus d'impost repetit i suma
+            name=name_iva_21, base=base_iva_21,
+            tax_amount=base_iva_21 * tax_iva_21.amount, tax_id=tax_iva_21
+        )
+        invoice_tax_iva_4 = InvoiceTax(
+            name=name_iva_4, base=base_iva_4,
+            tax_amount=base_iva_4 * tax_iva_4.amount, tax_id=tax_iva_4
+        )
+        invoice_tax_ibi = InvoiceTax(
+            name=name_ibi, base=base_ibi,
+            tax_amount=base_ibi * tax_ibi.amount, tax_id=tax_ibi
+        )
+        self.tax_line = [invoice_tax_iva_21, invoice_tax_iva_4, invoice_tax_ibi]  # No hi ha impostos repetits
+
         self.partner_invoice = Partner(
-            name=unicode('Francisco García', 'utf-8'), nif='12345678T'
+            name=u'Francisco García', nif='12345678T'
         )
         partner_company = Partner(
-            name=unicode('Compañía Eléctrica S.A.', 'utf-8'), nif='55555555T'
+            name=u'Compañía Eléctrica S.A.', nif='55555555T'
         )
         self.company = Company(partner_id=partner_company)
 
         self.invoice_number = 'F012345'
         self.date_invoice = '2016-12-31'
-        self.amount_total = 15
+        taxes_amount = sum([tax.tax_amount for tax in self.tax_line])
+        base_amount = sum([line.price_subtotal for line in self.invoice_line])
+        self.amount_total = taxes_amount + base_amount
         cre_in_invoice = '01'
         cre_out_invoice = '01'
         self.fiscal_position = FiscalPosition(
-            cre_in_invoice=cre_in_invoice, cre_out_invoice=cre_out_invoice
+            name=u'Régimen Islas Canarias', cre_in_invoice=cre_in_invoice,
+            cre_out_invoice=cre_out_invoice
         )
 
     def get_in_invoice(self):
@@ -108,6 +151,7 @@ class DataGenerator:
             period_id=self.period,
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
+            invoice_line=self.invoice_line,
             sii_sent=self.sii_sent,
             fiscal_position=self.fiscal_position
         )
@@ -125,6 +169,7 @@ class DataGenerator:
             period_id=self.period,
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
+            invoice_line=self.invoice_line,
             sii_sent=self.sii_sent,
             fiscal_position=self.fiscal_position
         )
@@ -142,6 +187,7 @@ class DataGenerator:
             period_id=self.period,
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
+            invoice_line=self.invoice_line,
             sii_sent=self.sii_sent,
             fiscal_position=self.fiscal_position
         )
@@ -159,6 +205,7 @@ class DataGenerator:
             period_id=self.period,
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
+            invoice_line=self.invoice_line,
             sii_sent=self.sii_sent,
             fiscal_position=self.fiscal_position
         )
