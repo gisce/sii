@@ -32,35 +32,35 @@ class Service(object):
         if invoice.type.startswith('out_'):
             if self.emitted_service is None:
                 self.emitted_service = self.create_service(invoice.type)
-            if invoice.type == 'out_invoice':
-                self.send_invoice(invoice)
         else:
             if self.received_service is None:
                 self.received_service = self.create_service(invoice.type)
-            if invoice.type == 'in_invoice':
-                self.received_service.send()
+        self.send_invoice(invoice)
 
     def create_service(self, i_type):
 
+        proxy_address = 'https://sii-proxy.gisce.net:4443'
         session = Session()
         session.cert = (self.certificate, self.key)
         session.verify = False
         transport = Transport(session=session)
         if i_type.startswith('out_'):
             wsdl = wsdl_files['emitted_invoice']
-            port_name = 'SuministroFactEmitidasPruebas'
+            port_name = 'SuministroFactEmitidas'
+            binding_name = '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactEmitidas.wsdl}siiBinding'
+            type_address = '/wlpl/SSII-FACT/ws/fe/SiiFactFEV1SOAP'
         else:
             wsdl = wsdl_files['received_invoice']
-            port_name = 'SuministroFactRecibidasPruebas'
+            port_name = 'SuministroFactRecibidas'
+            binding_name = '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactRecibidas.wsdl}siiBinding'
+            type_address = '/wlpl/SSII-FACT/ws/fr/SiiFactPAGV1SOAP'
+        if self.test_mode:
+            port_name += 'Pruebas'
 
         client = Client(wsdl=wsdl, port_name=port_name, transport=transport,
                         service_name='siiService')
-        # , wsse = Signature(self.key,self.certificate)
-        # if self.test_mode:
-        # port_name += 'Pruebas'
-        service = client.create_service('{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactEmitidas.wsdl}siiBinding',
-                                         'https://sii-proxy.gisce.net:4443/wlpl/SSII-FACT/ws/fe/SiiFactFEV1SOAP')
-        # serv = client.bind('siiService', port_name)
+        address = '{0}{1}'.format(proxy_address, type_address)
+        service = client.create_service(binding_name, address)
         return service
 
     def send_invoice(self, invoice):
@@ -69,9 +69,12 @@ class Service(object):
             if invoice.type == 'out_invoice':
                 res = self.emitted_service.SuministroLRFacturasEmitidas(
                     msg_header, msg_invoice)
-                if res['EstadoEnvio'] == 'Correcto':
-                    self.result['sii_sent'] = True
-                self.result['sii_return'] = res
+            elif invoice.type == 'in_invoice':
+                res = self.received_service.SuministroLRFacturasRecibidas(
+                    msg_header, msg_invoice)
+            if res['EstadoEnvio'] == 'Correcto':
+                self.result['sii_sent'] = True
+            self.result['sii_return'] = res
         except Exception as fault:
             self.result['sii_return'] = fault
 
@@ -89,9 +92,16 @@ class Service(object):
 
     def get_msg(self, invoice):
         dict_from_marsh = get_dict_data(invoice=invoice)
-        res_header = dict_from_marsh['SuministroLRFacturasEmitidas']['Cabecera']
-        res_invoices = dict_from_marsh['SuministroLRFacturasEmitidas'][
-            'RegistroLRFacturasEmitidas']
-        # xml_from_dict = dicttoxml(dict_from_marsh, root=False, attr_type=False)
+        res_header = res_invoices = None
+        if invoice.type.startswith('out_'):
+            res_header = dict_from_marsh['SuministroLRFacturasEmitidas'][
+                'Cabecera']
+            res_invoices = dict_from_marsh['SuministroLRFacturasEmitidas'][
+                'RegistroLRFacturasEmitidas']
+        elif invoice.type.startswith('in_'):
+            res_header = dict_from_marsh['SuministroLRFacturasRecibidas'][
+                'Cabecera']
+            res_invoices = dict_from_marsh['SuministroLRFacturasRecibidas'][
+                'RegistroLRFacturasRecibidas']
 
         return res_header, res_invoices
