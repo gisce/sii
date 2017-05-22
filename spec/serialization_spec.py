@@ -118,46 +118,23 @@ with description('El XML Generado'):
             )
 
         with context('en los detalles del IVA'):
-            with before.all:
-                self.detalle_iva_inv_suj_pasivo = (
-                    self.factura_recibida['FacturaRecibida']['DesgloseFactura']
-                    ['InversionSujetoPasivo']['DetalleIVA']
-                )
-                self.detalle_iva_desglose_iva = (
+            with it('el detalle de DesgloseIVA debe ser la original'):
+                detalle_iva_desglose_iva = (
                     self.factura_recibida['FacturaRecibida']['DesgloseFactura']
                     ['DesgloseIVA']['DetalleIVA']
                 )
-
-            with it('el detalle de InversionSujetoPasivo debe ser la original'):
                 expect(
-                    self.detalle_iva_inv_suj_pasivo[0]['BaseImponible']
+                    detalle_iva_desglose_iva[0]['BaseImponible']
                 ).to(equal(
                     self.in_invoice.tax_line[0].base)
                 )
                 expect(
-                    self.detalle_iva_inv_suj_pasivo[0]['CuotaSoportada']
+                    detalle_iva_desglose_iva[0]['CuotaSoportada']
                 ).to(equal(
                     self.in_invoice.tax_line[0].tax_amount)
                 )
                 expect(
-                    self.detalle_iva_inv_suj_pasivo[0]['TipoImpositivo']
-                ).to(equal(
-                    self.in_invoice.tax_line[0].tax_id.amount * 100)
-                )
-
-            with it('el detalle de DesgloseIVA debe ser la original'):
-                expect(
-                    self.detalle_iva_desglose_iva[0]['BaseImponible']
-                ).to(equal(
-                    self.in_invoice.tax_line[0].base)
-                )
-                expect(
-                    self.detalle_iva_desglose_iva[0]['CuotaSoportada']
-                ).to(equal(
-                    self.in_invoice.tax_line[0].tax_amount)
-                )
-                expect(
-                    self.detalle_iva_desglose_iva[0]['TipoImpositivo']
+                    detalle_iva_desglose_iva[0]['TipoImpositivo']
                 ).to(equal(
                     self.in_invoice.tax_line[0].tax_id.amount * 100)
                 )
