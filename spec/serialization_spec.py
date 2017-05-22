@@ -8,19 +8,10 @@ from spec.testing_data import DataGenerator
 with description('El XML Generado'):
     with before.all:
         data_gen = DataGenerator()
-        self.in_invoice = data_gen.get_in_invoice()
-        self.out_invoice = data_gen.get_out_invoice()
-        self.in_refund = data_gen.get_in_refund_invoice()
-        self.out_refund = data_gen.get_out_refund_invoice()
 
         # Example invoice to check common fields
         self.invoice = self.out_invoice
-
         self.invoice_obj = SII.generate_object(self.invoice)
-        self.in_invoice_obj = SII.generate_object(self.in_invoice)
-        self.out_invoice_obj = SII.generate_object(self.out_invoice)
-        self.in_refund_obj = SII.generate_object(self.in_refund)
-        self.out_refund_obj = SII.generate_object(self.out_refund)
 
     with description('en la cabecera'):
         with before.all:
@@ -87,6 +78,8 @@ with description('El XML Generado'):
 
     with description('en los datos de una factura emitida'):
         with before.all:
+            self.out_invoice = data_gen.get_out_invoice()
+            self.out_invoice_obj = SII.generate_object(self.out_invoice)
             self.factura_emitida = (
                 self.out_invoice_obj['SuministroLRFacturasEmitidas']
                 ['RegistroLRFacturasEmitidas']
@@ -115,6 +108,8 @@ with description('El XML Generado'):
 
     with description('en los datos de una factura recibida'):
         with before.all:
+            self.in_invoice = data_gen.get_in_invoice()
+            self.in_invoice_obj = SII.generate_object(self.in_invoice)
             self.factura_recibida = (
                 self.in_invoice_obj['SuministroLRFacturasRecibidas']
                 ['RegistroLRFacturasRecibidas']
