@@ -7,7 +7,7 @@ from spec.testing_data import DataGenerator
 
 with description('El XML Generado'):
     with before.all:
-        data_gen = DataGenerator()
+        self.data_gen = DataGenerator()
 
     with description('en la cabecera'):
         with before.all:
@@ -77,7 +77,7 @@ with description('El XML Generado'):
 
     with description('en los datos de una factura emitida'):
         with before.all:
-            self.out_invoice = data_gen.get_out_invoice()
+            self.out_invoice = self.data_gen.get_out_invoice()
             self.out_invoice_obj = SII.generate_object(self.out_invoice)
             self.factura_emitida = (
                 self.out_invoice_obj['SuministroLRFacturasEmitidas']
@@ -107,7 +107,7 @@ with description('El XML Generado'):
 
     with description('en los datos de una factura recibida'):
         with before.all:
-            self.in_invoice = data_gen.get_in_invoice()
+            self.in_invoice = self.data_gen.get_in_invoice()
             self.in_invoice_obj = SII.generate_object(self.in_invoice)
             self.factura_recibida = (
                 self.in_invoice_obj['SuministroLRFacturasRecibidas']
