@@ -1,4 +1,7 @@
 # -*- coding: UTF-8 -*-
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 from sii.server import *
 from spec.testing_data import DataGenerator

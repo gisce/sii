@@ -47,7 +47,7 @@ class Service(object):
         # session.cert = (self.certificate, self.key)
         session.verify = False
         session.trust_env = False
-        session.proxies = {'https': 'http://sii-proxy.gisce.net:4443'}
+        # session.proxies = {'https': 'https://sii-proxy.gisce.net:4443'}
         transport = Transport(session=session)
         if i_type.startswith('out_'):
             wsdl = wsdl_files['emitted_invoice']
@@ -61,16 +61,16 @@ class Service(object):
         # , wsse = Signature(self.key,self.certificate)
         # if self.test_mode:
         # port_name += 'Pruebas'
-        # service = client.create_service('{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactEmitidas.wsdl}siiBinding',
-        #                                 'https://sii-proxy.gisce.net:4443')
+        service = client.create_service('{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactEmitidas.wsdl}siiBinding',
+                                         'https://sii-proxy.gisce.net:4443/wlpl/SSII-FACT/ws/fe/SiiFactFEV1SOAP')
         # serv = client.bind('siiService', port_name)
-        return client
+        return service
 
     def send_invoice(self, invoice):
         msg_header, msg_invoice = self.get_msg(invoice)
         try:
             if invoice.type == 'out_invoice':
-                res = self.emitted_service.service.SuministroLRFacturasEmitidas(
+                res = self.emitted_service.SuministroLRFacturasEmitidas(
                     msg_header, msg_invoice)
                 if res['EstadoEnvio'] == 'Correcto':
                     self.result['sii_sent'] = True
