@@ -38,6 +38,9 @@ with description('El XML Generado'):
 
     with description('en los datos comunes de una factura'):
         with before.all:
+            # Example invoice to check common fields
+            self.invoice = self.data_gen.get_out_invoice()
+            self.invoice_obj = SII.generate_object(self.invoice)
             self.factura = (
                 self.invoice_obj['SuministroLRFacturasEmitidas']
                 ['RegistroLRFacturasEmitidas']
