@@ -70,7 +70,9 @@ class Cabecera(MySchema):
 
 
 class PeriodoImpositivo(MySchema):
-    Ejercicio = fields.String(required=True, validate=validate.Length(max=4))  # TODO validate Año en formato 'YYYY'
+    Ejercicio = fields.String(required=True, validate=validate.OneOf(
+        [str(x) for x in range(0, 10000)]
+    ))
     Periodo = fields.String(
         required=True, validate=validate.OneOf(PERIODO_VALUES)
     )
@@ -96,21 +98,21 @@ class Factura(MySchema):
     IDFactura = fields.Nested(IdentificacionFactura, required=True)
 
 
-class BaseImponible(MySchema):
+class DetalleIVA(MySchema):
     BaseImponible = fields.Float(required=True)
 
 
-class Exenta(BaseImponible):
+class Exenta(DetalleIVA):
     pass
 
 
-class DetalleIVAEmitida(BaseImponible):
+class DetalleIVAEmitida(DetalleIVA):
     TipoImpositivo = fields.Float()
     CuotaRepercutida = fields.Float()
 
 
 class DesgloseIVA(MySchema):
-    DetalleIVA = fields.Nested(DetalleIVAEmitida, required=True)
+    DetalleIVA = fields.List(fields.Nested(DetalleIVAEmitida), required=True)
 
 
 class NoExenta(MySchema):
@@ -125,9 +127,14 @@ class ExentaAIVA(MySchema):  # TODO obligatorio uno de los dos
     NoExenta = fields.Nested(NoExenta)
 
 
+class NoSujeta(MySchema):
+    ImportePorArticulos7_14_Otros = fields.Float()
+    ImporteTAIReglasLocalizacion = fields.Float()
+
+
 class DesgloseFacturaEmitida(MySchema):  # TODO obligatorio uno de los dos
     Sujeta = fields.Nested(ExentaAIVA)
-    NoSujeta = fields.String()  # TODO
+    NoSujeta = fields.Nested(NoSujeta)
 
 
 class DesgloseTipoOperacion(MySchema):  # TODO obligatorio uno de los dos
@@ -135,7 +142,7 @@ class DesgloseTipoOperacion(MySchema):  # TODO obligatorio uno de los dos
     Entrega = fields.Nested(DesgloseFacturaEmitida)
 
 
-class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos
+class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos pero sólo puede haber uno
     DesgloseFactura = fields.Nested(DesgloseFacturaEmitida)
     DesgloseTipoOperacion = fields.Nested(DesgloseTipoOperacion)
 
@@ -156,6 +163,13 @@ class DetalleFactura(MySchema):
     DescripcionOperacion = fields.String(
         required=True, validate=validate.Length(max=500)
     )
+    TipoRectificativa = fields.String(
+        validate=validate.OneOf(TIPO_RECTIFICATIVA_VALUES)
+    )  # TODO obligatorio si es una rectificativa
+    ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si TipoRectificativa = 'S'
+    # TODO ImporteTotal OBLIGATORIO si:
+    # 1.Obligatorio si Baseimponible=0 y TipoFactura=”F2” o “R5”
+    # 2.Obligatorio si Baseimponible=0 y ClaveRegimenEspecialOTranscedencia = “05”o “03”
     ImporteTotal = fields.Float()
 
 
@@ -166,10 +180,6 @@ class DetalleFacturaEmitida(DetalleFactura):
     )
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
-    TipoRectificativa = fields.String(
-        validate=validate.OneOf(TIPO_RECTIFICATIVA_VALUES)
-    )  # TODO obligatorio si es una rectificativa
-    ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si TipoRectificativa = 'S'
 
 
 class FacturaEmitida(Factura):
@@ -192,16 +202,33 @@ class SuministroFacturasEmitidas(MySchema):
     )
 
 
-class DetalleIVADesglose(BaseImponible):
-    pass
+class DetalleIVADesglose(DetalleIVA):
+    CuotaSoportada = fields.Float()
+    TipoImpositivo = fields.Float()
+    # TODO 1.Sólo se podrá rellenar ( y es obligatorio) si
+    # ClaveRegimenEspecialOTranscedencia="02" (Operaciones por las que los
+    # Empresarios satisfacen compensaciones REAGYP)
+    # 2. Solo se permiten los valores 12% y 10,5 %.
+    PorcentCompensacionREAGYP = fields.String()
+    # TODO 1.Sólo se podrá rellenar (y es obligatorio) si
+    # ClaveRegimenEspecialOTranscedencia="02" (Operaciones por las que los
+    # Empresarios satisfacen compensaciones REAGYP)
+    # 2. Importe compensación = Base * Porcentaje compensación +/-1 % de la
+    # Base
+    ImporteCompensacionREAGYP = fields.String()
 
 
 class DesgloseIVARecibida(MySchema):
-    DetalleIVA = fields.Nested(DetalleIVADesglose, required=True)
+    DetalleIVA = fields.List(fields.Nested(DetalleIVADesglose), required=True)
+
+
+class DetalleIVARecibida(DetalleIVA):
+    CuotaSoportada = fields.Float(required=True)
+    TipoImpositivo = fields.Float(required=True)
 
 
 class DetalleIVAInversionSujetoPasivo(DesgloseIVA):
-    pass
+    DetalleIVA = fields.List(fields.Nested(DetalleIVARecibida), required=True)
 
 
 class DesgloseFacturaRecibida(MySchema):  # TODO obligatorio uno de los dos
@@ -218,7 +245,7 @@ class DetalleFacturaRecibida(DetalleFactura):
     Contraparte = fields.Nested(Contraparte, required=True)
     FechaRegContable = DateString(
         required=True, validate=validate.Length(max=10)
-    )
+    )  # TODO FechaRegContable ≥ FechaExpedicionFacturaEmisor
     CuotaDeducible = fields.Float(required=True)
 
 
