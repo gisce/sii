@@ -29,7 +29,6 @@ class Service(object):
         self.result = {}
 
     def send(self, invoice):
-        fix_ssl_verify()
         if invoice.type.startswith('out_'):
             if self.emitted_service is None:
                 self.emitted_service = self.create_service(invoice.type)
@@ -44,10 +43,8 @@ class Service(object):
     def create_service(self, i_type):
 
         session = Session()
-        # session.cert = (self.certificate, self.key)
+        session.cert = (self.certificate, self.key)
         session.verify = False
-        session.trust_env = False
-        # session.proxies = {'https': 'https://sii-proxy.gisce.net:4443'}
         transport = Transport(session=session)
         if i_type.startswith('out_'):
             wsdl = wsdl_files['emitted_invoice']
