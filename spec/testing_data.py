@@ -18,7 +18,8 @@ class Partner:
 
 
 class FiscalPosition:
-    def __init__(self, cre_in_invoice, cre_out_invoice):
+    def __init__(self, name, cre_in_invoice, cre_out_invoice):
+        self.name = name
         self.sii_in_clave_regimen_especial = cre_in_invoice
         self.sii_out_clave_regimen_especial = cre_out_invoice
 
