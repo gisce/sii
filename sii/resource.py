@@ -239,7 +239,7 @@ class SII(object):
                 invoice, rectificativa=rectificativa
             )
         else:
-            raise Exception('Unknown value in invoice.type')
+            raise AttributeError('Unknown value in invoice.type')
 
         errors = invoice_model.validate(invoice_dict)
         if errors:
