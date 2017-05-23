@@ -53,7 +53,7 @@ class Service(object):
             wsdl = wsdl_files['received_invoice']
             port_name = 'SuministroFactRecibidas'
             binding_name = '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactRecibidas.wsdl}siiBinding'
-            type_address = '/wlpl/SSII-FACT/ws/fr/SiiFactPAGV1SOAP'
+            type_address = '/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP'
         if self.test_mode:
             port_name += 'Pruebas'
 
@@ -72,8 +72,7 @@ class Service(object):
             elif invoice.type == 'in_invoice':
                 res = self.received_service.SuministroLRFacturasRecibidas(
                     msg_header, msg_invoice)
-            if res['EstadoEnvio'] == 'Correcto':
-                self.result['sii_sent'] = True
+            self.result['sii_sent'] = res['EstadoEnvio'] == 'Correcto'
             self.result['sii_return'] = res
         except Exception as fault:
             self.result['sii_return'] = fault
