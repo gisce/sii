@@ -36,7 +36,21 @@ class Service(object):
                     self.received_service = self.create_service(invoice.type)
             self.send_invoice(invoice)
 
-    def create_service(self, i_type):
+    def ids_validate(self, invoice):
+        owner = {'Nif': invoice.company_id.partner_id.vat,
+                 'Nombre': invoice.company_id.partner_id.name}
+        receiver = {'Nif': invoice.partner_id.vat,
+                    'Nombre': invoice.partner_id.name}
+        self.validator_service = self.create_validation_service()
+        try:
+            owner_res = self.validator_service.VNifV1(owner['Nif'],
+                                                        owner['Nombre'])
+            receiver_res = self.validator_service.VNifV1(receiver['Nif'],
+                                                         receiver['Nombre'])
+            return owner['Nif'] == owner_res['Nif'] and receiver['Nif'] == \
+                                                        receiver_res['Nif']
+        except Exception as fault:
+            self.result['validator_return'] = fault
 
         proxy_address = 'https://sii-proxy.gisce.net:4443'
         session = Session()
