@@ -52,6 +52,24 @@ class Service(object):
         except Exception as fault:
             self.result['validator_return'] = fault
 
+    def create_validation_service(self):
+        proxy_address = 'https://sii-proxy.gisce.net:4443/nifs'
+        type_address = '/wlpl/BURT-JDIT/ws/VNifV1SOAP'
+        session = Session()
+        session.cert = (self.certificate, self.key)
+        session.verify = False
+        transport = Transport(session=session)
+        wsdl = wsdl_files['ids_validator']
+        binding_name = '{http://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV1.wsdl}VNifV1SoapBinding'
+        port_name = 'VNifPort1'
+        service_name = 'VNifV1Service'
+        client = Client(wsdl=wsdl, port_name=port_name, transport=transport,
+                        service_name=service_name)
+        address = '{0}{1}'.format(proxy_address, type_address)
+        service = client.create_service(binding_name, address)
+        return service
+
+    def create_service(self, i_type):
         proxy_address = 'https://sii-proxy.gisce.net:4443'
         session = Session()
         session.cert = (self.certificate, self.key)
