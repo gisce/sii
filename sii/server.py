@@ -23,16 +23,18 @@ class Service(object):
         self.test_mode = True  # Force now work in test mode
         self.emitted_service = None
         self.received_service = None
+        self.validator_service = None
         self.result = {}
 
     def send(self, invoice):
-        if invoice.type.startswith('out_'):
-            if self.emitted_service is None:
-                self.emitted_service = self.create_service(invoice.type)
-        else:
-            if self.received_service is None:
-                self.received_service = self.create_service(invoice.type)
-        self.send_invoice(invoice)
+        if self.ids_validate(invoice):
+            if invoice.type.startswith('out_'):
+                if self.emitted_service is None:
+                    self.emitted_service = self.create_service(invoice.type)
+            else:
+                if self.received_service is None:
+                    self.received_service = self.create_service(invoice.type)
+            self.send_invoice(invoice)
 
     def create_service(self, i_type):
 
@@ -63,10 +65,10 @@ class Service(object):
     def send_invoice(self, invoice):
         msg_header, msg_invoice = self.get_msg(invoice)
         try:
-            if invoice.type == 'out_invoice':
+            if invoice.type.startswith('out_'):
                 res = self.emitted_service.SuministroLRFacturasEmitidas(
                     msg_header, msg_invoice)
-            elif invoice.type == 'in_invoice':
+            elif invoice.type.startswith('in_'):
                 res = self.received_service.SuministroLRFacturasRecibidas(
                     msg_header, msg_invoice)
             self.result['sii_sent'] = res['EstadoEnvio'] == 'Correcto'
