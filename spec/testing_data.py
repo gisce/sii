@@ -139,7 +139,7 @@ class DataGenerator:
         )
         self.company = Company(partner_id=partner_company)
 
-        self.invoice_number = 'F012345'
+        self.invoice_number = str(random.randrange(0, 100000)).zfill(5)
         self.date_invoice = '2016-12-31'
         taxes_amount = sum([tax.tax_amount for tax in self.tax_line])
         base_amount = sum([line.price_subtotal for line in self.invoice_line])
@@ -158,7 +158,7 @@ class DataGenerator:
             type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
-            number=self.invoice_number,
+            number='FRecib}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
@@ -178,7 +178,7 @@ class DataGenerator:
             type='out_invoice',
             journal_id=journal,
             rectificative_type='N',
-            number=self.invoice_number,
+            number='FEmit}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
@@ -198,7 +198,7 @@ class DataGenerator:
             type='in_refund',
             journal_id=journal,
             rectificative_type='R',
-            number=self.invoice_number,
+            number='FRectRecib}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
@@ -218,7 +218,7 @@ class DataGenerator:
             type='out_refund',
             journal_id=journal,
             rectificative_type='R',
-            number=self.invoice_number,
+            number='FRectEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
