@@ -80,7 +80,7 @@ class Invoice:
 class DataGenerator:
     def __init__(self):
         self.sii_sent = False
-        self.period = Period(name='03/2016')
+        self.period = Period(name='12/2016')
         name_iva_21 = 'IVA 21%'
         name_iva_4 = 'IVA 4%'
         name_ibi = 'IBI 15%'
