@@ -19,10 +19,10 @@ with description("Los web services"):
         # print(pretty_xml_as_string)
         # print '====================================================='
 
-    with description("obtienen el mensaje a enviar"):
-        with it("de un objeto invoice"):
-
-            s = Service('/home/miquel/Documents/SII/client_ssl/client.crt',
-                        '/home/miquel/Documents/SII/client_ssl/client.key')
-            self.invoice = self.out_invoice
-            s.send(self.invoice)
+    # with description("obtienen el mensaje a enviar"):
+    #     with it("de un objeto invoice"):
+    #
+    #         s = Service('/home/miquel/Documents/SII/client_ssl/client.crt',
+    #                     '/home/miquel/Documents/SII/client_ssl/client.key')
+    #         self.invoice = self.out_invoice
+    #         s.send(self.invoice)
