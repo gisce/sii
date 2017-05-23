@@ -20,22 +20,28 @@ def get_importe_no_sujeto_a_iva(invoice):
     return importe_no_sujeto
 
 
-def get_iva_values(tax_line, in_invoice):
+def get_iva_values(invoice, in_invoice):
     vals = {
         'sujeta_a_iva': False,
         'detalle_iva': [],
         'no_sujeta_a_iva': False
     }
-    for tax in tax_line:
+    for tax in invoice.tax_line:
         if 'iva' in tax.name.lower():
             iva = {
-                'BaseImponible': tax.base,
+                'BaseImponible': SIGN[invoice.rectificative_type] * tax.base,
                 'TipoImpositivo': tax.tax_id.amount * 100
             }
             if in_invoice:
-                iva.update({'CuotaRepercutida': tax.tax_amount})
+                iva.update({
+                    'CuotaRepercutida':
+                        SIGN[invoice.rectificative_type] * tax.tax_amount
+                })
             else:
-                iva.update({'CuotaSoportada': tax.tax_amount})
+                iva.update({
+                    'CuotaSoportada':
+                        SIGN[invoice.rectificative_type] * tax.tax_amount
+                })
             vals['sujeta_a_iva'] = True
             vals['detalle_iva'].append(iva)
         else:
@@ -44,7 +50,7 @@ def get_iva_values(tax_line, in_invoice):
 
 
 def get_factura_emitida(invoice):
-    iva_values = get_iva_values(invoice.tax_line, in_invoice=True)
+    iva_values = get_iva_values(invoice, in_invoice=True)
     desglose_factura = {}
 
     if iva_values['sujeta_a_iva']:
@@ -86,7 +92,7 @@ def get_factura_emitida(invoice):
 
 
 def get_factura_recibida(invoice):
-    iva_values = get_iva_values(invoice.tax_line, in_invoice=False)
+    iva_values = get_iva_values(invoice, in_invoice=False)
     cuota_deducible = 0
 
     if iva_values['sujeta_a_iva']:
