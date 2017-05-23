@@ -69,12 +69,6 @@ class Invoice:
         self.fiscal_position = fiscal_position
         self.sii_sent = sii_sent
         self.rectificative_type = rectificative_type
-        # RECTIFICATIVE_TYPE_SELECTION = [
-        #     ('N', 'Normal'),
-        #     ('R', 'Rectificative'),
-        #     ('A', 'Nullifier'),
-        #     ('B', 'Nullifier with substitution')
-        # ]
 
 
 class DataGenerator:
@@ -113,7 +107,7 @@ class DataGenerator:
              if tax_ibi.amount
              in [tax.amount for tax in line.invoice_line_tax_id]]
         )
-        invoice_tax_iva_21 = InvoiceTax(  # TODO les tax_line són una per cada tipus d'impost repetit i suma
+        invoice_tax_iva_21 = InvoiceTax(
             name=name_iva_21, base=base_iva_21,
             tax_amount=base_iva_21 * tax_iva_21.amount, tax_id=tax_iva_21
         )
@@ -125,7 +119,7 @@ class DataGenerator:
             name=name_ibi, base=base_ibi,
             tax_amount=base_ibi * tax_ibi.amount, tax_id=tax_ibi
         )
-        self.tax_line = [invoice_tax_iva_21, invoice_tax_iva_4, invoice_tax_ibi]  # No hi ha impostos repetits
+        self.tax_line = [invoice_tax_iva_21, invoice_tax_iva_4, invoice_tax_ibi]
 
         self.partner_invoice = Partner(
             name=os.environ.get('NOMBRE_TITULAR', u'Francisco García'),
