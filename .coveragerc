@@ -1,2 +1,4 @@
 [run]
 source = ./sii
+
+omit = ./sii/server.py
