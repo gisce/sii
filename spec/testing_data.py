@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import os
+import random
+
 
 class Period:
     def __init__(self, name):
@@ -15,6 +18,11 @@ class Partner:
     def __init__(self, name, nif):
         self.name = name
         self.vat = nif
+
+
+class Journal:
+    def __init__(self, name):
+        self.name = name
 
 
 class FiscalPosition:
@@ -45,10 +53,10 @@ class InvoiceLine:
 
 
 class Invoice:
-    def __init__(self, description, number, type, partner_id, company_id,
+    def __init__(self, journal_id, number, type, partner_id, company_id,
                  amount_total, period_id, date_invoice, tax_line, sii_sent,
                  rectificative_type, fiscal_position, invoice_line):
-        self.name = description
+        self.journal_id = journal_id
         self.number = number
         self.type = type
         self.partner_id = partner_id
@@ -140,9 +148,11 @@ class DataGenerator:
         )
 
     def get_in_invoice(self):
+        journal = Journal(name='Factura de Energía Recibida')
+
         invoice = Invoice(
             type='in_invoice',
-            description='Factura recibida',
+            journal_id=journal,
             rectificative_type='N',
             number=self.invoice_number,
             partner_id=self.partner_invoice,
@@ -158,9 +168,11 @@ class DataGenerator:
         return invoice
 
     def get_out_invoice(self):
+        journal = Journal(name='Factura de Energía Emitida')
+
         invoice = Invoice(
             type='out_invoice',
-            description='Factura emitida',
+            journal_id=journal,
             rectificative_type='N',
             number=self.invoice_number,
             partner_id=self.partner_invoice,
@@ -176,9 +188,11 @@ class DataGenerator:
         return invoice
 
     def get_in_refund_invoice(self):
+        journal = Journal(name='Factura de Energía Rectificativa Recibida')
+
         invoice = Invoice(
             type='in_refund',
-            description='Factura rectificativa recibida',
+            journal_id=journal,
             rectificative_type='R',
             number=self.invoice_number,
             partner_id=self.partner_invoice,
@@ -194,9 +208,11 @@ class DataGenerator:
         return invoice
 
     def get_out_refund_invoice(self):
+        journal = Journal(name='Factura de Energía Rectificativa Emitida')
+
         invoice = Invoice(
             type='out_refund',
-            description='Factura rectificativa emitida',
+            journal_id=journal,
             rectificative_type='R',
             number=self.invoice_number,
             partner_id=self.partner_invoice,
