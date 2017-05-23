@@ -128,10 +128,14 @@ class DataGenerator:
         self.tax_line = [invoice_tax_iva_21, invoice_tax_iva_4, invoice_tax_ibi]  # No hi ha impostos repetits
 
         self.partner_invoice = Partner(
-            name=u'Francisco García', nif='12345678T'
+            name=os.environ.get('NOMBRE_TITULAR', u'Francisco García'),
+            nif=os.environ.get('NIF_TITULAR', u'12345678T')
         )
         partner_company = Partner(
-            name=u'Compañía Eléctrica S.A.', nif='55555555T'
+            name=os.environ.get(
+                'NOMBRE_CONTRAPARTE', u'Compañía Eléctrica S.A.'
+            ),
+            nif=os.environ.get('NIF_CONTRAPARTE', '55555555T')
         )
         self.company = Company(partner_id=partner_company)
 
