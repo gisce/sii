@@ -227,18 +227,17 @@ class SII(object):
     @staticmethod
     def generate_object(invoice):
 
-        if invoice.type == 'in_invoice':
+        rectificativa = invoice.rectificative_type == 'R'
+        if invoice.type.startswith('in'):
             invoice_model = invoices_record.SuministroFacturasRecibidas()
-            invoice_dict = get_factura_recibida_dict(invoice)
-        elif invoice.type == 'out_invoice':
+            invoice_dict = get_factura_recibida_dict(
+                invoice, rectificativa=rectificativa
+            )
+        elif invoice.type.startswith('out'):
             invoice_model = invoices_record.SuministroFacturasEmitidas()
-            invoice_dict = get_factura_emitida_dict(invoice)
-        elif invoice.type == 'in_refund':
-            invoice_model = invoices_record.SuministroFacturasRecibidas()
-            invoice_dict = get_factura_recibida_dict(invoice, rectificativa=True)
-        elif invoice.type == 'out_refund':
-            invoice_model = invoices_record.SuministroFacturasEmitidas()
-            invoice_dict = get_factura_emitida_dict(invoice, rectificativa=True)
+            invoice_dict = get_factura_emitida_dict(
+                invoice, rectificativa=rectificativa
+            )
         else:
             raise Exception('Unknown value in invoice.type')
 
