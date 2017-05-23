@@ -78,7 +78,7 @@ def get_factura_emitida(invoice):
         'ClaveRegimenEspecialOTrascendencia':
             invoice.fiscal_position.sii_out_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
-        'DescripcionOperacion': invoice.name,
+        'DescripcionOperacion': invoice.journal_id.name,
         'Contraparte': {
             'NombreRazon': invoice.partner_id.name,
             'NIF': invoice.partner_id.vat
@@ -121,7 +121,7 @@ def get_factura_recibida(invoice):
         'ClaveRegimenEspecialOTrascendencia':
             invoice.fiscal_position.sii_in_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
-        'DescripcionOperacion': invoice.name,
+        'DescripcionOperacion': invoice.journal_id.name,
         'Contraparte': {
             'NombreRazon': invoice.partner_id.name,
             'NIF': invoice.partner_id.vat
