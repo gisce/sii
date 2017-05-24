@@ -5,70 +5,81 @@ from zeep import Client
 from requests import Session
 from zeep.transports import Transport
 
-wsdl_files = {
-    'emitted_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_07/SuministroFactEmitidas.wsdl',
-    'received_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_07/SuministroFactRecibidas.wsdl',
-    'ids_validator': 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV1.wsdl',
-}
-
-
 def get_dict_data(invoice):
     return SII.generate_object(invoice)
 
 
 class Service(object):
-    def __init__(self, certificate, key):
+    def __init__(self, certificate, key, proxy):
         self.certificate = certificate
         self.key = key
+        self.proxy_address = proxy
         self.result = {}
 
-    def send(self, invoice):
-        if self.ids_validate(invoice):
-            if invoice.type.startswith('out_'):
-                if self.emitted_service is None:
-                    self.emitted_service = self.create_service(invoice.type)
-            else:
-                if self.received_service is None:
-                    self.received_service = self.create_service(invoice.type)
-            self.send_invoice(invoice)
 
-    def ids_validate(self, invoice):
-        owner = {'Nif': invoice.company_id.partner_id.vat,
-                 'Nombre': invoice.company_id.partner_id.name}
-        receiver = {'Nif': invoice.partner_id.vat,
-                    'Nombre': invoice.partner_id.name}
+class IDService(Service):
+    def __init__(self, proxy, certificate, key):
+        super(IDService, self).__init__(certificate, key, proxy)
+        self.validator_service = None
+        self.partners = None
+
+    def ids_validate(self):
         self.validator_service = self.create_validation_service()
+
         try:
-            owner_res = self.validator_service.VNifV1(owner['Nif'],
-                                                        owner['Nombre'])
-            receiver_res = self.validator_service.VNifV1(receiver['Nif'],
-                                                         receiver['Nombre'])
-            return owner['Nif'] == owner_res['Nif'] and receiver['Nif'] == \
-                                                        receiver_res['Nif']
+            if isinstance(self.partners, list):
+                for partner in self.partners:
+                    partner['Nif'] = partner.pop('vat')
+                    partner['Nombre'] = partner.pop('name')
+                self.result = self.validator_service.VNifV2(self.partners)
+            else:
+                self.partners['Nif'] = self.partners.pop('vat')
+                self.partners['Nombre'] = self.partners.pop('name')
+                self.result = self.validator_service.VNifV1(self.partners['Nif'],
+                                                            self.partners['Nombre'])
         except Exception as fault:
             self.result['validator_return'] = fault
 
+    def invalid_ids(self, partners):
+        self.partners = partners
+        self.ids_validate()
+        invalid_ids = []
+        for partner in self.result:
+            if partner['Resultado'] == 'NO IDENTIFICADO':
+                invalid_ids.append(partner)
+        self.result = invalid_ids
+
     def create_validation_service(self):
-        proxy_address = 'https://sii-proxy.gisce.net:4443/nifs'
+        port_name = 'VNifPort1'
         type_address = '/wlpl/BURT-JDIT/ws/VNifV1SOAP'
+        binding_name = '{http://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV1.wsdl}VNifV1SoapBinding'
+        service_name = 'VNifV1Service'
+        wsdl = self.wsdl_files['ids_validator_v1']
+        if isinstance(self.partners, list):
+            type_address = '/wlpl/BURT-JDIT/ws/VNifV2SOAP'
+            binding_name = '{http://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV2.wsdl}VNifV2SoapBinding'
+            service_name = 'VNifV2Service'
+            wsdl = self.wsdl_files['ids_validator_v2']
         session = Session()
         session.cert = (self.certificate, self.key)
         session.verify = False
         transport = Transport(session=session)
-        wsdl = wsdl_files['ids_validator']
-        binding_name = '{http://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV1.wsdl}VNifV1SoapBinding'
-        port_name = 'VNifPort1'
-        service_name = 'VNifV1Service'
+
         client = Client(wsdl=wsdl, port_name=port_name, transport=transport,
                         service_name=service_name)
-        address = '{0}{1}'.format(proxy_address, type_address)
+        address = '{0}{1}'.format(self.proxy_address, type_address)
         service = client.create_service(binding_name, address)
         return service
+
+    wsdl_files = {
+        'ids_validator_v1': 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV1.wsdl',
+        'ids_validator_v2': 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV2.wsdl'
+    }
 
 
 class SiiService(Service):
     def __init__(self, proxy, certificate, key, test_mode=False):
-        super(SiiService, self).__init__(certificate, key)
+        super(SiiService, self).__init__(certificate, key, proxy)
         self.test_mode = True  # Force now work in test mode
         self.emitted_service = None
         self.received_service = None
