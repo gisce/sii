@@ -196,19 +196,19 @@ with description('El XML Generado'):
             self.in_refund = self.data_gen.get_in_refund_invoice()
             self.in_refund_obj = SII.generate_object(self.in_refund)
             self.fact_rect_recib = (
-                self.in_refund_obj['SuministroLRFacturasEmitidas']
-                ['RegistroLRFacturasEmitidas']
+                self.in_refund_obj['SuministroLRFacturasRecibidas']
+                ['RegistroLRFacturasRecibidas']
             )
 
         with context('en los datos de rectificación'):
             with it('el TipoRectificativa debe ser por sustitución (S)'):
                 expect(
-                    self.fact_rect_recib['FacturaExpedida']['TipoRectificativa']
+                    self.fact_rect_recib['FacturaRecibida']['TipoRectificativa']
                 ).to(equal('S'))
 
             with before.all:
                 self.importe_rectificacion = (
-                    self.fact_rect_recib['FacturaExpedida']
+                    self.fact_rect_recib['FacturaRecibida']
                     ['ImporteRectificacion']
                 )
 
@@ -225,9 +225,8 @@ with description('El XML Generado'):
         with context('en los detalles del IVA'):
             with before.all:
                 self.detalle_iva = (
-                    self.fact_rect_recib['FacturaExpedida']['TipoDesglose']
-                    ['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']
-                    ['DetalleIVA']
+                    self.fact_rect_recib['FacturaRecibida']['DesgloseFactura']
+                    ['DesgloseIVA']['DetalleIVA']
                 )
 
             with it('la BaseImponible debe ser la original'):
@@ -235,7 +234,7 @@ with description('El XML Generado'):
                     self.invoice.tax_line[0].base)
                 )
             with it('la CuotaRepercutida debe ser la original'):
-                expect(self.detalle_iva[0]['CuotaRepercutida']).to(equal(
+                expect(self.detalle_iva[0]['CuotaSoportada']).to(equal(
                     self.invoice.tax_line[0].tax_amount)
                 )
             with it('el TipoImpositivo debe ser la original'):
