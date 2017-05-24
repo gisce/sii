@@ -33,9 +33,10 @@ class FiscalPosition:
 
 
 class Tax:
-    def __init__(self, name, amount):
+    def __init__(self, name, amount, type):
         self.name = name
         self.amount = amount
+        self.type = type
 
 
 class InvoiceTax:
@@ -78,15 +79,21 @@ class DataGenerator:
         name_iva_21 = 'IVA 21%'
         name_iva_4 = 'IVA 4%'
         name_ibi = 'IBI 15%'
-        tax_ibi = Tax(name=name_ibi, amount=0.15)
-        tax_iva_21 = Tax(name=name_iva_21, amount=0.21)
-        tax_iva_4 = Tax(name=name_iva_21, amount=0.04)
+        name_iva_exento = 'IVA Exento'
+        tax_ibi = Tax(name=name_ibi, amount=0.15, type='percent')
+        tax_iva_21 = Tax(name=name_iva_21, amount=0.21, type='percent')
+        tax_iva_4 = Tax(name=name_iva_21, amount=0.04, type='percent')
+        tax_iva_exento = Tax(name=name_iva_exento, amount=0, type='percent')
         self.invoice_line = [
             InvoiceLine(price_subtotal=100, invoice_line_tax_id=[tax_iva_21]),
-            InvoiceLine(price_subtotal=200,
-                        invoice_line_tax_id=[tax_iva_21, tax_ibi]),
+            InvoiceLine(
+                price_subtotal=200, invoice_line_tax_id=[tax_iva_21, tax_ibi]
+            ),
             InvoiceLine(price_subtotal=400, invoice_line_tax_id=[tax_iva_4]),
-            InvoiceLine(price_subtotal=800, invoice_line_tax_id=[tax_ibi])
+            InvoiceLine(price_subtotal=800, invoice_line_tax_id=[tax_ibi]),
+            InvoiceLine(
+                price_subtotal=1600, invoice_line_tax_id=[tax_iva_exento]
+            )
         ]
 
         base_iva_21 = sum(
@@ -107,6 +114,12 @@ class DataGenerator:
              if tax_ibi.amount
              in [tax.amount for tax in line.invoice_line_tax_id]]
         )
+        base_iva_exento = sum(
+            [line.price_subtotal
+             for line in self.invoice_line
+             if tax_iva_exento.amount
+             in [tax.amount for tax in line.invoice_line_tax_id]]
+        )
         invoice_tax_iva_21 = InvoiceTax(
             name=name_iva_21, base=base_iva_21,
             tax_amount=base_iva_21 * tax_iva_21.amount, tax_id=tax_iva_21
@@ -119,7 +132,15 @@ class DataGenerator:
             name=name_ibi, base=base_ibi,
             tax_amount=base_ibi * tax_ibi.amount, tax_id=tax_ibi
         )
-        self.tax_line = [invoice_tax_iva_21, invoice_tax_iva_4, invoice_tax_ibi]
+        invoice_tax_iva_exento = InvoiceTax(
+            name=name_iva_exento, base=base_iva_exento,
+            tax_amount=base_iva_exento * tax_iva_exento.amount,
+            tax_id=tax_iva_exento
+        )
+        self.tax_line = [
+            invoice_tax_iva_21, invoice_tax_iva_4, invoice_tax_ibi,
+            invoice_tax_iva_exento
+        ]
 
         self.partner_invoice = Partner(
             name=os.environ.get('NOMBRE_TITULAR', u'Francisco García'),
