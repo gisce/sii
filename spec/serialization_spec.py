@@ -138,3 +138,107 @@ with description('El XML Generado'):
                 ).to(equal(
                     self.in_invoice.tax_line[0].tax_id.amount * 100)
                 )
+    
+    with description('en los datos de una factura rectificativa emitida'):
+        with before.all:
+            self.out_refund = self.data_gen.get_out_refund_invoice()
+            self.out_refund_obj = SII.generate_object(self.out_refund)
+            self.fact_rect_emit = (
+                self.out_refund_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+
+        with context('en los datos de rectificación'):
+            with it('el TipoRectificativa debe ser por sustitución (S)'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida']['TipoRectificativa']
+                ).to(equal('S'))
+
+            with before.all:
+                self.importe_rectificacion = (
+                    self.fact_rect_emit['FacturaExpedida']
+                    ['ImporteRectificacion']
+                )
+
+            with it('la BaseRectificada debe ser 0'):
+                expect(
+                    self.importe_rectificacion['BaseRectificada']
+                ).to(equal(0))
+
+            with it('la CuotaRectificada debe ser 0'):
+                expect(
+                    self.importe_rectificacion['CuotaRectificada']
+                ).to(equal(0))
+
+        with context('en los detalles del IVA'):
+            with before.all:
+                self.detalle_iva = (
+                    self.fact_rect_emit['FacturaExpedida']['TipoDesglose']
+                    ['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']
+                    ['DetalleIVA']
+                )
+
+            with it('la BaseImponible debe ser la original'):
+                expect(self.detalle_iva[0]['BaseImponible']).to(equal(
+                    self.invoice.tax_line[0].base)
+                )
+            with it('la CuotaRepercutida debe ser la original'):
+                expect(self.detalle_iva[0]['CuotaRepercutida']).to(equal(
+                    self.invoice.tax_line[0].tax_amount)
+                )
+            with it('el TipoImpositivo debe ser la original'):
+                expect(self.detalle_iva[0]['TipoImpositivo']).to(equal(
+                    self.invoice.tax_line[0].tax_id.amount * 100)
+                )
+
+    with description('en los datos de una factura rectificativa recibida'):
+        with before.all:
+            self.in_refund = self.data_gen.get_in_refund_invoice()
+            self.in_refund_obj = SII.generate_object(self.in_refund)
+            self.fact_rect_recib = (
+                self.in_refund_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+
+        with context('en los datos de rectificación'):
+            with it('el TipoRectificativa debe ser por sustitución (S)'):
+                expect(
+                    self.fact_rect_recib['FacturaExpedida']['TipoRectificativa']
+                ).to(equal('S'))
+
+            with before.all:
+                self.importe_rectificacion = (
+                    self.fact_rect_recib['FacturaExpedida']
+                    ['ImporteRectificacion']
+                )
+
+            with it('la BaseRectificada debe ser 0'):
+                expect(
+                    self.importe_rectificacion['BaseRectificada']
+                ).to(equal(0))
+
+            with it('la CuotaRectificada debe ser 0'):
+                expect(
+                    self.importe_rectificacion['CuotaRectificada']
+                ).to(equal(0))
+
+        with context('en los detalles del IVA'):
+            with before.all:
+                self.detalle_iva = (
+                    self.fact_rect_recib['FacturaExpedida']['TipoDesglose']
+                    ['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']
+                    ['DetalleIVA']
+                )
+
+            with it('la BaseImponible debe ser la original'):
+                expect(self.detalle_iva[0]['BaseImponible']).to(equal(
+                    self.invoice.tax_line[0].base)
+                )
+            with it('la CuotaRepercutida debe ser la original'):
+                expect(self.detalle_iva[0]['CuotaRepercutida']).to(equal(
+                    self.invoice.tax_line[0].tax_amount)
+                )
+            with it('el TipoImpositivo debe ser la original'):
+                expect(self.detalle_iva[0]['TipoImpositivo']).to(equal(
+                    self.invoice.tax_line[0].tax_id.amount * 100)
+                )
