@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import os
+import random
+
 
 class Period:
     def __init__(self, name):
@@ -17,6 +20,11 @@ class Partner:
         self.vat = nif
 
 
+class Journal:
+    def __init__(self, name):
+        self.name = name
+
+
 class FiscalPosition:
     def __init__(self, name, cre_in_invoice, cre_out_invoice):
         self.name = name
@@ -25,9 +33,10 @@ class FiscalPosition:
 
 
 class Tax:
-    def __init__(self, name, amount):
+    def __init__(self, name, amount, type):
         self.name = name
         self.amount = amount
+        self.type = type
 
 
 class InvoiceTax:
@@ -45,10 +54,10 @@ class InvoiceLine:
 
 
 class Invoice:
-    def __init__(self, description, number, type, partner_id, company_id,
+    def __init__(self, journal_id, number, type, partner_id, company_id,
                  amount_total, period_id, date_invoice, tax_line, sii_sent,
                  rectificative_type, fiscal_position, invoice_line):
-        self.name = description
+        self.journal_id = journal_id
         self.number = number
         self.type = type
         self.partner_id = partner_id
@@ -61,30 +70,30 @@ class Invoice:
         self.fiscal_position = fiscal_position
         self.sii_sent = sii_sent
         self.rectificative_type = rectificative_type
-        # RECTIFICATIVE_TYPE_SELECTION = [
-        #     ('N', 'Normal'),
-        #     ('R', 'Rectificative'),
-        #     ('A', 'Nullifier'),
-        #     ('B', 'Nullifier with substitution')
-        # ]
 
 
 class DataGenerator:
     def __init__(self):
         self.sii_sent = False
-        self.period = Period(name='03/2016')
+        self.period = Period(name='12/2016')
         name_iva_21 = 'IVA 21%'
         name_iva_4 = 'IVA 4%'
         name_ibi = 'IBI 15%'
-        tax_ibi = Tax(name=name_ibi, amount=0.15)
-        tax_iva_21 = Tax(name=name_iva_21, amount=0.21)
-        tax_iva_4 = Tax(name=name_iva_21, amount=0.04)
+        name_iva_exento = 'IVA Exento'
+        tax_ibi = Tax(name=name_ibi, amount=0.15, type='percent')
+        tax_iva_21 = Tax(name=name_iva_21, amount=0.21, type='percent')
+        tax_iva_4 = Tax(name=name_iva_21, amount=0.04, type='percent')
+        tax_iva_exento = Tax(name=name_iva_exento, amount=0, type='percent')
         self.invoice_line = [
             InvoiceLine(price_subtotal=100, invoice_line_tax_id=[tax_iva_21]),
-            InvoiceLine(price_subtotal=200,
-                        invoice_line_tax_id=[tax_iva_21, tax_ibi]),
+            InvoiceLine(
+                price_subtotal=200, invoice_line_tax_id=[tax_iva_21, tax_ibi]
+            ),
             InvoiceLine(price_subtotal=400, invoice_line_tax_id=[tax_iva_4]),
-            InvoiceLine(price_subtotal=800, invoice_line_tax_id=[tax_ibi])
+            InvoiceLine(price_subtotal=800, invoice_line_tax_id=[tax_ibi]),
+            InvoiceLine(
+                price_subtotal=1600, invoice_line_tax_id=[tax_iva_exento]
+            )
         ]
 
         base_iva_21 = sum(
@@ -105,7 +114,13 @@ class DataGenerator:
              if tax_ibi.amount
              in [tax.amount for tax in line.invoice_line_tax_id]]
         )
-        invoice_tax_iva_21 = InvoiceTax(  # TODO les tax_line són una per cada tipus d'impost repetit i suma
+        base_iva_exento = sum(
+            [line.price_subtotal
+             for line in self.invoice_line
+             if tax_iva_exento.amount
+             in [tax.amount for tax in line.invoice_line_tax_id]]
+        )
+        invoice_tax_iva_21 = InvoiceTax(
             name=name_iva_21, base=base_iva_21,
             tax_amount=base_iva_21 * tax_iva_21.amount, tax_id=tax_iva_21
         )
@@ -117,17 +132,29 @@ class DataGenerator:
             name=name_ibi, base=base_ibi,
             tax_amount=base_ibi * tax_ibi.amount, tax_id=tax_ibi
         )
-        self.tax_line = [invoice_tax_iva_21, invoice_tax_iva_4, invoice_tax_ibi]  # No hi ha impostos repetits
+        invoice_tax_iva_exento = InvoiceTax(
+            name=name_iva_exento, base=base_iva_exento,
+            tax_amount=base_iva_exento * tax_iva_exento.amount,
+            tax_id=tax_iva_exento
+        )
+        self.tax_line = [
+            invoice_tax_iva_21, invoice_tax_iva_4, invoice_tax_ibi,
+            invoice_tax_iva_exento
+        ]
 
         self.partner_invoice = Partner(
-            name=u'Francisco García', nif='12345678T'
+            name=os.environ.get('NOMBRE_TITULAR', u'Francisco García'),
+            nif=os.environ.get('NIF_TITULAR', u'12345678T')
         )
         partner_company = Partner(
-            name=u'Compañía Eléctrica S.A.', nif='55555555T'
+            name=os.environ.get(
+                'NOMBRE_CONTRAPARTE', u'Compañía Eléctrica S.A.'
+            ),
+            nif=os.environ.get('NIF_CONTRAPARTE', '55555555T')
         )
         self.company = Company(partner_id=partner_company)
 
-        self.invoice_number = 'F012345'
+        self.invoice_number = str(random.randrange(0, 100000)).zfill(5)
         self.date_invoice = '2016-12-31'
         taxes_amount = sum([tax.tax_amount for tax in self.tax_line])
         base_amount = sum([line.price_subtotal for line in self.invoice_line])
@@ -140,11 +167,13 @@ class DataGenerator:
         )
 
     def get_in_invoice(self):
+        journal = Journal(name='Factura de Energía Recibida')
+
         invoice = Invoice(
             type='in_invoice',
-            description='Factura recibida',
+            journal_id=journal,
             rectificative_type='N',
-            number=self.invoice_number,
+            number='FRecib{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
@@ -158,11 +187,13 @@ class DataGenerator:
         return invoice
 
     def get_out_invoice(self):
+        journal = Journal(name='Factura de Energía Emitida')
+
         invoice = Invoice(
             type='out_invoice',
-            description='Factura emitida',
+            journal_id=journal,
             rectificative_type='N',
-            number=self.invoice_number,
+            number='FEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
@@ -176,11 +207,13 @@ class DataGenerator:
         return invoice
 
     def get_in_refund_invoice(self):
+        journal = Journal(name='Factura de Energía Rectificativa Recibida')
+
         invoice = Invoice(
             type='in_refund',
-            description='Factura rectificativa recibida',
+            journal_id=journal,
             rectificative_type='R',
-            number=self.invoice_number,
+            number='FRectRecib{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
@@ -194,11 +227,13 @@ class DataGenerator:
         return invoice
 
     def get_out_refund_invoice(self):
+        journal = Journal(name='Factura de Energía Rectificativa Emitida')
+
         invoice = Invoice(
             type='out_refund',
-            description='Factura rectificativa emitida',
+            journal_id=journal,
             rectificative_type='R',
-            number=self.invoice_number,
+            number='FRectEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,

@@ -20,42 +20,56 @@ def get_importe_no_sujeto_a_iva(invoice):
     return importe_no_sujeto
 
 
-def get_iva_values(tax_line, in_invoice):
+def get_iva_values(invoice, in_invoice):
     vals = {
         'sujeta_a_iva': False,
         'detalle_iva': [],
-        'no_sujeta_a_iva': False
+        'no_sujeta_a_iva': False,
+        'iva_exento': False,
+        'iva_no_exento': False,
+        'detalle_iva_exento': {'BaseImponible': 0}
     }
-    for tax in tax_line:
-        if 'iva' in tax.name.lower():
-            iva = {
-                'BaseImponible': tax.base,
-                'TipoImpositivo': tax.tax_id.amount * 100
-            }
-            if in_invoice:
-                iva.update({'CuotaRepercutida': tax.tax_amount})
-            else:
-                iva.update({'CuotaSoportada': tax.tax_amount})
+    for inv_tax in invoice.tax_line:
+        if 'iva' in inv_tax.name.lower():
             vals['sujeta_a_iva'] = True
-            vals['detalle_iva'].append(iva)
+            if inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent':
+                vals['iva_exento'] = True
+                vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
+            else:
+                iva = {
+                    'BaseImponible':
+                        SIGN[invoice.rectificative_type] * inv_tax.base,
+                    'TipoImpositivo': inv_tax.tax_id.amount * 100
+                }
+                if in_invoice:
+                    iva['CuotaRepercutida'] = \
+                        SIGN[invoice.rectificative_type] * inv_tax.tax_amount
+                else:
+                    iva['CuotaSoportada'] = \
+                        SIGN[invoice.rectificative_type] * inv_tax.tax_amount
+                vals['iva_no_exento'] = True
+                vals['detalle_iva'].append(iva)
         else:
             vals['no_sujeta_a_iva'] = True
     return vals
 
 
 def get_factura_emitida(invoice):
-    iva_values = get_iva_values(invoice.tax_line, in_invoice=True)
+    iva_values = get_iva_values(invoice, in_invoice=True)
     desglose_factura = {}
 
     if iva_values['sujeta_a_iva']:
-        desglose_factura['Sujeta'] = {
-            'NoExenta': {  # TODO Exenta o no exenta??
+        desglose_factura['Sujeta'] = {}
+        if iva_values['iva_exento']:
+            desglose_factura['Sujeta']['Exenta'] = \
+                iva_values['detalle_iva_exento']
+        if iva_values['iva_no_exento']:
+            desglose_factura['Sujeta']['NoExenta'] = {
                 'TipoNoExenta': 'S1',
                 'DesgloseIVA': {
                     'DetalleIVA': iva_values['detalle_iva']
                 }
             }
-        }
     if iva_values['no_sujeta_a_iva']:
         importe_no_sujeto = get_importe_no_sujeto_a_iva(invoice)
         if 'islas canarias' not in invoice.fiscal_position.name.lower():
@@ -68,11 +82,11 @@ def get_factura_emitida(invoice):
             }
 
     factura_expedida = {
-        'TipoFactura': 'F1',  # TODO change to rectificativa
+        'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
             invoice.fiscal_position.sii_out_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
-        'DescripcionOperacion': invoice.name,
+        'DescripcionOperacion': invoice.journal_id.name,
         'Contraparte': {
             'NombreRazon': invoice.partner_id.name,
             'NIF': invoice.partner_id.vat
@@ -86,7 +100,7 @@ def get_factura_emitida(invoice):
 
 
 def get_factura_recibida(invoice):
-    iva_values = get_iva_values(invoice.tax_line, in_invoice=False)
+    iva_values = get_iva_values(invoice, in_invoice=False)
     cuota_deducible = 0
 
     if iva_values['sujeta_a_iva']:
@@ -111,11 +125,11 @@ def get_factura_recibida(invoice):
         }
 
     factura_recibida = {
-        'TipoFactura': 'F1',  # TODO change to rectificativa
+        'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
             invoice.fiscal_position.sii_in_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
-        'DescripcionOperacion': invoice.name,
+        'DescripcionOperacion': invoice.journal_id.name,
         'Contraparte': {
             'NombreRazon': invoice.partner_id.name,
             'NIF': invoice.partner_id.vat
@@ -221,20 +235,19 @@ class SII(object):
     @staticmethod
     def generate_object(invoice):
 
-        if invoice.type == 'in_invoice':
+        rectificativa = invoice.rectificative_type == 'R'
+        if invoice.type.startswith('in'):
             invoice_model = invoices_record.SuministroFacturasRecibidas()
-            invoice_dict = get_factura_recibida_dict(invoice)
-        elif invoice.type == 'out_invoice':
+            invoice_dict = get_factura_recibida_dict(
+                invoice, rectificativa=rectificativa
+            )
+        elif invoice.type.startswith('out'):
             invoice_model = invoices_record.SuministroFacturasEmitidas()
-            invoice_dict = get_factura_emitida_dict(invoice)
-        elif invoice.type == 'in_refund':
-            invoice_model = invoices_record.SuministroFacturasRecibidas()
-            invoice_dict = get_factura_recibida_dict(invoice, rectificativa=True)
-        elif invoice.type == 'out_refund':
-            invoice_model = invoices_record.SuministroFacturasEmitidas()
-            invoice_dict = get_factura_emitida_dict(invoice, rectificativa=True)
+            invoice_dict = get_factura_emitida_dict(
+                invoice, rectificativa=rectificativa
+            )
         else:
-            raise Exception('Unknown value in invoice.type')
+            raise AttributeError('Unknown value in invoice.type')
 
         errors = invoice_model.validate(invoice_dict)
         if errors:
