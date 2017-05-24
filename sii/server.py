@@ -4,6 +4,8 @@ from sii.resource import SII
 from zeep import Client
 from requests import Session
 from zeep.transports import Transport
+from zeep.helpers import serialize_object
+
 
 def get_dict_data(invoice):
     return SII.generate_object(invoice)
@@ -31,23 +33,28 @@ class IDService(Service):
                 for partner in self.partners:
                     partner['Nif'] = partner.pop('vat')
                     partner['Nombre'] = partner.pop('name')
-                self.result = self.validator_service.VNifV2(self.partners)
+                self.result['res'] = self.validator_service.VNifV2(
+                    self.partners)
             else:
                 self.partners['Nif'] = self.partners.pop('vat')
                 self.partners['Nombre'] = self.partners.pop('name')
-                self.result = self.validator_service.VNifV1(self.partners['Nif'],
-                                                            self.partners['Nombre'])
+                self.result['res'] = self.validator_service.VNifV1(
+                    self.partners['Nif'], self.partners['Nombre'])
         except Exception as fault:
-            self.result['validator_return'] = fault
+            self.result['error'] = fault
 
     def invalid_ids(self, partners):
         self.partners = partners
         self.ids_validate()
         invalid_ids = []
-        for partner in self.result:
-            if partner['Resultado'] == 'NO IDENTIFICADO':
-                invalid_ids.append(partner)
-        self.result = invalid_ids
+        if isinstance(self.partners, list):
+            for partner in self.result['res']:
+                if partner['Resultado'] == 'NO IDENTIFICADO':
+                    invalid_ids.append(partner)
+        else:
+            if 'error' in self.result.keys():
+                return partners
+        return serialize_object(invalid_ids)
 
     def create_validation_service(self):
         port_name = 'VNifPort1'
