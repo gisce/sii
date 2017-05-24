@@ -102,12 +102,12 @@ class SiiService(Service):
         session.verify = False
         transport = Transport(session=session)
         if self.invoice.type.startswith('out_'):
-            wsdl = wsdl_files['emitted_invoice']
+            wsdl = self.wsdl_files['emitted_invoice']
             port_name = 'SuministroFactEmitidas'
             binding_name = '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactEmitidas.wsdl}siiBinding'
             type_address = '/wlpl/SSII-FACT/ws/fe/SiiFactFEV1SOAP'
         else:
-            wsdl = wsdl_files['received_invoice']
+            wsdl = self.wsdl_files['received_invoice']
             port_name = 'SuministroFactRecibidas'
             binding_name = '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactRecibidas.wsdl}siiBinding'
             type_address = '/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP'
