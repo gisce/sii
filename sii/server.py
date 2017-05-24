@@ -7,10 +7,6 @@ from zeep.transports import Transport
 from zeep.helpers import serialize_object
 
 
-def get_dict_data(invoice):
-    return SII.generate_object(invoice)
-
-
 class Service(object):
     def __init__(self, certificate, key, proxy):
         self.certificate = certificate
@@ -154,7 +150,7 @@ class SiiService(Service):
     #         self.result['sii_return'] = fault
 
     def get_msg(self):
-        dict_from_marsh = get_dict_data(invoice=self.invoice)
+        dict_from_marsh = SII.generate_object(self.invoice)
         res_header = res_invoices = None
         if self.invoice.type.startswith('out_'):
             res_header = dict_from_marsh['SuministroLRFacturasEmitidas'][
