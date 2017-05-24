@@ -24,26 +24,31 @@ def get_iva_values(invoice, in_invoice):
     vals = {
         'sujeta_a_iva': False,
         'detalle_iva': [],
-        'no_sujeta_a_iva': False
+        'no_sujeta_a_iva': False,
+        'iva_exento': False,
+        'iva_no_exento': False,
+        'detalle_iva_exento': {'BaseImponible': 0}
     }
-    for tax in invoice.tax_line:
-        if 'iva' in tax.name.lower():
-            iva = {
-                'BaseImponible': SIGN[invoice.rectificative_type] * tax.base,
-                'TipoImpositivo': tax.tax_id.amount * 100
-            }
-            if in_invoice:
-                iva.update({
-                    'CuotaRepercutida':
-                        SIGN[invoice.rectificative_type] * tax.tax_amount
-                })
-            else:
-                iva.update({
-                    'CuotaSoportada':
-                        SIGN[invoice.rectificative_type] * tax.tax_amount
-                })
+    for inv_tax in invoice.tax_line:
+        if 'iva' in inv_tax.name.lower():
             vals['sujeta_a_iva'] = True
-            vals['detalle_iva'].append(iva)
+            if inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent':
+                vals['iva_exento'] = True
+                vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
+            else:
+                iva = {
+                    'BaseImponible':
+                        SIGN[invoice.rectificative_type] * inv_tax.base,
+                    'TipoImpositivo': inv_tax.tax_id.amount * 100
+                }
+                if in_invoice:
+                    iva['CuotaRepercutida'] = \
+                        SIGN[invoice.rectificative_type] * inv_tax.tax_amount
+                else:
+                    iva['CuotaSoportada'] = \
+                        SIGN[invoice.rectificative_type] * inv_tax.tax_amount
+                vals['iva_no_exento'] = True
+                vals['detalle_iva'].append(iva)
         else:
             vals['no_sujeta_a_iva'] = True
     return vals
@@ -54,14 +59,17 @@ def get_factura_emitida(invoice):
     desglose_factura = {}
 
     if iva_values['sujeta_a_iva']:
-        desglose_factura['Sujeta'] = {
-            'NoExenta': {  # TODO Exenta o no exenta??
+        desglose_factura['Sujeta'] = {}
+        if iva_values['iva_exento']:
+            desglose_factura['Sujeta']['Exenta'] = \
+                iva_values['detalle_iva_exento']
+        if iva_values['iva_no_exento']:
+            desglose_factura['Sujeta']['NoExenta'] = {
                 'TipoNoExenta': 'S1',
                 'DesgloseIVA': {
                     'DetalleIVA': iva_values['detalle_iva']
                 }
             }
-        }
     if iva_values['no_sujeta_a_iva']:
         importe_no_sujeto = get_importe_no_sujeto_a_iva(invoice)
         if 'islas canarias' not in invoice.fiscal_position.name.lower():
