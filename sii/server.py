@@ -19,25 +19,25 @@ class IDService(Service):
     def __init__(self, proxy, certificate, key):
         super(IDService, self).__init__(certificate, key, proxy)
         self.validator_service = None
-        self.partners = None
 
-    def ids_validate(self):
-        self.validator_service = self.create_validation_service()
+    def ids_validate(self, partners):
+        self.validator_service = self.create_validation_service(partners)
         try:
-            if isinstance(self.partners, list):
-                if len(self.partners) > 10000:
+            if isinstance(partners, list):
+                if len(partners) > 10000:
                     chunks = [list[i:i + 10000] for i in range(0, len(list), 10000)]
                     for chunk in chunks:
                         self.send_validate_chunk(chunk=chunk)
                 else:
-                    self.send_validate_chunk(self.partners)
+                    self.send_validate_chunk(partners)
             else:
-                self.partners['Nif'] = self.partners.pop('vat')
-                self.partners['Nombre'] = self.partners.pop('name')
-                self.result = serialize_object(self.validator_service.VNifV1(
-                                                        self.partners['Nif'],
-                                                        self.partners['Nombre']
-                                                            ))
+                partners['Nif'] = partners.pop('vat')
+                partners['Nombre'] = partners.pop('name')
+                self.result = serialize_object(
+                    self.validator_service.VNifV1(
+                        partners['Nif'], partners['Nombre']
+                    )
+                )
             return serialize_object(self.result)
         except Exception as fault:
             self.result = fault
@@ -49,10 +49,9 @@ class IDService(Service):
         self.result.extend(self.validator_service.VNifV2(chunk))
 
     def invalid_ids(self, partners):
-        self.partners = partners
-        self.ids_validate()
+        self.ids_validate(partners)
         invalid_ids = []
-        if isinstance(self.partners, list):
+        if isinstance(partners, list):
             for partner in self.result:
                 if partner['Resultado'] == 'NO IDENTIFICADO':
                     invalid_ids.append(partner)
@@ -61,13 +60,13 @@ class IDService(Service):
                 return partners
         return serialize_object(invalid_ids)
 
-    def create_validation_service(self):
+    def create_validation_service(self, partners):
         port_name = 'VNifPort1'
         type_address = '/wlpl/BURT-JDIT/ws/VNifV1SOAP'
         binding_name = '{http://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV1.wsdl}VNifV1SoapBinding'
         service_name = 'VNifV1Service'
         wsdl = self.wsdl_files['ids_validator_v1']
-        if isinstance(self.partners, list):
+        if isinstance(partners, list):
             type_address = '/wlpl/BURT-JDIT/ws/VNifV2SOAP'
             binding_name = '{http://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV2.wsdl}VNifV2SoapBinding'
             service_name = 'VNifV2Service'
