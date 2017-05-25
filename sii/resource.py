@@ -231,9 +231,19 @@ def get_factura_recibida_dict(invoice, rectificativa=False):
     return obj
 
 
+def refactor_nifs(invoice):
+    if invoice.partner_id.vat.lower().startswith('es'):
+        invoice.partner_id.vat = invoice.partner_id.vat[2:]
+    if invoice.company_id.partner_id.vat.lower().startswith('es'):
+        invoice.company_id.partner_id.vat = \
+            invoice.company_id.partner_id.vat[2:]
+
+
 class SII(object):
     @staticmethod
     def generate_object(invoice):
+
+        refactor_nifs(invoice)
 
         rectificativa = invoice.rectificative_type == 'R'
         if invoice.type.startswith('in'):
