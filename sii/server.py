@@ -105,7 +105,7 @@ class SiiService(Service):
         else:
             if self.received_service is None:
                 self.received_service = self.create_service()
-        self.send_invoice()
+        return self.send_invoice()
 
     def create_service(self):
         session = Session()
