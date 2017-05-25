@@ -143,14 +143,12 @@ class DataGenerator:
         ]
 
         self.partner_invoice = Partner(
-            name=os.environ.get('NOMBRE_TITULAR', u'Francisco García'),
-            nif=os.environ.get('NIF_TITULAR', u'12345678T')
+            name=os.environ.get('NOMBRE_CONTRAPARTE', u'Francisco García'),
+            nif=os.environ.get('NIF_CONTRAPARTE', u'12345678T')
         )
         partner_company = Partner(
-            name=os.environ.get(
-                'NOMBRE_CONTRAPARTE', u'Compañía Eléctrica S.A.'
-            ),
-            nif=os.environ.get('NIF_CONTRAPARTE', '55555555T')
+            name=os.environ.get('NOMBRE_TITULAR', u'Compañía Eléctrica S.A.'),
+            nif=os.environ.get('NIF_TITULAR', '55555555T')
         )
         self.company = Company(partner_id=partner_company)
 
