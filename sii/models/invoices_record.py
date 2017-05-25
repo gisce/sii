@@ -50,9 +50,7 @@ class MySchema(Schema):
 
 
 class NIF(MySchema):
-    NIF = fields.String(
-        required=True, validate=validate.Length(max=9)
-    )  # TODO validate if it belongs to a NIF ??
+    NIF = fields.String(required=True, validate=validate.Length(max=9))
 
 
 class Titular(NIF):
