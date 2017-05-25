@@ -12,7 +12,7 @@ class Service(object):
         self.certificate = certificate
         self.key = key
         self.proxy_address = proxy
-        self.result = {}
+        self.result = []
 
 
 class IDService(Service):
@@ -23,32 +23,41 @@ class IDService(Service):
 
     def ids_validate(self):
         self.validator_service = self.create_validation_service()
-
         try:
             if isinstance(self.partners, list):
-                for partner in self.partners:
-                    partner['Nif'] = partner.pop('vat')
-                    partner['Nombre'] = partner.pop('name')
-                self.result['res'] = self.validator_service.VNifV2(
-                    self.partners)
+                if len(self.partners) > 10000:
+                    chunks = [list[i:i + 10000] for i in range(0, len(list), 10000)]
+                    for chunk in chunks:
+                        self.send_validate_chunk(chunk=chunk)
+                else:
+                    self.send_validate_chunk(self.partners)
             else:
                 self.partners['Nif'] = self.partners.pop('vat')
                 self.partners['Nombre'] = self.partners.pop('name')
-                self.result['res'] = self.validator_service.VNifV1(
-                    self.partners['Nif'], self.partners['Nombre'])
+                self.result = serialize_object(self.validator_service.VNifV1(
+                                                        self.partners['Nif'],
+                                                        self.partners['Nombre']
+                                                            ))
+            return serialize_object(self.result)
         except Exception as fault:
-            self.result['error'] = fault
+            self.result = fault
+
+    def send_validate_chunk(self, chunk):
+        for partner in chunk:
+            partner['Nif'] = partner.pop('vat')
+            partner['Nombre'] = partner.pop('name')
+        self.result.extend(self.validator_service.VNifV2(chunk))
 
     def invalid_ids(self, partners):
         self.partners = partners
         self.ids_validate()
         invalid_ids = []
         if isinstance(self.partners, list):
-            for partner in self.result['res']:
+            for partner in self.result:
                 if partner['Resultado'] == 'NO IDENTIFICADO':
                     invalid_ids.append(partner)
         else:
-            if 'error' in self.result.keys():
+            if isinstance(self.result, Exception) and self.result.message == 'Codigo[-1].No identificado':
                 return partners
         return serialize_object(invalid_ids)
 
@@ -132,10 +141,16 @@ class SiiService(Service):
             elif self.invoice.type.startswith('in_'):
                 res = self.received_service.SuministroLRFacturasRecibidas(
                     msg_header, msg_invoice)
-            self.result['sii_sent'] = res['EstadoEnvio'] == 'Correcto'
-            self.result['sii_return'] = res
+            self.result = {
+                            'sii_sent': res['EstadoEnvio'] == 'Correcto',
+                            'sii_return': res
+                          }
+            return self.result
+            # self.result['sii_sent'] = res['EstadoEnvio'] == 'Correcto'
+            # self.result['sii_return'] = res
         except Exception as fault:
-            self.result['sii_return'] = fault
+            self.result = fault
+            raise fault
 
     # def list_invoice(self, invoice):
     #     msg_header, msg_invoice = self.get_msg(invoice)
