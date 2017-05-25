@@ -8,7 +8,7 @@ from zeep.helpers import serialize_object
 
 
 class Service(object):
-    def __init__(self, certificate, key, proxy):
+    def __init__(self, certificate, key, proxy=None):
         self.certificate = certificate
         self.key = key
         self.proxy_address = proxy
