@@ -141,18 +141,8 @@ class SiiService(Service):
             elif self.invoice.type.startswith('in_'):
                 res = self.received_service.SuministroLRFacturasRecibidas(
                     msg_header, msg_invoice)
-            self.result = {
-                            'sii_sent': res['RespuestaLinea'][0][
-                                            'EstadoRegistro'] == 'Correcto',
-                            'sii_error_code': res['RespuestaLinea'][0][
-                                                  'CodigoErrorRegistro'],
-                            'sii_error_desc': res['RespuestaLinea'][0][
-                                                  'DescripcionErrorRegistro'],
-                            'sii_return': res
-                          }
+            self.result = res
             return self.result
-            # self.result['sii_sent'] = res['EstadoEnvio'] == 'Correcto'
-            # self.result['sii_return'] = res
         except Exception as fault:
             self.result = fault
             raise fault
