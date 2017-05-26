@@ -1,4 +1,6 @@
 # coding=utf-8
+import re
+
 from sii import __SII_VERSION__
 from sii.models import invoices_record
 
@@ -232,11 +234,8 @@ def get_factura_recibida_dict(invoice, rectificativa=False):
 
 
 def refactor_nifs(invoice):
-    if invoice.partner_id.vat.lower().startswith('es'):
-        invoice.partner_id.vat = invoice.partner_id.vat[2:]
-    if invoice.company_id.partner_id.vat.lower().startswith('es'):
-        invoice.company_id.partner_id.vat = \
-            invoice.company_id.partner_id.vat[2:]
+    for partner in (invoice.partner_id, invoice.company_id.partner_id):
+        partner.vat = re.sub('^ES', '', partner.vat.upper())
 
 
 class SII(object):
