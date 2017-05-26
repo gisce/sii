@@ -3,6 +3,7 @@
 from sii.resource import SII
 from zeep import Client
 from requests import Session
+from zeep.exceptions import Fault
 from zeep.transports import Transport
 from zeep.helpers import serialize_object
 
@@ -39,7 +40,7 @@ class IDService(Service):
                     )
                 )
             return serialize_object(self.result)
-        except Exception as fault:
+        except Fault as fault:
             self.result = fault
             if self.result.message != 'Codigo[-1].No identificado':
                 raise fault
