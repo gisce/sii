@@ -141,7 +141,12 @@ class SiiService(Service):
                 res = self.received_service.SuministroLRFacturasRecibidas(
                     msg_header, msg_invoice)
             self.result = {
-                            'sii_sent': res['EstadoEnvio'] == 'Correcto',
+                            'sii_sent': res['RespuestaLinea'][0][
+                                            'EstadoRegistro'] == 'Correcto',
+                            'sii_error_code': res['RespuestaLinea'][0][
+                                                  'CodigoErrorRegistro'],
+                            'sii_error_desc': res['RespuestaLinea'][0][
+                                                  'DescripcionErrorRegistro'],
                             'sii_return': res
                           }
             return self.result
