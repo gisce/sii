@@ -8,16 +8,16 @@ from zeep.helpers import serialize_object
 
 
 class Service(object):
-    def __init__(self, certificate, key, proxy=None):
+    def __init__(self, certificate, key, url=None):
         self.certificate = certificate
         self.key = key
-        self.proxy_address = proxy
+        self.proxy_address = url
         self.result = []
 
 
 class IDService(Service):
-    def __init__(self, certificate, key, proxy=None):
-        super(IDService, self).__init__(certificate, key, proxy)
+    def __init__(self, certificate, key, url=None):
+        super(IDService, self).__init__(certificate, key, url)
         self.validator_service = None
 
     def ids_validate(self, partners):
@@ -93,12 +93,12 @@ class IDService(Service):
 
 
 class SiiService(Service):
-    def __init__(self, certificate, key, proxy=None, test_mode=False):
-        super(SiiService, self).__init__(certificate, key, proxy)
+    def __init__(self, certificate, key, url=None, test_mode=False):
+        super(SiiService, self).__init__(certificate, key, url)
         self.test_mode = True  # Force now work in test mode
         self.emitted_service = None
         self.received_service = None
-        self.proxy_address = proxy
+        self.proxy_address = url
         self.invoice = None
 
     def send(self, invoice):
