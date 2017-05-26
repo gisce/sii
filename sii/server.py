@@ -142,7 +142,7 @@ class SiiService(Service):
                 res = self.received_service.SuministroLRFacturasRecibidas(
                     msg_header, msg_invoice)
             self.result = res
-            return self.result
+            return serialize_object(self.result)
         except Exception as fault:
             self.result = fault
             raise fault
