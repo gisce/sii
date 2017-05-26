@@ -17,7 +17,7 @@ setup(
     url='http://www.gisce.net',
     version=__LIBRARY_VERSION__,
     license='General Public Licence 2',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     provides=['sii'],
     install_requires=INSTALL_REQUIRES,
     tests_require=TESTS_REQUIRE,
