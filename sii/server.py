@@ -3,21 +3,22 @@
 from sii.resource import SII
 from zeep import Client
 from requests import Session
+from zeep.exceptions import Fault
 from zeep.transports import Transport
 from zeep.helpers import serialize_object
 
 
 class Service(object):
-    def __init__(self, certificate, key, proxy=None):
+    def __init__(self, certificate, key, url=None):
         self.certificate = certificate
         self.key = key
-        self.proxy_address = proxy
+        self.url = url
         self.result = []
 
 
 class IDService(Service):
-    def __init__(self, certificate, key, proxy=None):
-        super(IDService, self).__init__(certificate, key, proxy)
+    def __init__(self, certificate, key, url=None):
+        super(IDService, self).__init__(certificate, key, url)
         self.validator_service = None
 
     def ids_validate(self, partners):
@@ -39,7 +40,7 @@ class IDService(Service):
                     )
                 )
             return serialize_object(self.result)
-        except Exception as fault:
+        except Fault as fault:
             self.result = fault
             if self.result.message != 'Codigo[-1].No identificado':
                 raise fault
@@ -80,9 +81,9 @@ class IDService(Service):
 
         client = Client(wsdl=wsdl, port_name=port_name, transport=transport,
                         service_name=service_name)
-        if not self.proxy_address:
+        if not self.url:
             return client.service
-        address = '{0}{1}'.format(self.proxy_address, type_address)
+        address = '{0}{1}'.format(self.url, type_address)
         service = client.create_service(binding_name, address)
         return service
 
@@ -93,12 +94,12 @@ class IDService(Service):
 
 
 class SiiService(Service):
-    def __init__(self, certificate, key, proxy=None, test_mode=False):
-        super(SiiService, self).__init__(certificate, key, proxy)
+    def __init__(self, certificate, key, url=None, test_mode=False):
+        super(SiiService, self).__init__(certificate, key, url)
         self.test_mode = True  # Force now work in test mode
         self.emitted_service = None
         self.received_service = None
-        self.proxy_address = proxy
+        self.url = url
         self.invoice = None
 
     def send(self, invoice):
@@ -126,9 +127,9 @@ class SiiService(Service):
         client = Client(wsdl=config['wsdl'], port_name=config['port_name'],
                         transport=transport, service_name=config['service_name']
                         )
-        if not self.proxy_address:
+        if not self.url:
             return client.service
-        address = '{0}{1}'.format(self.proxy_address, config['type_address'])
+        address = '{0}{1}'.format(self.url, config['type_address'])
         service = client.create_service(config['binding_name'], address)
         return service
 
