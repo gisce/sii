@@ -16,7 +16,7 @@ class Service(object):
 
 
 class IDService(Service):
-    def __init__(self, proxy, certificate, key):
+    def __init__(self, certificate, key, proxy=None):
         super(IDService, self).__init__(certificate, key, proxy)
         self.validator_service = None
 
@@ -78,6 +78,8 @@ class IDService(Service):
 
         client = Client(wsdl=wsdl, port_name=port_name, transport=transport,
                         service_name=service_name)
+        if not self.proxy_address:
+            return client.service
         address = '{0}{1}'.format(self.proxy_address, type_address)
         service = client.create_service(binding_name, address)
         return service
