@@ -3,9 +3,11 @@
 from setuptools import setup, find_packages
 from sii import __LIBRARY_VERSION__
 
-INSTALL_REQUIRES = [line for line in open('requirements.txt')]
+with open('requirements.txt', 'r') as f:
+    INSTALL_REQUIRES = f.readlines()
 
-TESTS_REQUIRE = [line for line in open('requirements-dev.txt')]
+with open('requirements-dev.txt', 'r') as f:
+    TESTS_REQUIRE = f.readlines()
 
 PACKAGES_DATA = {'sii': ['data/*.xsd']}
 
