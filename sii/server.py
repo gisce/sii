@@ -93,7 +93,7 @@ class IDService(Service):
 
 
 class SiiService(Service):
-    def __init__(self, proxy, certificate, key, test_mode=False):
+    def __init__(self, certificate, key, proxy=None, test_mode=False):
         super(SiiService, self).__init__(certificate, key, proxy)
         self.test_mode = True  # Force now work in test mode
         self.emitted_service = None
@@ -131,6 +131,8 @@ class SiiService(Service):
 
         client = Client(wsdl=wsdl, port_name=port_name, transport=transport,
                         service_name='siiService')
+        if not self.proxy_address:
+            return client.service
         address = '{0}{1}'.format(self.proxy_address, type_address)
         service = client.create_service(binding_name, address)
         return service
