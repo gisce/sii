@@ -12,7 +12,7 @@ class Service(object):
     def __init__(self, certificate, key, url=None):
         self.certificate = certificate
         self.key = key
-        self.proxy_address = url
+        self.url = url
         self.result = []
 
 
@@ -81,9 +81,9 @@ class IDService(Service):
 
         client = Client(wsdl=wsdl, port_name=port_name, transport=transport,
                         service_name=service_name)
-        if not self.proxy_address:
+        if not self.url:
             return client.service
-        address = '{0}{1}'.format(self.proxy_address, type_address)
+        address = '{0}{1}'.format(self.url, type_address)
         service = client.create_service(binding_name, address)
         return service
 
@@ -99,7 +99,7 @@ class SiiService(Service):
         self.test_mode = True  # Force now work in test mode
         self.emitted_service = None
         self.received_service = None
-        self.proxy_address = url
+        self.url = url
         self.invoice = None
 
     def send(self, invoice):
@@ -127,9 +127,9 @@ class SiiService(Service):
         client = Client(wsdl=config['wsdl'], port_name=config['port_name'],
                         transport=transport, service_name=config['service_name']
                         )
-        if not self.proxy_address:
+        if not self.url:
             return client.service
-        address = '{0}{1}'.format(self.proxy_address, config['type_address'])
+        address = '{0}{1}'.format(self.url, config['type_address'])
         service = client.create_service(config['binding_name'], address)
         return service
 
