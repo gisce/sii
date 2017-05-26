@@ -117,24 +117,19 @@ class SiiService(Service):
         session.verify = False
         transport = Transport(session=session)
         if self.invoice.type.startswith('out_'):
-            wsdl = self.wsdl_files['emitted_invoice']
-            port_name = 'SuministroFactEmitidas'
-            binding_name = '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactEmitidas.wsdl}siiBinding'
-            type_address = '/wlpl/SSII-FACT/ws/fe/SiiFactFEV1SOAP'
+            config = self.out_inv_config
         else:
-            wsdl = self.wsdl_files['received_invoice']
-            port_name = 'SuministroFactRecibidas'
-            binding_name = '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactRecibidas.wsdl}siiBinding'
-            type_address = '/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP'
+            config = self.in_inv_config
         if self.test_mode:
-            port_name += 'Pruebas'
+            config['port_name'] += 'Pruebas'
 
-        client = Client(wsdl=wsdl, port_name=port_name, transport=transport,
-                        service_name='siiService')
+        client = Client(wsdl=config['wsdl'], port_name=config['port_name'],
+                        transport=transport, service_name=config['service_name']
+                        )
         if not self.proxy_address:
             return client.service
-        address = '{0}{1}'.format(self.proxy_address, type_address)
-        service = client.create_service(binding_name, address)
+        address = '{0}{1}'.format(self.proxy_address, config['type_address'])
+        service = client.create_service(config['binding_name'], address)
         return service
 
     def send_invoice(self):
@@ -190,7 +185,18 @@ class SiiService(Service):
 
         return res_header, res_invoices
 
-    wsdl_files = {
-        'emitted_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_07/SuministroFactEmitidas.wsdl',
-        'received_invoice': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_07/SuministroFactRecibidas.wsdl',
+    out_inv_config = {
+        'wsdl': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_07/SuministroFactEmitidas.wsdl',
+        'port_name': 'SuministroFactEmitidas',
+        'binding_name': '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactEmitidas.wsdl}siiBinding',
+        'type_address': '/wlpl/SSII-FACT/ws/fe/SiiFactFEV1SOAP',
+        'service_name': 'siiService'
+    }
+
+    in_inv_config = {
+        'wsdl': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_07/SuministroFactRecibidas.wsdl',
+        'port_name': 'SuministroFactRecibidas',
+        'binding_name': '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactRecibidas.wsdl}siiBinding',
+        'type_address': '/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP',
+        'service_name': 'siiService'
     }
