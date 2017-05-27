@@ -45,6 +45,23 @@ with description('El XML Generado'):
                 self.invoice_obj['SuministroLRFacturasEmitidas']
                 ['RegistroLRFacturasEmitidas']
             )
+            
+        with it('los NIFs del Titular y la Contraparte no deben empezar por "ES"'):
+            os.environ['NIF_TITULAR'] = 'ES12345678T'
+            os.environ['NIF_CONTRAPARTE'] = 'esES654321P'
+            
+            nifs_test_invoice = self.data_gen.get_out_invoice()
+            nifs_test_obj = SII.generate_object(self.invoice)
+            
+            expect(
+                nifs_test_obj['SuministroLRFacturasEmitidas']
+                ['Cabecera']['Titular']['NIF']
+            ).to(equal(nifs_test_invoice.partner_invoice.vat[2:])
+            expect(
+                nifs_test_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                ['Contraparte']['NIF']
+            ).to(equal(nifs_test_invoice.company.partner_id.vat[2:])
 
         with it('la ClaveRegimenEspecialOTrascendencia debe ser válido'):
             expect(
