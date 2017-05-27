@@ -56,12 +56,12 @@ with description('El XML Generado'):
             expect(
                 nifs_test_obj['SuministroLRFacturasEmitidas']
                 ['Cabecera']['Titular']['NIF']
-            ).to(equal(nifs_test_invoice.partner_invoice.vat[2:])
+            ).to(equal(nifs_test_invoice.partner_invoice.vat[2:]))
             expect(
                 nifs_test_obj['SuministroLRFacturasEmitidas']
                 ['RegistroLRFacturasEmitidas']['FacturaExpedida']
                 ['Contraparte']['NIF']
-            ).to(equal(nifs_test_invoice.company.partner_id.vat[2:])
+            ).to(equal(nifs_test_invoice.company.partner_id.vat[2:]))
 
         with it('la ClaveRegimenEspecialOTrascendencia debe ser válido'):
             expect(
