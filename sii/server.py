@@ -41,10 +41,8 @@ class IDService(Service):
             else:
                 partners['Nif'] = partners.pop('vat')
                 partners['Nombre'] = partners.pop('name')
-                res = serialize_object(
-                    self.validator_service.VNifV1(
-                        partners['Nif'], partners['Nombre']
-                    )
+                res = self.validator_service.VNifV1(
+                    partners['Nif'], partners['Nombre']
                 )
             return serialize_object(res)
         except Fault as fault:
