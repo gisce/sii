@@ -4,6 +4,7 @@ from sii.resource import SII
 from sii.models.invoices_record import CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS
 from expects import *
 from spec.testing_data import DataGenerator
+import os
 
 with description('El XML Generado'):
     with before.all:
@@ -45,6 +46,33 @@ with description('El XML Generado'):
                 self.invoice_obj['SuministroLRFacturasEmitidas']
                 ['RegistroLRFacturasEmitidas']
             )
+
+        with context('en los NIFs involucrados'):
+            with before.all:
+                os.environ['NIF_TITULAR'] = 'ES12345678T'
+                os.environ['NIF_CONTRAPARTE'] = 'esES654321P'
+
+                new_data_gen = DataGenerator()
+                nifs_test_invoice = new_data_gen.get_out_invoice()
+                self.nif_contraparte = nifs_test_invoice.partner_id.vat[2:]
+                self.nif_titular = (
+                    nifs_test_invoice.company_id.partner_id.vat[2:]
+                )
+
+                self.nifs_test_obj = SII.generate_object(nifs_test_invoice)
+
+            with it('el NIF del Titular no debe empezar por "ES"'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['Cabecera']['Titular']['NIF']
+                ).to(equal(self.nif_titular))
+
+            with it('el NIF de la Contraparte no debe empezar por "ES"'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']['NIF']
+                ).to(equal(self.nif_contraparte))
 
         with it('la ClaveRegimenEspecialOTrascendencia debe ser válido'):
             expect(
