@@ -85,32 +85,27 @@ class IDService(Service):
         return serialize_object(invalid_ids)
 
     def create_validation_service(self, partners):
-        port_name = 'VNifPort1'
-        type_address = '/wlpl/BURT-JDIT/ws/VNifV1SOAP'
-        binding_name = '{http://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV1.wsdl}VNifV1SoapBinding'
-        service_name = 'VNifV1Service'
-        wsdl = self.wsdl_files['ids_validator_v1']
         if isinstance(partners, list):
-            type_address = '/wlpl/BURT-JDIT/ws/VNifV2SOAP'
-            binding_name = '{http://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV2.wsdl}VNifV2SoapBinding'
-            service_name = 'VNifV2Service'
-            wsdl = self.wsdl_files['ids_validator_v2']
-        session = Session()
-        session.cert = (self.certificate, self.key)
-        session.verify = False
-        transport = Transport(session=session)
+            config = self.configs['ids_validator_v2']
+        else:
+            config = self.configs['ids_validator_v1']
+        return super(IDService, self).create_service(config)
 
-        client = Client(wsdl=wsdl, port_name=port_name, transport=transport,
-                        service_name=service_name)
-        if not self.url:
-            return client.service
-        address = '{0}{1}'.format(self.url, type_address)
-        service = client.create_service(binding_name, address)
-        return service
-
-    wsdl_files = {
-        'ids_validator_v1': 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV1.wsdl',
-        'ids_validator_v2': 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV2.wsdl'
+    configs = {
+        'ids_validator_v1': {
+            'wsdl': 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV1.wsdl',
+            'port_name': 'VNifPort1',
+            'binding_name': '{http://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV1.wsdl}VNifV1SoapBinding',
+            'type_address': '/wlpl/BURT-JDIT/ws/VNifV1SOAP',
+            'service_name': 'VNifV1Service'
+        },
+        'ids_validator_v2': {
+            'wsdl': 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV2.wsdl',
+            'port_name': 'VNifPort1',
+            'binding_name': '{http://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV2.wsdl}VNifV2SoapBinding',
+            'type_address': '/wlpl/BURT-JDIT/ws/VNifV2SOAP',
+            'service_name': 'VNifV2Service'
+        }
     }
 
 
