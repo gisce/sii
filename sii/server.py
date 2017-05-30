@@ -48,22 +48,12 @@ class IDService(Service):
 
         res = []
         try:
-            if isinstance(partners, list):
-                partner_chunks = chunks(partners, max_id_checks)
-                for chunk in partner_chunks:
-                    res.extend(self.send_validate_chunk(chunk=chunk))
-            else:
-                partners['Nif'] = partners.pop('vat')
-                partners['Nombre'] = partners.pop('name')
-                res = self.validator_service.VNifV1(
-                    partners['Nif'], partners['Nombre']
-                )
+            partner_chunks = chunks(partners, max_id_checks)
+            for chunk in partner_chunks:
+                res.extend(self.send_validate_chunk(chunk=chunk))
             return serialize_object(res)
         except Fault as fault:
-            res = fault
-            if res.message != 'Codigo[-1].No identificado':
-                raise fault
-            return res
+            raise fault
 
     def send_validate_chunk(self, chunk):
         for partner in chunk:
@@ -74,30 +64,16 @@ class IDService(Service):
     def invalid_ids(self, partners, max_id_checks=MAX_ID_CHECKS):
         res = self.ids_validate(partners, max_id_checks)
         invalid_ids = []
-        if isinstance(partners, list):
-            for partner in res:
-                if partner['Resultado'] == 'NO IDENTIFICADO':
-                    invalid_ids.append(partner)
-        else:
-            if isinstance(res, Exception) and res.message == 'Codigo[-1].No identificado':
-                return partners
+        for partner in res:
+            if partner['Resultado'] == 'NO IDENTIFICADO':
+                invalid_ids.append(partner)
         return serialize_object(invalid_ids)
 
     def create_validation_service(self, partners):
-        if isinstance(partners, list):
-            config = self.configs['ids_validator_v2']
-        else:
-            config = self.configs['ids_validator_v1']
+        config = self.configs['ids_validator_v2']
         return super(IDService, self).create_service(config)
 
     configs = {
-        'ids_validator_v1': {
-            'wsdl': 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV1.wsdl',
-            'port_name': 'VNifPort1',
-            'binding_name': '{http://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV1.wsdl}VNifV1SoapBinding',
-            'type_address': '/wlpl/BURT-JDIT/ws/VNifV1SOAP',
-            'service_name': 'VNifV1Service'
-        },
         'ids_validator_v2': {
             'wsdl': 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/burt/jdit/ws/VNifV2.wsdl',
             'port_name': 'VNifPort1',
