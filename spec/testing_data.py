@@ -56,7 +56,8 @@ class InvoiceLine:
 class Invoice:
     def __init__(self, journal_id, number, type, partner_id, company_id,
                  amount_total, period_id, date_invoice, tax_line, sii_sent,
-                 rectificative_type, fiscal_position, invoice_line):
+                 rectificative_type, fiscal_position, invoice_line,
+                 origin=None):
         self.journal_id = journal_id
         self.number = number
         self.type = type
@@ -69,6 +70,7 @@ class Invoice:
         self.invoice_line = invoice_line
         self.fiscal_position = fiscal_position
         self.sii_sent = sii_sent
+        self.origin = origin
         self.rectificative_type = rectificative_type
 
 
@@ -172,6 +174,7 @@ class DataGenerator:
             journal_id=journal,
             rectificative_type='N',
             number='FRecib{}'.format(self.invoice_number),
+            origin='FRecibOrigen{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
@@ -212,6 +215,7 @@ class DataGenerator:
             journal_id=journal,
             rectificative_type='R',
             number='FRectRecib{}'.format(self.invoice_number),
+            origin='FRectRecibOrigen{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
