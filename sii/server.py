@@ -93,7 +93,7 @@ class SiiService(Service):
         self.url = url
         self.invoice = None
 
-    def send(self, invoice):
+    def send_invoice(self, invoice):
         self.invoice = invoice
         if self.invoice.type.startswith('out_'):
             if self.emitted_service is None:
@@ -101,7 +101,7 @@ class SiiService(Service):
         else:
             if self.received_service is None:
                 self.received_service = self.create_service()
-        return self.send_invoice()
+        return self.send()
 
     def create_service(self):
         if self.invoice.type.startswith('out_'):
@@ -112,7 +112,7 @@ class SiiService(Service):
             config['port_name'] += 'Pruebas'
         return super(SiiService, self).create_service(config)
 
-    def send_invoice(self):
+    def send(self):
         msg_header, msg_invoice = self.get_msg()
         try:
             if self.invoice.type.startswith('out_'):
