@@ -166,7 +166,7 @@ class SiiService(Service):
     #         self.result['sii_return'] = fault
 
     def get_msg(self):
-        dict_from_marsh = SII.generate_object(self.invoice)
+        dict_from_marsh = SII(self.invoice).generate_object()
         res_header = res_invoices = None
         if self.invoice.type.startswith('out_'):
             res_header = dict_from_marsh['SuministroLRFacturasEmitidas'][
