@@ -246,12 +246,12 @@ class SII(object):
         if invoice.type.startswith('in'):
             self.invoice_model = invoices_record.SuministroFacturasRecibidas()
             self.invoice_dict = get_factura_recibida_dict(
-                invoice, rectificativa=rectificativa
+                self.invoice, rectificativa=rectificativa
             )
         elif invoice.type.startswith('out'):
             self.invoice_model = invoices_record.SuministroFacturasEmitidas()
             self.invoice_dict = get_factura_emitida_dict(
-                invoice, rectificativa=rectificativa
+                self.invoice, rectificativa=rectificativa
             )
         else:
             raise AttributeError('Unknown value in invoice.type')
