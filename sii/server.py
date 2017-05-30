@@ -21,7 +21,6 @@ class Service(object):
         self.certificate = certificate
         self.key = key
         self.url = url
-        self.result = []
 
     def create_service(self, config):
         session = Session()
@@ -146,10 +145,8 @@ class SiiService(Service):
             elif self.invoice.type.startswith('in_'):
                 res = self.received_service.SuministroLRFacturasRecibidas(
                     msg_header, msg_invoice)
-            self.result = res
-            return serialize_object(self.result)
+            return serialize_object(res)
         except Exception as fault:
-            self.result = fault
             raise fault
 
     # def list_invoice(self, invoice):
