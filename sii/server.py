@@ -7,6 +7,8 @@ from zeep.exceptions import Fault
 from zeep.transports import Transport
 from zeep.helpers import serialize_object
 
+from sii import __SII_VERSION__
+
 MAX_ID_CHECKS = 9999
 
 
@@ -99,6 +101,38 @@ class SiiService(Service):
         self.type = 'invoice'
         self.invoice = invoice
         if self.invoice.type.startswith('out_'):
+            if self.emitted_service is None:
+                self.emitted_service = self.create_service()
+        else:
+            if self.received_service is None:
+                self.received_service = self.create_service()
+        return self.send()
+
+    def query_invoice(self, inv_type, nif_titular, name_titular, ejercicio,
+                      periodo, nif_contraparte=None, name_contraparte=None,
+                      num_invoice=None, date_invoice=None):
+        self.type = 'query'
+        self.query = {
+            'type': inv_type,
+            'query': {
+                'ConsultaLRFacturasEmitidas': {
+                    'Cabecera': {
+                        'IDVersionSii': __SII_VERSION__,
+                        'Titular': {
+                            'NombreRazon': name_titular,
+                            'NIF': nif_titular
+                        },
+                    },
+                    'FiltroConsulta': {
+                        'PeriodoImpositivo': {
+                            'Ejercicio': ejercicio,
+                            'Periodo': periodo
+                        }
+                    }
+                }
+            }
+        }
+        if self.query['type'].startswith('out_'):
             if self.emitted_service is None:
                 self.emitted_service = self.create_service()
         else:
