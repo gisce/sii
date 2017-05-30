@@ -7,6 +7,14 @@ from zeep.exceptions import Fault
 from zeep.transports import Transport
 from zeep.helpers import serialize_object
 
+MAX_ID_CHECKS = 9999
+
+
+def chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
 
 class Service(object):
     def __init__(self, certificate, key, url=None):
@@ -21,25 +29,22 @@ class IDService(Service):
         super(IDService, self).__init__(certificate, key, url)
         self.validator_service = None
 
-    def ids_validate(self, partners):
+    def ids_validate(self, partners, max_id_checks=MAX_ID_CHECKS):
         self.validator_service = self.create_validation_service(partners)
+
+        res = []
         try:
             if isinstance(partners, list):
-                if len(partners) > 10000:
-                    chunks = [list[i:i + 10000] for i in range(0, len(list), 10000)]
-                    for chunk in chunks:
-                        self.send_validate_chunk(chunk=chunk)
-                else:
-                    self.send_validate_chunk(partners)
+                partner_chunks = chunks(partners, max_id_checks)
+                for chunk in partner_chunks:
+                    res.extend(self.send_validate_chunk(chunk=chunk))
             else:
                 partners['Nif'] = partners.pop('vat')
                 partners['Nombre'] = partners.pop('name')
-                self.result = serialize_object(
-                    self.validator_service.VNifV1(
-                        partners['Nif'], partners['Nombre']
-                    )
+                res = self.validator_service.VNifV1(
+                    partners['Nif'], partners['Nombre']
                 )
-            return serialize_object(self.result)
+            return serialize_object(res)
         except Fault as fault:
             self.result = fault
             if self.result.message != 'Codigo[-1].No identificado':
@@ -49,17 +54,17 @@ class IDService(Service):
         for partner in chunk:
             partner['Nif'] = partner.pop('vat')
             partner['Nombre'] = partner.pop('name')
-        self.result.extend(self.validator_service.VNifV2(chunk))
+        return self.validator_service.VNifV2(chunk)
 
-    def invalid_ids(self, partners):
-        self.ids_validate(partners)
+    def invalid_ids(self, partners, max_id_checks=MAX_ID_CHECKS):
+        res = self.ids_validate(partners, max_id_checks)
         invalid_ids = []
         if isinstance(partners, list):
-            for partner in self.result:
+            for partner in res:
                 if partner['Resultado'] == 'NO IDENTIFICADO':
                     invalid_ids.append(partner)
         else:
-            if isinstance(self.result, Exception) and self.result.message == 'Codigo[-1].No identificado':
+            if isinstance(res, Exception) and res.message == 'Codigo[-1].No identificado':
                 return partners
         return serialize_object(invalid_ids)
 
