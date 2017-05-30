@@ -23,6 +23,21 @@ class Service(object):
         self.url = url
         self.result = []
 
+    def create_service(self, config):
+        session = Session()
+        session.cert = (self.certificate, self.key)
+        session.verify = False
+        transport = Transport(session=session)
+
+        client = Client(wsdl=config['wsdl'], port_name=config['port_name'],
+                        transport=transport, service_name=config['service_name']
+                        )
+        if not self.url:
+            return client.service
+        address = '{0}{1}'.format(self.url, config['type_address'])
+        service = client.create_service(config['binding_name'], address)
+        return service
+
 
 class IDService(Service):
     def __init__(self, certificate, key, url=None):
