@@ -214,7 +214,7 @@ def get_factura_recibida_dict(invoice, rectificativa=False):
                     'IDEmisorFactura': {
                         'NIF': invoice.partner_id.vat
                     },
-                    'NumSerieFacturaEmisor': invoice.number,
+                    'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.date_invoice
                 },
                 'FacturaRecibida': get_factura_recibida(invoice)
