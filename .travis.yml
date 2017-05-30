@@ -1,17 +1,25 @@
 sudo: false
 language: python
 python:
-  - '2.7'
-  - '3.6'
+- '2.7'
+- '3.6'
 install:
-  - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
-  - pip install coveralls
-  - pip install -e .
+- pip install -r requirements.txt
+- pip install -r requirements-dev.txt
+- pip install coveralls
+- pip install -e .
 script:
-  - mamba --enable-coverage
+- mamba --enable-coverage
 after_success:
-  - coveralls
-  - coverage report
+- coveralls
+- coverage report
 notifications:
   email: false
+deploy:
+  provider: pypi
+  user: gisce
+  password:
+    secure: LVDA5nqb9telkgN2MWvafgP3dyLbNBhVgR+hv4czKJRjtR09jOl/8rtJ/GoxR51yNcAyg9SWHSvu00KRmlcwE/Ft0xGg9/nyKScN+m95Q0FcH01jxqn3RDFTbxbDxxbI7cz9nKg99lRau3ukkro8X9fhgARHcL+0XJU4LekF2wg0LUIUk/htRAp7CD5+m61+Ml0QaJH+ENMdpTRDPjaOOU9PmJAhvF03zXfMI/Se5O79UsuRsN0+RH8d3BhL2//HIekRGW2xuUMbaD2zJ/ByAfk1C2fVM3T6bVoDNcWe+JSotYTRGQ9YzEMoPHxUWbRr6QglMl6hp18KXqRoVpdKd0j969+BkoH+v4mSS9UHpAmB7aMv9WKGvUfsu4yyuo7DYlnxDO6TPd4W8x0UsmCb1Uv6tTiGqeJfXVh61jcqxjOcHe7O4SoTEYQb2zrRopsutQQXomGSkpxTnVVQWMXfSHqRNol7a1zasjBaa7ENXFp/rgmeOMDhsCbyahrXVZQ1Q5CSqdfBiyZUjcXC62mgqWrvEmtsWuKxv6/lbKvbzzCg4WEBsw7Py1leL6iq6BaIajPitpFeSUakkdhjWjqlxx3kQInT0Y+6RvDke7jxIYL3rOU8DO71dI5dtCXu+yrg/1spjngFt79f38P6nqXGAXOTT7Y+iRbdnj4bE6x54Ic=
+  on:
+    tags: true
+    repo: gisce/sii
