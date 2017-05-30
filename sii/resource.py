@@ -239,32 +239,48 @@ def refactor_nifs(invoice):
 
 
 class SII(object):
-    @staticmethod
-    def generate_object(invoice):
-
-        refactor_nifs(invoice)
-
+    def __init__(self, invoice):
+        self.invoice = invoice
+        refactor_nifs(self.invoice)
         rectificativa = invoice.rectificative_type == 'R'
         if invoice.type.startswith('in'):
-            invoice_model = invoices_record.SuministroFacturasRecibidas()
-            invoice_dict = get_factura_recibida_dict(
+            self.invoice_model = invoices_record.SuministroFacturasRecibidas()
+            self.invoice_dict = get_factura_recibida_dict(
                 invoice, rectificativa=rectificativa
             )
         elif invoice.type.startswith('out'):
-            invoice_model = invoices_record.SuministroFacturasEmitidas()
-            invoice_dict = get_factura_emitida_dict(
+            self.invoice_model = invoices_record.SuministroFacturasEmitidas()
+            self.invoice_dict = get_factura_emitida_dict(
                 invoice, rectificativa=rectificativa
             )
         else:
             raise AttributeError('Unknown value in invoice.type')
 
-        errors = invoice_model.validate(invoice_dict)
-        if errors:
-            raise Exception(
-                'Errors were found while trying to validate the data:', errors)
+    def validate_invoice(self):
 
-        res = invoice_model.dump(invoice_dict)
+        errors = self.invoice_model.validate(self.invoice_dict)
+
+        res = {
+            'validation_successful': False if errors else True,
+            'errors': errors
+        }
+
+        return res
+
+    def generate_object(self):
+
+        validation_values = self.validate_invoice()
+        if not validation_values['validation_successful']:
+            raise Exception(
+                'Errors were found while trying to validate the data:',
+                validation_values['errors']
+            )
+
+        res = self.invoice_model.dump(self.invoice_dict)
         if res.errors:
             raise Exception(
-                'Errors were found while trying to generate the dump:', errors)
+                'Errors were found while trying to generate the dump:',
+                res.errors
+            )
+
         return res.data
