@@ -46,9 +46,10 @@ class IDService(Service):
                 )
             return serialize_object(res)
         except Fault as fault:
-            self.result = fault
-            if self.result.message != 'Codigo[-1].No identificado':
+            res = fault
+            if res.message != 'Codigo[-1].No identificado':
                 raise fault
+            return res
 
     def send_validate_chunk(self, chunk):
         for partner in chunk:
