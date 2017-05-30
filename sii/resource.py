@@ -261,7 +261,7 @@ class SII(object):
         errors = self.invoice_model.validate(self.invoice_dict)
 
         res = {
-            'validation_successful': False if errors else True,
+            'successful': False if errors else True,
             'errors': errors
         }
 
@@ -270,7 +270,7 @@ class SII(object):
     def generate_object(self):
 
         validation_values = self.validate_invoice()
-        if not validation_values['validation_successful']:
+        if not validation_values['successful']:
             raise Exception(
                 'Errors were found while trying to validate the data:',
                 validation_values['errors']
