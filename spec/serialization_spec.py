@@ -14,7 +14,7 @@ with description('El XML Generado'):
         with before.all:
             # Example invoice to check common fields
             self.invoice = self.data_gen.get_out_invoice()
-            self.invoice_obj = SII.generate_object(self.invoice)
+            self.invoice_obj = SII(self.invoice).generate_object()
             self.cabecera = (
                 self.invoice_obj['SuministroLRFacturasEmitidas']['Cabecera']
             )
@@ -41,7 +41,7 @@ with description('El XML Generado'):
         with before.all:
             # Example invoice to check common fields
             self.invoice = self.data_gen.get_out_invoice()
-            self.invoice_obj = SII.generate_object(self.invoice)
+            self.invoice_obj = SII(self.invoice).generate_object()
             self.factura = (
                 self.invoice_obj['SuministroLRFacturasEmitidas']
                 ['RegistroLRFacturasEmitidas']
@@ -59,7 +59,7 @@ with description('El XML Generado'):
                     nifs_test_invoice.company_id.partner_id.vat[2:]
                 )
 
-                self.nifs_test_obj = SII.generate_object(nifs_test_invoice)
+                self.nifs_test_obj = SII(nifs_test_invoice).generate_object()
 
             with it('el NIF del Titular no debe empezar por "ES"'):
                 expect(
@@ -109,7 +109,8 @@ with description('El XML Generado'):
     with description('en los datos de una factura emitida'):
         with before.all:
             self.out_invoice = self.data_gen.get_out_invoice()
-            self.out_invoice_obj = SII.generate_object(self.out_invoice)
+            self.invoice_obj = SII(self.invoice).generate_object()
+            self.out_invoice_obj = SII(self.out_invoice).generate_object()
             self.factura_emitida = (
                 self.out_invoice_obj['SuministroLRFacturasEmitidas']
                 ['RegistroLRFacturasEmitidas']
@@ -139,7 +140,7 @@ with description('El XML Generado'):
     with description('en los datos de una factura recibida'):
         with before.all:
             self.in_invoice = self.data_gen.get_in_invoice()
-            self.in_invoice_obj = SII.generate_object(self.in_invoice)
+            self.in_invoice_obj = SII(self.in_invoice).generate_object()
             self.factura_recibida = (
                 self.in_invoice_obj['SuministroLRFacturasRecibidas']
                 ['RegistroLRFacturasRecibidas']
@@ -166,11 +167,11 @@ with description('El XML Generado'):
                 ).to(equal(
                     self.in_invoice.tax_line[0].tax_id.amount * 100)
                 )
-    
+
     with description('en los datos de una factura rectificativa emitida'):
         with before.all:
             self.out_refund = self.data_gen.get_out_refund_invoice()
-            self.out_refund_obj = SII.generate_object(self.out_refund)
+            self.out_refund_obj = SII(self.out_refund).generate_object()
             self.fact_rect_emit = (
                 self.out_refund_obj['SuministroLRFacturasEmitidas']
                 ['RegistroLRFacturasEmitidas']
@@ -222,7 +223,7 @@ with description('El XML Generado'):
     with description('en los datos de una factura rectificativa recibida'):
         with before.all:
             self.in_refund = self.data_gen.get_in_refund_invoice()
-            self.in_refund_obj = SII.generate_object(self.in_refund)
+            self.in_refund_obj = SII(self.in_refund).generate_object()
             self.fact_rect_recib = (
                 self.in_refund_obj['SuministroLRFacturasRecibidas']
                 ['RegistroLRFacturasRecibidas']
