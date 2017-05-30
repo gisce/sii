@@ -92,8 +92,11 @@ class SiiService(Service):
         self.received_service = None
         self.url = url
         self.invoice = None
+        self.query = None
+        self.type = None
 
     def send_invoice(self, invoice):
+        self.type = 'invoice'
         self.invoice = invoice
         if self.invoice.type.startswith('out_'):
             if self.emitted_service is None:
@@ -115,12 +118,21 @@ class SiiService(Service):
     def send(self):
         msg_header, msg_invoice = self.get_msg()
         try:
-            if self.invoice.type.startswith('out_'):
-                res = self.emitted_service.SuministroLRFacturasEmitidas(
-                    msg_header, msg_invoice)
-            elif self.invoice.type.startswith('in_'):
-                res = self.received_service.SuministroLRFacturasRecibidas(
-                    msg_header, msg_invoice)
+            if self.type == 'query':
+                if self.query['type'].startswith('out_'):
+                    res = self.emitted_service.ConsultaLRFacturasEmitidas(
+                        msg_header, msg_invoice)
+                elif self.query['type'].startswith('in_'):
+                    res = self.emitted_service.ConsultaLRFacturasRecibidas(
+                        msg_header, msg_invoice)
+            else:
+                if self.invoice.type.startswith('out_'):
+                    res = self.emitted_service.SuministroLRFacturasEmitidas(
+                        msg_header, msg_invoice)
+                elif self.invoice.type.startswith('in_'):
+                    res = self.received_service.SuministroLRFacturasRecibidas(
+                        msg_header, msg_invoice)
+
             return serialize_object(res)
         except Exception as fault:
             raise fault
