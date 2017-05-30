@@ -8,6 +8,6 @@ SII
     :target: https://coveralls.io/github/gisce/sii?branch=master
 
 .. image:: https://img.shields.io/pypi/v/sii.svg
-    :target: https://pypi.python.org/pypi/mamba
+    :target: https://pypi.python.org/pypi/sii
 
 AEAT Suministro Inmediato de Información
