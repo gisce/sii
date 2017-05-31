@@ -53,8 +53,27 @@ CRE_FACTURAS_EMITIDAS = [
     ('16', 'Primer semestre 2017')
 ]
 
-CLAVE_REGIMEN_ESPECIAL_FACTURAS_RECIBIDAS = ['01', '02', '03', '04', '05', '06',
-                                             '07', '08', '09', '12', '13', '14']
+CRE_FACTURAS_RECIBIDAS = [
+    ('01', 'Operación de régimen general'),
+    ('02', 'Operaciones por las que los empresarios satisfacen compensaciones '
+           'en las adquisiciones a personas acogidas al Régimen especial de la '
+           'agricultura, ganadería y pesca'),
+    ('03', 'Operaciones a las que se aplique el régimen especial de bienes '
+           'usados, objetos de arte, antigüedades y objetos de colección'),
+    ('04', 'Régimen especial del oro de inversión'),
+    ('05', 'Régimen especial de las agencias de viajes'),
+    ('06', 'Régimen especial grupo de entidades en IVA (Nivel Avanzado)'),
+    ('07', 'Régimen especial del criterio de caja'),
+    ('08', 'Operaciones sujetas al IPSI / IGIC (Impuesto sobre la Producción, '
+           'los Servicios y la Importación / Impuesto General Indirecto '
+           'Canario)'),
+    ('09', 'Adquisiciones intracomunitarias de bienes y prestaciones de '
+           'servicios'),
+    ('12', 'Operaciones de arrendamiento de local de negocio'),
+    ('13', 'Factura correspondiente a una importación (informada sin asociar '
+           'a un DUA)'),
+    ('14', 'Primer semestre 2017')
+]
 
 
 class DateString(fields.String):
@@ -273,7 +292,13 @@ class DesgloseFacturaRecibida(MySchema):  # TODO obligatorio uno de los dos
 class DetalleFacturaRecibida(DetalleFactura):
     ClaveRegimenEspecialOTrascendencia = fields.String(
         required=True,
-        validate=validate.OneOf(CLAVE_REGIMEN_ESPECIAL_FACTURAS_RECIBIDAS)
+        validate=validate.OneOf(
+            choices=dict(CRE_FACTURAS_RECIBIDAS).keys(),
+            labels=dict(CRE_FACTURAS_RECIBIDAS).values(),
+            error='El valor "{input}" de la Clave de Regimen Especial para '
+                  'facturas recibidas de la posicion fiscal de la factura no es '
+                  'valido'
+        )
     )
     DesgloseFactura = fields.Nested(DesgloseFacturaRecibida, required=True)
     Contraparte = fields.Nested(Contraparte, required=True)
