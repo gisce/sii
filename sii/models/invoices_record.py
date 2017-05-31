@@ -19,9 +19,39 @@ TIPO_NO_EXENTA_VALUES = ['S1', 'S2', 'S3']
 
 TIPO_RECTIFICATIVA_VALUES = ['S', 'I']
 
-CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS = ['01', '02', '03', '04', '05', '06',
-                                            '07', '08', '09', '10', '11', '12',
-                                            '13', '14', '15', '16']
+# Valores para la Clave de Régimen Especial para facturas emitidas
+CRE_FACTURAS_EMITIDAS = [
+    ('01', 'Operación de régimen general'),
+    ('02', 'Exportación'),
+    ('03', 'Operaciones a las que se aplique el régimen especial de bienes '
+           'usados, objetos de arte, antigüedades y objetos de colección'),
+    ('04', 'Régimen especial del oro de inversión'),
+    ('05', 'Régimen especial de las agencias de viajes'),
+    ('06', 'Régimen especial grupo de entidades en IVA (Nivel Avanzado)'),
+    ('07', 'Régimen especial del criterio de caja'),
+    ('08', 'Operaciones sujetas al IPSI / IGIC (Impuesto sobre la Producción, '
+           'los Servicios y la Importación / Impuesto General Indirecto '
+           'Canario)'),
+    ('09', 'Facturación de las prestaciones de servicios de agencias de viaje '
+           'que actúan como mediadoras en nombre y por cuenta ajena (D.A.4ª '
+           'RD1619/2012)'),
+    ('10', 'Cobros por cuenta de terceros de honorarios profesionales o de '
+           'derechos derivados de la propiedad industrial, de autor u otros '
+           'por cuenta de sus socios, asociados o colegiados efectuados por '
+           'sociedades, asociaciones, colegios profesionales u otras entidades '
+           'que realicen estas funciones de cobro'),
+    ('11', 'Operaciones de arrendamiento de local de negocio sujetas a '
+           'retención'),
+    ('12', 'Operaciones de arrendamiento de local de negocio no sujetos a '
+           'retención'),
+    ('13', 'Operaciones de arrendamiento de local de negocio sujetas y no '
+           'sujetas a retención'),
+    ('14', 'Factura con IVA pendiente de devengo en certificaciones de obra '
+           'cuyo destinatario sea una Administración Pública'),
+    ('15', 'Factura con IVA pendiente de devengo en operaciones de tracto '
+           'sucesivo'),
+    ('16', 'Primer semestre 2017')
+]
 
 CLAVE_REGIMEN_ESPECIAL_FACTURAS_RECIBIDAS = ['01', '02', '03', '04', '05', '06',
                                              '07', '08', '09', '12', '13', '14']
@@ -174,7 +204,13 @@ class DetalleFactura(MySchema):
 class DetalleFacturaEmitida(DetalleFactura):
     ClaveRegimenEspecialOTrascendencia = fields.String(
         required=True,
-        validate=validate.OneOf(CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS)
+        validate=validate.OneOf(
+            choices=dict(CRE_FACTURAS_EMITIDAS).keys(),
+            labels=dict(CRE_FACTURAS_EMITIDAS).values(),
+            error='El valor "{input}" de la Clave de Regimen Especial para '
+                  'facturas emitidas de la posicion fiscal de la factura no es '
+                  'valido'
+        )
     )
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
