@@ -21,58 +21,58 @@ TIPO_RECTIFICATIVA_VALUES = ['S', 'I']
 
 # Valores para la Clave de Régimen Especial para facturas emitidas
 CRE_FACTURAS_EMITIDAS = [
-    ('01', 'Operación de régimen general'),
-    ('02', 'Exportación'),
-    ('03', 'Operaciones a las que se aplique el régimen especial de bienes '
-           'usados, objetos de arte, antigüedades y objetos de colección'),
-    ('04', 'Régimen especial del oro de inversión'),
-    ('05', 'Régimen especial de las agencias de viajes'),
-    ('06', 'Régimen especial grupo de entidades en IVA (Nivel Avanzado)'),
-    ('07', 'Régimen especial del criterio de caja'),
-    ('08', 'Operaciones sujetas al IPSI / IGIC (Impuesto sobre la Producción, '
-           'los Servicios y la Importación / Impuesto General Indirecto '
-           'Canario)'),
-    ('09', 'Facturación de las prestaciones de servicios de agencias de viaje '
-           'que actúan como mediadoras en nombre y por cuenta ajena (D.A.4ª '
-           'RD1619/2012)'),
-    ('10', 'Cobros por cuenta de terceros de honorarios profesionales o de '
-           'derechos derivados de la propiedad industrial, de autor u otros '
-           'por cuenta de sus socios, asociados o colegiados efectuados por '
-           'sociedades, asociaciones, colegios profesionales u otras entidades '
-           'que realicen estas funciones de cobro'),
-    ('11', 'Operaciones de arrendamiento de local de negocio sujetas a '
-           'retención'),
-    ('12', 'Operaciones de arrendamiento de local de negocio no sujetos a '
-           'retención'),
-    ('13', 'Operaciones de arrendamiento de local de negocio sujetas y no '
-           'sujetas a retención'),
-    ('14', 'Factura con IVA pendiente de devengo en certificaciones de obra '
-           'cuyo destinatario sea una Administración Pública'),
-    ('15', 'Factura con IVA pendiente de devengo en operaciones de tracto '
-           'sucesivo'),
-    ('16', 'Primer semestre 2017')
+    ('01', u'Operación de régimen general'),
+    ('02', u'Exportación'),
+    ('03', u'Operaciones a las que se aplique el régimen especial de bienes '
+           u'usados, objetos de arte, antigüedades y objetos de colección'),
+    ('04', u'Régimen especial del oro de inversión'),
+    ('05', u'Régimen especial de las agencias de viajes'),
+    ('06', u'Régimen especial grupo de entidades en IVA (Nivel Avanzado)'),
+    ('07', u'Régimen especial del criterio de caja'),
+    ('08', u'Operaciones sujetas al IPSI / IGIC (Impuesto sobre la Producción, '
+           u'los Servicios y la Importación / Impuesto General Indirecto '
+           u'Canario)'),
+    ('09', u'Facturación de las prestaciones de servicios de agencias de viaje '
+           u'que actúan como mediadoras en nombre y por cuenta ajena (D.A.4ª '
+           u'RD1619/2012)'),
+    ('10', u'Cobros por cuenta de terceros de honorarios profesionales o de '
+           u'derechos derivados de la propiedad industrial, de autor u otros '
+           u'por cuenta de sus socios, asociados o colegiados efectuados por '
+           u'sociedades, asociaciones, colegios profesionales u otras '
+           u'entidades que realicen estas funciones de cobro'),
+    ('11', u'Operaciones de arrendamiento de local de negocio sujetas a '
+           u'retención'),
+    ('12', u'Operaciones de arrendamiento de local de negocio no sujetos a '
+           u'retención'),
+    ('13', u'Operaciones de arrendamiento de local de negocio sujetas y no '
+           u'sujetas a retención'),
+    ('14', u'Factura con IVA pendiente de devengo en certificaciones de obra '
+           u'cuyo destinatario sea una Administración Pública'),
+    ('15', u'Factura con IVA pendiente de devengo en operaciones de tracto '
+           u'sucesivo'),
+    ('16', u'Primer semestre 2017')
 ]
 
 CRE_FACTURAS_RECIBIDAS = [
-    ('01', 'Operación de régimen general'),
-    ('02', 'Operaciones por las que los empresarios satisfacen compensaciones '
-           'en las adquisiciones a personas acogidas al Régimen especial de la '
-           'agricultura, ganadería y pesca'),
-    ('03', 'Operaciones a las que se aplique el régimen especial de bienes '
-           'usados, objetos de arte, antigüedades y objetos de colección'),
-    ('04', 'Régimen especial del oro de inversión'),
-    ('05', 'Régimen especial de las agencias de viajes'),
-    ('06', 'Régimen especial grupo de entidades en IVA (Nivel Avanzado)'),
-    ('07', 'Régimen especial del criterio de caja'),
-    ('08', 'Operaciones sujetas al IPSI / IGIC (Impuesto sobre la Producción, '
-           'los Servicios y la Importación / Impuesto General Indirecto '
-           'Canario)'),
-    ('09', 'Adquisiciones intracomunitarias de bienes y prestaciones de '
-           'servicios'),
-    ('12', 'Operaciones de arrendamiento de local de negocio'),
-    ('13', 'Factura correspondiente a una importación (informada sin asociar '
-           'a un DUA)'),
-    ('14', 'Primer semestre 2017')
+    ('01', u'Operación de régimen general'),
+    ('02', u'Operaciones por las que los empresarios satisfacen compensaciones '
+           u'en las adquisiciones a personas acogidas al Régimen especial de '
+           u'la agricultura, ganadería y pesca'),
+    ('03', u'Operaciones a las que se aplique el régimen especial de bienes '
+           u'usados, objetos de arte, antigüedades y objetos de colección'),
+    ('04', u'Régimen especial del oro de inversión'),
+    ('05', u'Régimen especial de las agencias de viajes'),
+    ('06', u'Régimen especial grupo de entidades en IVA (Nivel Avanzado)'),
+    ('07', u'Régimen especial del criterio de caja'),
+    ('08', u'Operaciones sujetas al IPSI / IGIC (Impuesto sobre la Producción, '
+           u'los Servicios y la Importación / Impuesto General Indirecto '
+           u'Canario)'),
+    ('09', u'Adquisiciones intracomunitarias de bienes y prestaciones de '
+           u'servicios'),
+    ('12', u'Operaciones de arrendamiento de local de negocio'),
+    ('13', u'Factura correspondiente a una importación (informada sin asociar '
+           u'a un DUA)'),
+    ('14', u'Primer semestre 2017')
 ]
 
 
