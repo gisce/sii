@@ -224,8 +224,8 @@ class DetalleFacturaEmitida(DetalleFactura):
     ClaveRegimenEspecialOTrascendencia = fields.String(
         required=True,
         validate=validate.OneOf(
-            choices=dict(CRE_FACTURAS_EMITIDAS).keys(),
-            labels=dict(CRE_FACTURAS_EMITIDAS).values(),
+            choices=sorted(dict(CRE_FACTURAS_EMITIDAS).keys()),
+            labels=[v for k, v in sorted(dict(CRE_FACTURAS_EMITIDAS).items())],
             error='El valor "{input}" de la Clave de Regimen Especial para '
                   'facturas emitidas de la posicion fiscal de la factura no es '
                   'valido'
@@ -293,11 +293,11 @@ class DetalleFacturaRecibida(DetalleFactura):
     ClaveRegimenEspecialOTrascendencia = fields.String(
         required=True,
         validate=validate.OneOf(
-            choices=dict(CRE_FACTURAS_RECIBIDAS).keys(),
-            labels=dict(CRE_FACTURAS_RECIBIDAS).values(),
+            choices=sorted(dict(CRE_FACTURAS_RECIBIDAS).keys()),
+            labels=[v for k, v in sorted(dict(CRE_FACTURAS_RECIBIDAS).items())],
             error='El valor "{input}" de la Clave de Regimen Especial para '
-                  'facturas recibidas de la posicion fiscal de la factura no es '
-                  'valido'
+                  'facturas recibidas de la posicion fiscal de la factura no '
+                  'es valido'
         )
     )
     DesgloseFactura = fields.Nested(DesgloseFacturaRecibida, required=True)
