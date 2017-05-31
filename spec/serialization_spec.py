@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from sii.resource import SII
-from sii.models.invoices_record import CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS
+from sii.models.invoices_record import CRE_FACTURAS_EMITIDAS
 from expects import *
 from spec.testing_data import DataGenerator
 import os
@@ -76,7 +76,7 @@ with description('El XML Generado'):
 
         with it('la ClaveRegimenEspecialOTrascendencia debe ser válido'):
             expect(
-                CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS
+                dict(CRE_FACTURAS_EMITIDAS).keys()
             ).to(contain(
                 (self.factura['FacturaExpedida']
                  ['ClaveRegimenEspecialOTrascendencia'])
