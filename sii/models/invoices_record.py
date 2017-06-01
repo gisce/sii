@@ -1,18 +1,13 @@
 # coding=utf-8
 
-from marshmallow import Schema, fields, post_dump
-from marshmallow import validate, validates, validates_schema, ValidationError
-from sii import __SII_VERSION__
-from datetime import datetime
+from marshmallow import fields, validate
+from invoices import MySchema, DateString
+from invoices import Cabecera, NIF, Contraparte, PeriodoImpositivo
 
 TIPO_COMUNICACION_VALUES = ['A0', 'A1', 'A4']
 
 TIPO_FACTURA_VALUES = [
     'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'R1', 'R2', 'R3', 'R4', 'R5'
-]
-
-PERIODO_VALUES = [
-    '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '0A'
 ]
 
 TIPO_NO_EXENTA_VALUES = ['S1', 'S2', 'S3']
@@ -76,52 +71,9 @@ CRE_FACTURAS_RECIBIDAS = [
 ]
 
 
-class DateString(fields.String):
-    def _validate(self, value):
-        if value is None:
-            return None
-        try:
-            datetime.strptime(value, '%Y-%m-%d')
-        except (ValueError, AttributeError):
-            raise ValidationError('Invalid date string', value)
-
-    @post_dump
-    def _serialize(self, value, attr, obj):
-        return datetime.strptime(value, '%Y-%m-%d').strftime('%d-%m-%Y')
-
-
-class MySchema(Schema):
-    @validates_schema(pass_original=True)
-    def check_unknown_fields(self, data, original_data):
-        unknown = list(set(original_data) - set(self.fields))
-        if unknown:
-            raise ValidationError('Unknown field', unknown)
-
-
-class NIF(MySchema):
-    NIF = fields.String(required=True, validate=validate.Length(max=9))
-
-
-class Titular(NIF):
-    NombreRazon = fields.String(
-        required=True, validate=validate.Length(max=120)
-    )
-
-
-class Cabecera(MySchema):
-    IDVersionSii = fields.String(required=True, default=__SII_VERSION__)
-    Titular = fields.Nested(Titular, required=True)
+class CabeceraRegistro(Cabecera):
     TipoComunicacion = fields.String(
         required=True, validate=validate.OneOf(TIPO_COMUNICACION_VALUES)
-    )
-
-
-class PeriodoImpositivo(MySchema):
-    Ejercicio = fields.String(required=True, validate=validate.OneOf(
-        [str(x) for x in range(0, 10000)]
-    ))
-    Periodo = fields.String(
-        required=True, validate=validate.OneOf(PERIODO_VALUES)
     )
 
 
@@ -194,10 +146,6 @@ class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos pero sólo pued
     DesgloseTipoOperacion = fields.Nested(DesgloseTipoOperacion)
 
 
-class Contraparte(Titular):
-    pass
-
-
 class ImporteRectificacion(MySchema):
     BaseRectificada = fields.Float(required=True)
     CuotaRectificada = fields.Float(required=True)
@@ -241,7 +189,7 @@ class FacturaEmitida(Factura):
 
 
 class RegistroFacturas(MySchema):
-    Cabecera = fields.Nested(Cabecera, required=True)
+    Cabecera = fields.Nested(CabeceraRegistro, required=True)
 
 
 class RegistroFacturasEmitidas(RegistroFacturas):
