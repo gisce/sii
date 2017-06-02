@@ -83,16 +83,28 @@ def get_factura_emitida(invoice):
                 'ImporteTAIReglasLocalizacion': importe_no_sujeto
             }
 
+    if invoice.partner_id.aeat_registered:
+        contraparte = {
+            'NombreRazon': invoice.partner_id.name,
+            'NIF': invoice.partner_id.vat# +'a'
+        }
+    else:
+        contraparte = {
+            'NombreRazon': invoice.partner_id.name,
+            'IDOtro': {
+                'CodigoPais': 'ES',
+                'IDType': '07',
+                'ID': invoice.partner_id.vat
+            }
+        }
+
     factura_expedida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
             invoice.fiscal_position.sii_out_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.journal_id.name,
-        'Contraparte': {
-            'NombreRazon': invoice.partner_id.name,
-            'NIF': invoice.partner_id.vat
-        },
+        'Contraparte': contraparte,
         'TipoDesglose': {
             'DesgloseFactura': desglose_factura
         }
