@@ -151,7 +151,7 @@ def get_header(invoice):
             'NombreRazon': invoice.company_id.partner_id.name,
             'NIF': invoice.company_id.partner_id.vat
         },
-        'TipoComunicacion': 'A0' if not invoice.sii_sent else 'A1'
+        'TipoComunicacion': 'A0' if not invoice.sii_registered else 'A1'
     }
 
     return cabecera
