@@ -143,7 +143,7 @@ class IDOtro(MySchema):
 
 
 class NIF(MySchema):
-    NIF = fields.String(required=True, validate=validate.Length(max=9))
+    NIF = fields.String(required=False, validate=validate.Length(max=9))
 
 
 class Titular(NIF):
