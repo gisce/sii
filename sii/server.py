@@ -126,10 +126,11 @@ class SiiService(Service):
             config = self.out_inv_config.copy()
         else:
             config = self.in_inv_config.copy()
+        port_name = config['port_name']
         if self.test_mode:
-            config['port_name'] += 'Pruebas'
+            port_name += 'Pruebas'
 
-        client = Client(wsdl=config['wsdl'], port_name=config['port_name'],
+        client = Client(wsdl=config['wsdl'], port_name=port_name,
                         transport=transport, service_name=config['service_name']
                         )
         if not self.url:
