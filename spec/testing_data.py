@@ -15,9 +15,10 @@ class Company:
 
 
 class Partner:
-    def __init__(self, name, nif):
+    def __init__(self, name, nif, aeat_registered=True):
         self.name = name
         self.vat = nif
+        self.aeat_registered = aeat_registered
 
 
 class Journal:
@@ -55,7 +56,7 @@ class InvoiceLine:
 
 class Invoice:
     def __init__(self, journal_id, number, type, partner_id, company_id,
-                 amount_total, period_id, date_invoice, tax_line, sii_sent,
+                 amount_total, period_id, date_invoice, tax_line, sii_registered,
                  rectificative_type, fiscal_position, invoice_line,
                  origin=None):
         self.journal_id = journal_id
@@ -69,14 +70,14 @@ class Invoice:
         self.tax_line = tax_line
         self.invoice_line = invoice_line
         self.fiscal_position = fiscal_position
-        self.sii_sent = sii_sent
+        self.sii_registered = sii_registered
         self.origin = origin
         self.rectificative_type = rectificative_type
 
 
 class DataGenerator:
-    def __init__(self):
-        self.sii_sent = False
+    def __init__(self, contraparte_registered=True):
+        self.sii_registered = False
         self.period = Period(name='12/2016')
         name_iva_21 = 'IVA 21%'
         name_iva_4 = 'IVA 4%'
@@ -146,7 +147,8 @@ class DataGenerator:
 
         self.partner_invoice = Partner(
             name=os.environ.get('NOMBRE_CONTRAPARTE', u'Francisco García'),
-            nif=os.environ.get('NIF_CONTRAPARTE', u'12345678T')
+            nif=os.environ.get('NIF_CONTRAPARTE', u'12345678T'),
+            aeat_registered=contraparte_registered
         )
         partner_company = Partner(
             name=os.environ.get('NOMBRE_TITULAR', u'Compañía Eléctrica S.A.'),
@@ -182,7 +184,7 @@ class DataGenerator:
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
-            sii_sent=self.sii_sent,
+            sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position
         )
         return invoice
@@ -202,7 +204,7 @@ class DataGenerator:
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
-            sii_sent=self.sii_sent,
+            sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position
         )
         return invoice
@@ -223,7 +225,7 @@ class DataGenerator:
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
-            sii_sent=self.sii_sent,
+            sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position
         )
         return invoice
@@ -243,7 +245,7 @@ class DataGenerator:
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
-            sii_sent=self.sii_sent,
+            sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position
         )
         return invoice

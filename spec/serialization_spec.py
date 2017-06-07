@@ -116,6 +116,30 @@ with description('El XML Generado'):
                 ['RegistroLRFacturasEmitidas']
             )
 
+        with context('en una contraparte con NIF no registrado en la AEAT'):
+            with before.all:
+                new_data_gen = DataGenerator(contraparte_registered=False)
+                self.out_invoice = new_data_gen.get_out_invoice()
+                self.nif_contraparte = self.out_invoice.partner_id.vat[2:]
+
+                out_invoice_obj = SII(self.out_invoice).generate_object()
+                self.contraparte = (
+                    out_invoice_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']
+                )
+
+            with it('el ID debe ser el NIF de la contraparte'):
+                expect(
+                    self.contraparte['IDOtro']['ID']
+                ).to(equal(self.nif_contraparte))
+
+            with it('el IDType debe ser "07"'):
+                expect(self.contraparte['IDOtro']['IDType']).to(equal('07'))
+
+            with it('el CodigoPais debe ser "ES"'):
+                expect(self.contraparte['IDOtro']['CodigoPais']).to(equal('ES'))
+
         with context('en los detalles del IVA'):
             with before.all:
                 self.detalle_iva = (
