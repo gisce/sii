@@ -123,9 +123,9 @@ class SiiService(Service):
         session.verify = False
         transport = Transport(session=session)
         if self.invoice.type.startswith('out_'):
-            config = self.out_inv_config
+            config = self.out_inv_config.copy()
         else:
-            config = self.in_inv_config
+            config = self.in_inv_config.copy()
         if self.test_mode:
             config['port_name'] += 'Pruebas'
 
