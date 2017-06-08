@@ -46,7 +46,7 @@ class IDService(Service):
         self.validator_service = None
 
     def ids_validate(self, partners, max_id_checks=MAX_ID_CHECKS):
-        self.validator_service = self.create_validation_service(partners)
+        self.validator_service = self.create_validation_service()
 
         res = []
         try:
@@ -71,7 +71,7 @@ class IDService(Service):
                 invalid_ids.append(partner)
         return serialize_object(invalid_ids)
 
-    def create_validation_service(self, partners):
+    def create_validation_service(self):
         config = self.configs['ids_validator_v2']
         return super(IDService, self).create_service(config)
 
