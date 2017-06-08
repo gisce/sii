@@ -157,7 +157,7 @@ class SiiService(Service):
                     res = self.emitted_service.ConsultaLRFacturasEmitidas(
                         msg_header, msg_invoice)
                 elif self.query['type'].startswith('in_'):
-                    res = self.emitted_service.ConsultaLRFacturasRecibidas(
+                    res = self.received_service.ConsultaLRFacturasRecibidas(
                         msg_header, msg_invoice)
             else:
                 if self.invoice.type.startswith('out_'):
