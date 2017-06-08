@@ -72,7 +72,7 @@ class IDService(Service):
         return serialize_object(invalid_ids)
 
     def create_validation_service(self):
-        config = self.configs['ids_validator_v2']
+        config = self.configs['ids_validator_v2'].copy()
         return super(IDService, self).create_service(config)
 
     configs = {
