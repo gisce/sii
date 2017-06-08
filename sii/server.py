@@ -142,9 +142,9 @@ class SiiService(Service):
 
     def create_service(self):
         if self.invoice.type.startswith('out_'):
-            config = self.configs['out_inv_config']
+            config = self.configs['out_inv_config'].copy()
         else:
-            config = self.configs['in_inv_config']
+            config = self.configs['in_inv_config'].copy()
         if self.test_mode:
             config['port_name'] += 'Pruebas'
         return super(SiiService, self).create_service(config)
@@ -171,20 +171,8 @@ class SiiService(Service):
         except Exception as fault:
             raise fault
 
-    # def list_invoice(self, invoice):
-    #     msg_header, msg_invoice = self.get_msg(invoice)
-    #     try:
-    #         if invoice.type == 'in_invoice':
-    #             res = self.received_service.ConsultaLRFacturasRecibidas(
-    #                 msg_header, msg_invoice)
-    #             if res['EstadoEnvio'] == 'Correcto':
-    #                 self.result['sii_sent'] = True
-    #             self.result['sii_return'] = res
-    #     except Exception as fault:
-    #         self.result['sii_return'] = fault
-
     def get_msg(self):
-        dict_from_marsh = SII.generate_object(self.invoice)
+        dict_from_marsh = SII(self.invoice).generate_object()
         res_header = res_invoices = None
         if self.invoice.type.startswith('out_'):
             res_header = dict_from_marsh['SuministroLRFacturasEmitidas'][

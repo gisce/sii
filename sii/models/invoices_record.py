@@ -19,12 +19,95 @@ TIPO_NO_EXENTA_VALUES = ['S1', 'S2', 'S3']
 
 TIPO_RECTIFICATIVA_VALUES = ['S', 'I']
 
-CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS = ['01', '02', '03', '04', '05', '06',
-                                            '07', '08', '09', '10', '11', '12',
-                                            '13', '14', '15', '16']
+CODIGO_PAIS_VALUES = [
+    'AF', 'AL', 'DE', 'AD', 'AO', 'AI', 'AQ', 'AG', 'SA', 'DZ', 'AR', 'AM',
+    'AW', 'AU', 'AT', 'AZ', 'BS', 'BH', 'BD', 'BB', 'BE', 'BZ', 'BJ', 'BM',
+    'BY', 'BO', 'BA', 'BW', 'BV', 'BR', 'BN', 'BG', 'BF', 'BI', 'BT', 'CV',
+    'KY', 'KH', 'CM', 'CA', 'CF', 'CC', 'CO', 'KM', 'CG', 'CD', 'CK', 'KP',
+    'KR', 'CI', 'CR', 'HR', 'CU', 'TD', 'CZ', 'CL', 'CN', 'CY', 'CW', 'DK',
+    'DM', 'DO', 'EC', 'EG', 'AE', 'ER', 'SK', 'SI', 'ES', 'US', 'EE', 'ET',
+    'FO', 'PH', 'FI', 'FJ', 'FR', 'GA', 'GM', 'GE', 'GS', 'GH', 'GI', 'GD',
+    'GR', 'GL', 'GU', 'GT', 'GG', 'GN', 'GQ', 'GW', 'GY', 'HT', 'HM', 'HN',
+    'HK', 'HU', 'IN', 'ID', 'IR', 'IQ', 'IE', 'IM', 'IS', 'IL', 'IT', 'JM',
+    'JP', 'JE', 'JO', 'KZ', 'KE', 'KG', 'KI', 'KW', 'LA', 'LS', 'LV', 'LB',
+    'LR', 'LY', 'LI', 'LT', 'LU', 'XG', 'MO', 'MK', 'MG', 'MY', 'MW', 'MV',
+    'ML', 'MT', 'FK', 'MP', 'MA', 'MH', 'MU', 'MR', 'YT', 'UM', 'MX', 'FM',
+    'MD', 'MC', 'MN', 'ME', 'MS', 'MZ', 'MM', 'NA', 'NR', 'CX', 'NP', 'NI',
+    'NE', 'NG', 'NU', 'NF', 'NO', 'NC', 'NZ', 'IO', 'OM', 'NL', 'BQ', 'PK',
+    'PW', 'PA', 'PG', 'PY', 'PE', 'PN', 'PF', 'PL', 'PT', 'PR', 'QA', 'GB',
+    'RW', 'RO', 'RU', 'SB', 'SV', 'WS', 'AS', 'KN', 'SM', 'SX', 'PM', 'VC',
+    'SH', 'LC', 'ST', 'SN', 'RS', 'SC', 'SL', 'SG', 'SY', 'SO', 'LK', 'SZ',
+    'ZA', 'SD', 'SS', 'SE', 'CH', 'SR', 'TH', 'TW', 'TZ', 'TJ', 'PS', 'TF',
+    'TL', 'TG', 'TK', 'TO', 'TT', 'TN', 'TC', 'TM', 'TR', 'TV', 'UA', 'UG',
+    'UY', 'UZ', 'VU', 'VA', 'VE', 'VN', 'VG', 'VI', 'WF', 'YE', 'DJ', 'ZM',
+    'ZW'
+]
 
-CLAVE_REGIMEN_ESPECIAL_FACTURAS_RECIBIDAS = ['01', '02', '03', '04', '05', '06',
-                                             '07', '08', '09', '12', '13', '14']
+ID_TYPE_VALUES = {
+    '02': u'NIF-IVA',
+    '03': u'PASAPORTE',
+    '04': u'DOCUMENTO OFICIAL DE IDENTIFICACIÓN EXPEDIDO POR EL PAIS O '
+          u'TERRITORIO DE RESIDENCIA',
+    '05': u'CERTIFICADO DE RESIDENCIA',
+    '06': u'OTRO DOCUMENTO PROBATORIO',
+    '07': u'NO CENSADO'
+}
+
+# Valores para la Clave de Régimen Especial para facturas emitidas
+CRE_FACTURAS_EMITIDAS = [
+    ('01', u'Operación de régimen general'),
+    ('02', u'Exportación'),
+    ('03', u'Operaciones a las que se aplique el régimen especial de bienes '
+           u'usados, objetos de arte, antigüedades y objetos de colección'),
+    ('04', u'Régimen especial del oro de inversión'),
+    ('05', u'Régimen especial de las agencias de viajes'),
+    ('06', u'Régimen especial grupo de entidades en IVA (Nivel Avanzado)'),
+    ('07', u'Régimen especial del criterio de caja'),
+    ('08', u'Operaciones sujetas al IPSI / IGIC (Impuesto sobre la Producción, '
+           u'los Servicios y la Importación / Impuesto General Indirecto '
+           u'Canario)'),
+    ('09', u'Facturación de las prestaciones de servicios de agencias de viaje '
+           u'que actúan como mediadoras en nombre y por cuenta ajena (D.A.4ª '
+           u'RD1619/2012)'),
+    ('10', u'Cobros por cuenta de terceros de honorarios profesionales o de '
+           u'derechos derivados de la propiedad industrial, de autor u otros '
+           u'por cuenta de sus socios, asociados o colegiados efectuados por '
+           u'sociedades, asociaciones, colegios profesionales u otras '
+           u'entidades que realicen estas funciones de cobro'),
+    ('11', u'Operaciones de arrendamiento de local de negocio sujetas a '
+           u'retención'),
+    ('12', u'Operaciones de arrendamiento de local de negocio no sujetos a '
+           u'retención'),
+    ('13', u'Operaciones de arrendamiento de local de negocio sujetas y no '
+           u'sujetas a retención'),
+    ('14', u'Factura con IVA pendiente de devengo en certificaciones de obra '
+           u'cuyo destinatario sea una Administración Pública'),
+    ('15', u'Factura con IVA pendiente de devengo en operaciones de tracto '
+           u'sucesivo'),
+    ('16', u'Primer semestre 2017')
+]
+
+CRE_FACTURAS_RECIBIDAS = [
+    ('01', u'Operación de régimen general'),
+    ('02', u'Operaciones por las que los empresarios satisfacen compensaciones '
+           u'en las adquisiciones a personas acogidas al Régimen especial de '
+           u'la agricultura, ganadería y pesca'),
+    ('03', u'Operaciones a las que se aplique el régimen especial de bienes '
+           u'usados, objetos de arte, antigüedades y objetos de colección'),
+    ('04', u'Régimen especial del oro de inversión'),
+    ('05', u'Régimen especial de las agencias de viajes'),
+    ('06', u'Régimen especial grupo de entidades en IVA (Nivel Avanzado)'),
+    ('07', u'Régimen especial del criterio de caja'),
+    ('08', u'Operaciones sujetas al IPSI / IGIC (Impuesto sobre la Producción, '
+           u'los Servicios y la Importación / Impuesto General Indirecto '
+           u'Canario)'),
+    ('09', u'Adquisiciones intracomunitarias de bienes y prestaciones de '
+           u'servicios'),
+    ('12', u'Operaciones de arrendamiento de local de negocio'),
+    ('13', u'Factura correspondiente a una importación (informada sin asociar '
+           u'a un DUA)'),
+    ('14', u'Primer semestre 2017')
+]
 
 
 class DateString(fields.String):
@@ -49,8 +132,18 @@ class MySchema(Schema):
             raise ValidationError('Unknown field', unknown)
 
 
+class IDOtro(MySchema):
+    CodigoPais = fields.String(
+        required=True, validate=validate.OneOf(CODIGO_PAIS_VALUES)
+    )
+    IDType = fields.String(
+        required=True, validate=validate.OneOf(ID_TYPE_VALUES.keys())
+    )
+    ID = fields.String(required=True, validate=validate.Length(max=20))
+
+
 class NIF(MySchema):
-    NIF = fields.String(required=True, validate=validate.Length(max=9))
+    NIF = fields.String(required=False, validate=validate.Length(max=9))
 
 
 class Titular(NIF):
@@ -146,6 +239,7 @@ class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos pero sólo pued
 
 
 class Contraparte(Titular):
+    IDOtro = fields.Nested(IDOtro)
     pass
 
 
@@ -174,7 +268,13 @@ class DetalleFactura(MySchema):
 class DetalleFacturaEmitida(DetalleFactura):
     ClaveRegimenEspecialOTrascendencia = fields.String(
         required=True,
-        validate=validate.OneOf(CLAVE_REGIMEN_ESPECIAL_FACTURAS_EMITIDAS)
+        validate=validate.OneOf(
+            choices=sorted(dict(CRE_FACTURAS_EMITIDAS).keys()),
+            labels=[v for k, v in sorted(dict(CRE_FACTURAS_EMITIDAS).items())],
+            error='El valor "{input}" de la Clave de Regimen Especial para '
+                  'facturas emitidas de la posicion fiscal de la factura no es '
+                  'valido'
+        )
     )
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
@@ -237,7 +337,13 @@ class DesgloseFacturaRecibida(MySchema):  # TODO obligatorio uno de los dos
 class DetalleFacturaRecibida(DetalleFactura):
     ClaveRegimenEspecialOTrascendencia = fields.String(
         required=True,
-        validate=validate.OneOf(CLAVE_REGIMEN_ESPECIAL_FACTURAS_RECIBIDAS)
+        validate=validate.OneOf(
+            choices=sorted(dict(CRE_FACTURAS_RECIBIDAS).keys()),
+            labels=[v for k, v in sorted(dict(CRE_FACTURAS_RECIBIDAS).items())],
+            error='El valor "{input}" de la Clave de Regimen Especial para '
+                  'facturas recibidas de la posicion fiscal de la factura no '
+                  'es valido'
+        )
     )
     DesgloseFactura = fields.Nested(DesgloseFacturaRecibida, required=True)
     Contraparte = fields.Nested(Contraparte, required=True)
