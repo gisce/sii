@@ -102,10 +102,12 @@ class SiiService(Service):
         self.invoice = invoice
         if self.invoice.type.startswith('out_'):
             if self.emitted_service is None:
-                self.emitted_service = self.create_service()
+                config = self.configs['out_inv_config'].copy()
+                self.emitted_service = self.create_service(config)
         else:
             if self.received_service is None:
-                self.received_service = self.create_service()
+                config = self.configs['in_inv_config'].copy()
+                self.received_service = self.create_service(config)
         return self.send()
 
     def query_invoice(self, inv_type, nif_titular, name_titular, ejercicio,
@@ -134,17 +136,15 @@ class SiiService(Service):
         }
         if self.query['type'].startswith('out_'):
             if self.emitted_service is None:
-                self.emitted_service = self.create_service()
+                config = self.configs['out_inv_config'].copy()
+                self.emitted_service = self.create_service(config)
         else:
             if self.received_service is None:
-                self.received_service = self.create_service()
+                config = self.configs['in_inv_config'].copy()
+                self.received_service = self.create_service(config)
         return self.send()
 
-    def create_service(self):
-        if self.invoice.type.startswith('out_'):
-            config = self.configs['out_inv_config'].copy()
-        else:
-            config = self.configs['in_inv_config'].copy()
+    def create_service(self, config):
         if self.test_mode:
             config['port_name'] += 'Pruebas'
         return super(SiiService, self).create_service(config)
