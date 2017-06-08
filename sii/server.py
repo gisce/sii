@@ -151,6 +151,7 @@ class SiiService(Service):
 
     def send(self):
         msg_header, msg_invoice = self.get_msg()
+        # TODO: Adapt to new data model supporting invoice queries
         try:
             if self.type == 'query':
                 if self.query['type'].startswith('out_'):
@@ -172,6 +173,7 @@ class SiiService(Service):
             raise fault
 
     def get_msg(self):
+        # TODO: Adapt to new data model supporting invoice queries
         dict_from_marsh = SII(self.invoice).generate_object()
         res_header = res_invoices = None
         if self.invoice.type.startswith('out_'):
