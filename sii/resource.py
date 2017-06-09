@@ -98,10 +98,16 @@ def get_factura_emitida(invoice):
             }
         }
 
+    if invoice.fiscal_position:
+        clave_regimen_escpecial = \
+            invoice.fiscal_position.sii_out_clave_regimen_especial
+    else:
+        clave_regimen_escpecial = \
+            invoice.journal_id.sii_out_clave_regimen_especial
+
     factura_expedida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
-        'ClaveRegimenEspecialOTrascendencia':
-            invoice.fiscal_position.sii_out_clave_regimen_especial,
+        'ClaveRegimenEspecialOTrascendencia': clave_regimen_escpecial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.journal_id.name,
         'Contraparte': contraparte,
@@ -138,10 +144,16 @@ def get_factura_recibida(invoice):
             }
         }
 
+    if invoice.fiscal_position:
+        clave_regimen_escpecial = \
+            invoice.fiscal_position.sii_in_clave_regimen_especial
+    else:
+        clave_regimen_escpecial = \
+            invoice.journal_id.sii_in_clave_regimen_especial
+
     factura_recibida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
-        'ClaveRegimenEspecialOTrascendencia':
-            invoice.fiscal_position.sii_in_clave_regimen_especial,
+        'ClaveRegimenEspecialOTrascendencia': clave_regimen_escpecial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.journal_id.name,
         'Contraparte': {
