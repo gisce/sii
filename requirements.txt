@@ -1,2 +1,2 @@
-marshmallow
+marshmallow>=2.13.5
 zeep
