@@ -117,7 +117,7 @@ def get_factura_recibida(invoice):
     iva_values = get_iva_values(invoice, in_invoice=False)
     cuota_deducible = 0
 
-    if iva_values['sujeta_a_iva']:
+    if iva_values['sujeta_a_iva'] and iva_values['iva_no_exento']:
         desglose_factura = {  # TODO to change
             # 'InversionSujetoPasivo': {
             #     'DetalleIVA': iva_values['detalle_iva']
