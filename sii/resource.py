@@ -86,7 +86,7 @@ def get_factura_emitida(invoice):
     if invoice.partner_id.aeat_registered:
         contraparte = {
             'NombreRazon': invoice.partner_id.name,
-            'NIF': invoice.partner_id.vat# +'a'
+            'NIF': invoice.partner_id.vat
         }
     else:
         contraparte = {
