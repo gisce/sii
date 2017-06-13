@@ -101,9 +101,14 @@ def get_factura_emitida(invoice):
     if invoice.fiscal_position:
         clave_regimen_escpecial = \
             invoice.fiscal_position.sii_out_clave_regimen_especial
-    else:
+    elif invoice.partner_id.property_account_position:
+        clave_regimen_escpecial = \
+            invoice.partner_id.property_account_position.sii_out_clave_regimen_especial
+    elif invoice.journal_id:
         clave_regimen_escpecial = \
             invoice.journal_id.sii_out_clave_regimen_especial
+    else:
+        raise AttributeError('La Factura no tiene Clave de Régimen Especial')
 
     factura_expedida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
