@@ -87,7 +87,7 @@ def get_factura_emitida(invoice):
     if invoice.partner_id.aeat_registered:
         contraparte = {
             'NombreRazon': invoice.partner_id.name,
-            'NIF': invoice.partner_id.vat# +'a'
+            'NIF': invoice.partner_id.vat
         }
     else:
         contraparte = {
@@ -99,10 +99,21 @@ def get_factura_emitida(invoice):
             }
         }
 
+    if invoice.fiscal_position:
+        clave_regimen_escpecial = \
+            invoice.fiscal_position.sii_out_clave_regimen_especial
+    elif invoice.partner_id.property_account_position:
+        clave_regimen_escpecial = \
+            invoice.partner_id.property_account_position.sii_out_clave_regimen_especial
+    elif invoice.journal_id:
+        clave_regimen_escpecial = \
+            invoice.journal_id.sii_out_clave_regimen_especial
+    else:
+        raise AttributeError('La Factura no tiene Clave de Régimen Especial')
+
     factura_expedida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
-        'ClaveRegimenEspecialOTrascendencia':
-            invoice.fiscal_position.sii_out_clave_regimen_especial,
+        'ClaveRegimenEspecialOTrascendencia': clave_regimen_escpecial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.journal_id.name,
         'Contraparte': contraparte,
@@ -139,10 +150,16 @@ def get_factura_recibida(invoice):
             }
         }
 
+    if invoice.fiscal_position:
+        clave_regimen_escpecial = \
+            invoice.fiscal_position.sii_in_clave_regimen_especial
+    else:
+        clave_regimen_escpecial = \
+            invoice.journal_id.sii_in_clave_regimen_especial
+
     factura_recibida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
-        'ClaveRegimenEspecialOTrascendencia':
-            invoice.fiscal_position.sii_in_clave_regimen_especial,
+        'ClaveRegimenEspecialOTrascendencia': clave_regimen_escpecial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.journal_id.name,
         'Contraparte': {

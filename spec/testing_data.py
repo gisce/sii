@@ -22,8 +22,10 @@ class Partner:
 
 
 class Journal:
-    def __init__(self, name):
+    def __init__(self, name, cre_in_invoice, cre_out_invoice):
         self.name = name
+        self.sii_in_clave_regimen_especial = cre_in_invoice
+        self.sii_out_clave_regimen_especial = cre_out_invoice
 
 
 class FiscalPosition:
@@ -169,7 +171,10 @@ class DataGenerator:
         )
 
     def get_in_invoice(self):
-        journal = Journal(name='Factura de Energía Recibida')
+        journal = Journal(
+            name='Factura de Energía Recibida',
+            cre_in_invoice='01', cre_out_invoice='01'
+        )
 
         invoice = Invoice(
             type='in_invoice',
@@ -190,7 +195,10 @@ class DataGenerator:
         return invoice
 
     def get_out_invoice(self):
-        journal = Journal(name='Factura de Energía Emitida')
+        journal = Journal(
+            name='Factura de Energía Emitida',
+            cre_in_invoice='01', cre_out_invoice='01'
+        )
 
         invoice = Invoice(
             type='out_invoice',
@@ -210,7 +218,10 @@ class DataGenerator:
         return invoice
 
     def get_in_refund_invoice(self):
-        journal = Journal(name='Factura de Energía Rectificativa Recibida')
+        journal = Journal(
+            name='Factura de Energía Rectificativa Recibida',
+            cre_in_invoice='01', cre_out_invoice='01'
+        )
 
         invoice = Invoice(
             type='in_refund',
@@ -231,7 +242,10 @@ class DataGenerator:
         return invoice
 
     def get_out_refund_invoice(self):
-        journal = Journal(name='Factura de Energía Rectificativa Emitida')
+        journal = Journal(
+            name='Factura de Energía Rectificativa Emitida',
+            cre_in_invoice='01', cre_out_invoice='01'
+        )
 
         invoice = Invoice(
             type='out_refund',
