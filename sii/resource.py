@@ -1,5 +1,6 @@
 # coding=utf-8
 import re
+from unidecode import unidecode
 
 from sii import __SII_VERSION__
 from sii.models import invoices_record
@@ -38,17 +39,15 @@ def get_iva_values(invoice, in_invoice):
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
             else:
+                sign = SIGN[invoice.rectificative_type]
                 iva = {
-                    'BaseImponible':
-                        SIGN[invoice.rectificative_type] * inv_tax.base,
+                    'BaseImponible': sign * inv_tax.base,
                     'TipoImpositivo': inv_tax.tax_id.amount * 100
                 }
                 if in_invoice:
-                    iva['CuotaRepercutida'] = \
-                        SIGN[invoice.rectificative_type] * inv_tax.tax_amount
+                    iva['CuotaRepercutida'] = sign * inv_tax.tax_amount
                 else:
-                    iva['CuotaSoportada'] = \
-                        SIGN[invoice.rectificative_type] * inv_tax.tax_amount
+                    iva['CuotaSoportada'] = sign * inv_tax.tax_amount
                 vals['iva_no_exento'] = True
                 vals['detalle_iva'].append(iva)
         else:
@@ -74,13 +73,15 @@ def get_factura_emitida(invoice):
             }
     if iva_values['no_sujeta_a_iva']:
         importe_no_sujeto = get_importe_no_sujeto_a_iva(invoice)
-        if 'islas canarias' not in invoice.fiscal_position.name.lower():
+
+        fp = invoice.fiscal_position
+        if fp and 'islas canarias' in unidecode(fp.name.lower()):
             desglose_factura['NoSujeta'] = {
-                'ImportePorArticulos7_14_Otros': importe_no_sujeto
+                'ImporteTAIReglasLocalizacion': importe_no_sujeto
             }
         else:
             desglose_factura['NoSujeta'] = {
-                'ImporteTAIReglasLocalizacion': importe_no_sujeto
+                'ImportePorArticulos7_14_Otros': importe_no_sujeto
             }
 
     if invoice.partner_id.aeat_registered:
