@@ -50,7 +50,7 @@ def get_iva_values(invoice, in_invoice):
                     iva['CuotaSoportada'] = sign * abs(inv_tax.tax_amount)
                 vals['iva_no_exento'] = True
                 vals['detalle_iva'].append(iva)
-        else:
+        elif 'Impuesto especial sobre la electricidad' != inv_tax.name.lower():
             vals['no_sujeta_a_iva'] = True
     return vals
 
