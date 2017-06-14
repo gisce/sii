@@ -66,7 +66,7 @@ def get_factura_emitida(invoice):
                 iva_values['detalle_iva_exento']
         if iva_values['iva_no_exento']:
             desglose_factura['Sujeta']['NoExenta'] = {
-                'TipoNoExenta': 'S1',
+                'TipoNoExenta': 'S2',
                 'DesgloseIVA': {
                     'DetalleIVA': iva_values['detalle_iva']
                 }
