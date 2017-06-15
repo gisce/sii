@@ -41,16 +41,16 @@ def get_iva_values(invoice, in_invoice):
             else:
                 sign = SIGN[invoice.rectificative_type]
                 iva = {
-                    'BaseImponible': sign * inv_tax.base,
+                    'BaseImponible': sign * abs(inv_tax.base),
                     'TipoImpositivo': inv_tax.tax_id.amount * 100
                 }
                 if in_invoice:
-                    iva['CuotaRepercutida'] = sign * inv_tax.tax_amount
+                    iva['CuotaRepercutida'] = sign * abs(inv_tax.tax_amount)
                 else:
-                    iva['CuotaSoportada'] = sign * inv_tax.tax_amount
+                    iva['CuotaSoportada'] = sign * abs(inv_tax.tax_amount)
                 vals['iva_no_exento'] = True
                 vals['detalle_iva'].append(iva)
-        else:
+        elif 'sobre la electricidad' not in inv_tax.name.lower():
             vals['no_sujeta_a_iva'] = True
     return vals
 
