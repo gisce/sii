@@ -22,17 +22,13 @@ class Partner:
 
 
 class Journal:
-    def __init__(self, name, cre_in_invoice, cre_out_invoice):
+    def __init__(self, name):
         self.name = name
-        self.sii_in_clave_regimen_especial = cre_in_invoice
-        self.sii_out_clave_regimen_especial = cre_out_invoice
 
 
 class FiscalPosition:
-    def __init__(self, name, cre_in_invoice, cre_out_invoice):
+    def __init__(self, name):
         self.name = name
-        self.sii_in_clave_regimen_especial = cre_in_invoice
-        self.sii_out_clave_regimen_especial = cre_out_invoice
 
 
 class Tax:
@@ -163,17 +159,13 @@ class DataGenerator:
         taxes_amount = sum([tax.tax_amount for tax in self.tax_line])
         base_amount = sum([line.price_subtotal for line in self.invoice_line])
         self.amount_total = taxes_amount + base_amount
-        cre_in_invoice = '01'
-        cre_out_invoice = '01'
         self.fiscal_position = FiscalPosition(
-            name=u'Régimen Islas Canarias', cre_in_invoice=cre_in_invoice,
-            cre_out_invoice=cre_out_invoice
+            name=u'Régimen Islas Canarias'
         )
 
     def get_in_invoice(self):
         journal = Journal(
-            name='Factura de Energía Recibida',
-            cre_in_invoice='01', cre_out_invoice='01'
+            name='Factura de Energía Recibida'
         )
 
         invoice = Invoice(
@@ -196,8 +188,7 @@ class DataGenerator:
 
     def get_out_invoice(self):
         journal = Journal(
-            name='Factura de Energía Emitida',
-            cre_in_invoice='01', cre_out_invoice='01'
+            name='Factura de Energía Emitida'
         )
 
         invoice = Invoice(
@@ -219,8 +210,7 @@ class DataGenerator:
 
     def get_in_refund_invoice(self):
         journal = Journal(
-            name='Factura de Energía Rectificativa Recibida',
-            cre_in_invoice='01', cre_out_invoice='01'
+            name='Factura de Energía Rectificativa Recibida'
         )
 
         invoice = Invoice(
@@ -243,8 +233,7 @@ class DataGenerator:
 
     def get_out_refund_invoice(self):
         journal = Journal(
-            name='Factura de Energía Rectificativa Emitida',
-            cre_in_invoice='01', cre_out_invoice='01'
+            name='Factura de Energía Rectificativa Emitida'
         )
 
         invoice = Invoice(
