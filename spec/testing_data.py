@@ -56,6 +56,7 @@ class Invoice:
     def __init__(self, journal_id, number, type, partner_id, company_id,
                  amount_total, period_id, date_invoice, tax_line, sii_registered,
                  rectificative_type, fiscal_position, invoice_line,
+                 sii_in_clave_regimen_especial, sii_out_clave_regimen_especial,
                  origin=None):
         self.journal_id = journal_id
         self.number = number
@@ -70,6 +71,8 @@ class Invoice:
         self.fiscal_position = fiscal_position
         self.sii_registered = sii_registered
         self.origin = origin
+        self.sii_in_clave_regimen_especial = sii_in_clave_regimen_especial
+        self.sii_out_clave_regimen_especial = sii_out_clave_regimen_especial
         self.rectificative_type = rectificative_type
 
 
@@ -162,6 +165,8 @@ class DataGenerator:
         self.fiscal_position = FiscalPosition(
             name=u'Régimen Islas Canarias'
         )
+        self.sii_in_clave_regimen_especial = '01'
+        self.sii_out_clave_regimen_especial = '01'
 
     def get_in_invoice(self):
         journal = Journal(
@@ -182,7 +187,9 @@ class DataGenerator:
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
-            fiscal_position=self.fiscal_position
+            fiscal_position=self.fiscal_position,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
         return invoice
 
@@ -204,7 +211,9 @@ class DataGenerator:
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
-            fiscal_position=self.fiscal_position
+            fiscal_position=self.fiscal_position,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
         return invoice
 
@@ -227,7 +236,9 @@ class DataGenerator:
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
-            fiscal_position=self.fiscal_position
+            fiscal_position=self.fiscal_position,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
         return invoice
 
@@ -249,6 +260,8 @@ class DataGenerator:
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
-            fiscal_position=self.fiscal_position
+            fiscal_position=self.fiscal_position,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
         return invoice
