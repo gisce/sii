@@ -235,7 +235,7 @@
 			<complexContent>
 				<extension base="sii:SuministroInformacion">
 					<sequence>
-						<element name="RegistroLRBajaCobrosMetalico" type="siiLR:LRCobrosMetalicoType" maxOccurs="10000"/>
+						<element name="RegistroLRCobrosMetalico" type="siiLR:LRCobrosMetalicoType" maxOccurs="10000"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -264,7 +264,7 @@
 			<complexContent>
 				<extension base="sii:SuministroInformacionBaja">
 					<sequence>
-						<element name="RegistroLRCobrosMetalico" type="siiLR:LRBajaCobrosMetalicoType" maxOccurs="10000"/>
+						<element name="RegistroLRBajaCobrosMetalico" type="siiLR:LRBajaCobrosMetalicoType" maxOccurs="10000"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -416,7 +416,7 @@
 		</annotation>
 		<complexType>
 			<complexContent>
-				<extension base="sii:SuministroInformacionBaja">
+				<extension base="sii:SuministroInformacionCobrosPagos">
 					<sequence>
 						<element name="RegistroLRCobros" type="siiLR:LRCobrosEmitidasType" maxOccurs="10000"/>
 					</sequence>
@@ -439,7 +439,7 @@
 		</annotation>
 		<complexType>
 			<complexContent>
-				<extension base="sii:SuministroInformacionBaja">
+				<extension base="sii:SuministroInformacionCobrosPagos">
 					<sequence>
 						<element name="RegistroLRPagos" type="siiLR:LRPagosEmitidasType" maxOccurs="10000"/>
 					</sequence>

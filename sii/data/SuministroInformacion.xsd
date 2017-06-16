@@ -22,6 +22,15 @@
 			<element name="Cabecera" type="sii:CabeceraSiiBaja"/>
 		</sequence>
 	</complexType>
+	<complexType name="SuministroInformacionCobrosPagos">
+		<annotation>
+			<documentation xml:lang="es"> Sii - Suministro Inmediato de Información, compuesto por datos 
+			                              de contexto y una secuencia de 1 o más registros. </documentation>
+		</annotation>
+		<sequence>
+			<element name="Cabecera" type="sii:CabeceraSiiCobrosPagos"/>
+		</sequence>
+	</complexType>
 	<complexType name="ConsultaInformacion">
 		<annotation>
 			<documentation xml:lang="es"> Sii - Suministro Inmediato de Información, compuesto por datos 
@@ -48,6 +57,19 @@
 		</sequence>
 	</complexType>
 	<complexType name="CabeceraSiiBaja">
+		<annotation>
+			<documentation xml:lang="es"> Datos de contexto de un suministro sin especificar el timpo de comunicacion </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDVersionSii" type="sii:VersionSiiType"/>
+			<element name="Titular" type="sii:PersonaFisicaJuridicaESType">
+				<annotation>
+					<documentation xml:lang="es"> Titular de los libros de registro que suministra la información </documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="CabeceraSiiCobrosPagos">
 		<annotation>
 			<documentation xml:lang="es"> Datos de contexto de un suministro sin especificar el timpo de comunicacion </documentation>
 		</annotation>
@@ -836,7 +858,7 @@
 	</complexType>
 	<simpleType name="VersionSiiType">
 		<restriction base="string">
-			<enumeration value="0.7"/>
+			<enumeration value="1.0"/>
 		</restriction>
 	</simpleType>
 	<!-- ==== Tipos básicos (Listas de claves y patrones) ============================================= -->
@@ -1623,6 +1645,7 @@
 			<enumeration value="DJ"/>
 			<enumeration value="ZM"/>
 			<enumeration value="ZW"/>
+			<enumeration value="QU"/>
 		</restriction>
 	</simpleType>
 	<simpleType name="CountryMiembroType">
