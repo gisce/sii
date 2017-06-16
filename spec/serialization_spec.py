@@ -20,7 +20,7 @@ with description('El XML Generado'):
             )
 
         with it('la versión es la "0.7"'):
-            expect(self.cabecera['IDVersionSii']).to(equal('0.7'))
+            expect(self.cabecera['IDVersionSii']).to(equal('1.0'))
 
         with context('cuando es de tipo alta'):
             with it('el tipo de comunicación debe ser "A0"'):
