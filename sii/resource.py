@@ -102,21 +102,10 @@ def get_factura_emitida(invoice):
                 'ImportePorArticulos7_14_Otros': importe_no_sujeto
             }
 
-    if invoice.fiscal_position:
-        clave_regimen_escpecial = \
-            invoice.fiscal_position.sii_out_clave_regimen_especial
-    elif invoice.partner_id.property_account_position:
-        clave_regimen_escpecial = \
-            invoice.partner_id.property_account_position.sii_out_clave_regimen_especial
-    elif invoice.journal_id:
-        clave_regimen_escpecial = \
-            invoice.journal_id.sii_out_clave_regimen_especial
-    else:
-        raise AttributeError('La Factura no tiene Clave de Régimen Especial')
-
     factura_expedida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
-        'ClaveRegimenEspecialOTrascendencia': clave_regimen_escpecial,
+        'ClaveRegimenEspecialOTrascendencia':
+            invoice.sii_out_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.journal_id.name,
         'Contraparte': get_contraparte(invoice.partner_id, in_invoice=False),
@@ -153,16 +142,10 @@ def get_factura_recibida(invoice):
             }
         }
 
-    if invoice.fiscal_position:
-        clave_regimen_escpecial = \
-            invoice.fiscal_position.sii_in_clave_regimen_especial
-    else:
-        clave_regimen_escpecial = \
-            invoice.journal_id.sii_in_clave_regimen_especial
-
     factura_recibida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
-        'ClaveRegimenEspecialOTrascendencia': clave_regimen_escpecial,
+        'ClaveRegimenEspecialOTrascendencia':
+            invoice.sii_in_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.journal_id.name,
         'Contraparte': get_contraparte(invoice.partner_id, in_invoice=True),
