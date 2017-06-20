@@ -32,9 +32,15 @@ def get_iva_values(invoice, in_invoice):
         'iva_no_exento': False,
         'detalle_iva_exento': {'BaseImponible': 0}
     }
+
+    invoice_total = invoice.amount_total
+
     for inv_tax in invoice.tax_line:
         if 'iva' in inv_tax.name.lower():
             vals['sujeta_a_iva'] = True
+
+            invoice_total -= (abs(inv_tax.tax_amount) + abs(inv_tax.base))
+
             if inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent':
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
@@ -50,8 +56,12 @@ def get_iva_values(invoice, in_invoice):
                     iva['CuotaRepercutida'] = sign * abs(inv_tax.tax_amount)
                 vals['iva_no_exento'] = True
                 vals['detalle_iva'].append(iva)
-        elif 'sobre la electricidad' not in inv_tax.name.lower():
-            vals['no_sujeta_a_iva'] = True
+
+    invoice_total = round(invoice_total, 2)
+    if invoice_total > 0:
+        vals['no_sujeta_a_iva'] = True
+        vals['importe_no_sujeto'] = invoice_total
+
     return vals
 
 
@@ -72,7 +82,7 @@ def get_factura_emitida(invoice):
                 }
             }
     if iva_values['no_sujeta_a_iva']:
-        importe_no_sujeto = get_importe_no_sujeto_a_iva(invoice)
+        importe_no_sujeto = iva_values['importe_no_sujeto']
 
         fp = invoice.fiscal_position
         if fp and 'islas canarias' in unidecode(fp.name.lower()):
