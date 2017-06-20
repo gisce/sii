@@ -8,21 +8,6 @@ from sii.models import invoices_record
 SIGN = {'B': -1, 'A': -1, 'N': 1, 'R': 1}
 
 
-def get_importe_no_sujeto_a_iva(invoice):
-    importe_no_sujeto = 0
-
-    for line in invoice.invoice_line:
-        no_iva = True
-        for tax in line.invoice_line_tax_id:
-            if 'iva' in tax.name.lower():
-                no_iva = False
-                break
-        if no_iva:
-            importe_no_sujeto += line.price_subtotal
-
-    return importe_no_sujeto
-
-
 def get_iva_values(invoice, in_invoice):
     vals = {
         'sujeta_a_iva': False,
