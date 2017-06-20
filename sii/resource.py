@@ -65,6 +65,29 @@ def get_iva_values(invoice, in_invoice):
     return vals
 
 
+def get_contraparte(partner, in_invoice):
+    vat_type = partner.get_vat_type()
+    contraparte = {'NombreRazon': partner.name}
+
+    if not partner.aeat_registered and not in_invoice:
+        contraparte['IDOtro'] = {
+            'CodigoPais': partner.country.code,
+            'IDType': '07',
+            'ID': partner.vat
+        }
+    else:
+        if vat_type == '02':
+            contraparte['NIF'] = partner.vat
+        else:
+            contraparte['IDOtro'] = {
+                'CodigoPais': partner.country.code,
+                'IDType': vat_type,
+                'ID': partner.vat
+            }
+
+    return contraparte
+
+
 def get_factura_emitida(invoice):
     iva_values = get_iva_values(invoice, in_invoice=False)
     desglose_factura = {}
@@ -126,7 +149,7 @@ def get_factura_emitida(invoice):
         'ClaveRegimenEspecialOTrascendencia': clave_regimen_escpecial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.journal_id.name,
-        'Contraparte': contraparte,
+        'Contraparte': get_contraparte(invoice.partner_id, in_invoice=False),
         'TipoDesglose': {
             'DesgloseFactura': desglose_factura
         }
@@ -172,10 +195,7 @@ def get_factura_recibida(invoice):
         'ClaveRegimenEspecialOTrascendencia': clave_regimen_escpecial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.journal_id.name,
-        'Contraparte': {
-            'NombreRazon': invoice.partner_id.name,
-            'NIF': invoice.partner_id.vat
-        },
+        'Contraparte': get_contraparte(invoice.partner_id, in_invoice=True),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
         'FechaRegContable': '2017-12-31'  # TODO to change
