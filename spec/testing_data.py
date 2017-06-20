@@ -26,6 +26,9 @@ class Partner:
         self.country = country
         self.aeat_registered = aeat_registered
 
+    def get_vat_type(self):
+        return '02'
+
 
 class Journal:
     def __init__(self, name, cre_in_invoice, cre_out_invoice):
