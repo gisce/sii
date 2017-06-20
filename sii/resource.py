@@ -45,9 +45,9 @@ def get_iva_values(invoice, in_invoice):
                     'TipoImpositivo': inv_tax.tax_id.amount * 100
                 }
                 if in_invoice:
-                    iva['CuotaRepercutida'] = sign * abs(inv_tax.tax_amount)
-                else:
                     iva['CuotaSoportada'] = sign * abs(inv_tax.tax_amount)
+                else:
+                    iva['CuotaRepercutida'] = sign * abs(inv_tax.tax_amount)
                 vals['iva_no_exento'] = True
                 vals['detalle_iva'].append(iva)
         elif 'sobre la electricidad' not in inv_tax.name.lower():
@@ -56,7 +56,7 @@ def get_iva_values(invoice, in_invoice):
 
 
 def get_factura_emitida(invoice):
-    iva_values = get_iva_values(invoice, in_invoice=True)
+    iva_values = get_iva_values(invoice, in_invoice=False)
     desglose_factura = {}
 
     if iva_values['sujeta_a_iva']:
@@ -126,7 +126,7 @@ def get_factura_emitida(invoice):
 
 
 def get_factura_recibida(invoice):
-    iva_values = get_iva_values(invoice, in_invoice=False)
+    iva_values = get_iva_values(invoice, in_invoice=True)
     cuota_deducible = 0
 
     if iva_values['sujeta_a_iva'] and iva_values['iva_no_exento']:
