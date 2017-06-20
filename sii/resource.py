@@ -102,21 +102,6 @@ def get_factura_emitida(invoice):
                 'ImportePorArticulos7_14_Otros': importe_no_sujeto
             }
 
-    if invoice.partner_id.aeat_registered:
-        contraparte = {
-            'NombreRazon': invoice.partner_id.name,
-            'NIF': invoice.partner_id.vat
-        }
-    else:
-        contraparte = {
-            'NombreRazon': invoice.partner_id.name,
-            'IDOtro': {
-                'CodigoPais': 'ES',
-                'IDType': '07',
-                'ID': invoice.partner_id.vat
-            }
-        }
-
     if invoice.fiscal_position:
         clave_regimen_escpecial = \
             invoice.fiscal_position.sii_out_clave_regimen_especial
