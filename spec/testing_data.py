@@ -14,11 +14,20 @@ class Company:
         self.partner_id = partner_id
 
 
+class Country:
+    def __init__(self, code):
+        self.code = code
+
+
 class Partner:
-    def __init__(self, name, nif, aeat_registered=True):
+    def __init__(self, name, nif, country, aeat_registered=True):
         self.name = name
         self.vat = nif
+        self.country = country
         self.aeat_registered = aeat_registered
+
+    def sii_get_vat_type(self):
+        return '02'
 
 
 class Journal:
@@ -145,15 +154,15 @@ class DataGenerator:
             invoice_tax_iva_21, invoice_tax_iva_4, invoice_tax_ibi,
             invoice_tax_iva_exento
         ]
-
+        spain = Country(code='ES')
         self.partner_invoice = Partner(
             name=os.environ.get('NOMBRE_CONTRAPARTE', u'Francisco García'),
             nif=os.environ.get('NIF_CONTRAPARTE', u'12345678T'),
-            aeat_registered=contraparte_registered
+            country=spain, aeat_registered=contraparte_registered
         )
         partner_company = Partner(
             name=os.environ.get('NOMBRE_TITULAR', u'Compañía Eléctrica S.A.'),
-            nif=os.environ.get('NIF_TITULAR', '55555555T')
+            nif=os.environ.get('NIF_TITULAR', '55555555T'), country=spain
         )
         self.company = Company(partner_id=partner_company)
 

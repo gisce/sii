@@ -8,21 +8,6 @@ from sii.models import invoices_record
 SIGN = {'B': -1, 'A': -1, 'N': 1, 'R': 1}
 
 
-def get_importe_no_sujeto_a_iva(invoice):
-    importe_no_sujeto = 0
-
-    for line in invoice.invoice_line:
-        no_iva = True
-        for tax in line.invoice_line_tax_id:
-            if 'iva' in tax.name.lower():
-                no_iva = False
-                break
-        if no_iva:
-            importe_no_sujeto += line.price_subtotal
-
-    return importe_no_sujeto
-
-
 def get_iva_values(invoice, in_invoice):
     vals = {
         'sujeta_a_iva': False,
@@ -32,9 +17,15 @@ def get_iva_values(invoice, in_invoice):
         'iva_no_exento': False,
         'detalle_iva_exento': {'BaseImponible': 0}
     }
+
+    invoice_total = invoice.amount_total
+
     for inv_tax in invoice.tax_line:
         if 'iva' in inv_tax.name.lower():
             vals['sujeta_a_iva'] = True
+
+            invoice_total -= (abs(inv_tax.tax_amount) + abs(inv_tax.base))
+
             if inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent':
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
@@ -45,18 +36,45 @@ def get_iva_values(invoice, in_invoice):
                     'TipoImpositivo': inv_tax.tax_id.amount * 100
                 }
                 if in_invoice:
-                    iva['CuotaRepercutida'] = sign * abs(inv_tax.tax_amount)
-                else:
                     iva['CuotaSoportada'] = sign * abs(inv_tax.tax_amount)
+                else:
+                    iva['CuotaRepercutida'] = sign * abs(inv_tax.tax_amount)
                 vals['iva_no_exento'] = True
                 vals['detalle_iva'].append(iva)
-        elif 'sobre la electricidad' not in inv_tax.name.lower():
-            vals['no_sujeta_a_iva'] = True
+
+    invoice_total = round(invoice_total, 2)
+    if invoice_total > 0:
+        vals['no_sujeta_a_iva'] = True
+        vals['importe_no_sujeto'] = invoice_total
+
     return vals
 
 
+def get_contraparte(partner, in_invoice):
+    vat_type = partner.sii_get_vat_type()
+    contraparte = {'NombreRazon': partner.name}
+
+    if not partner.aeat_registered and not in_invoice:
+        contraparte['IDOtro'] = {
+            'CodigoPais': partner.country.code,
+            'IDType': '07',
+            'ID': partner.vat
+        }
+    else:
+        if vat_type == '02':
+            contraparte['NIF'] = partner.vat
+        else:
+            contraparte['IDOtro'] = {
+                'CodigoPais': partner.country.code,
+                'IDType': vat_type,
+                'ID': partner.vat
+            }
+
+    return contraparte
+
+
 def get_factura_emitida(invoice):
-    iva_values = get_iva_values(invoice, in_invoice=True)
+    iva_values = get_iva_values(invoice, in_invoice=False)
     desglose_factura = {}
 
     if iva_values['sujeta_a_iva']:
@@ -72,7 +90,7 @@ def get_factura_emitida(invoice):
                 }
             }
     if iva_values['no_sujeta_a_iva']:
-        importe_no_sujeto = get_importe_no_sujeto_a_iva(invoice)
+        importe_no_sujeto = iva_values['importe_no_sujeto']
 
         fp = invoice.fiscal_position
         if fp and 'islas canarias' in unidecode(fp.name.lower()):
@@ -84,28 +102,13 @@ def get_factura_emitida(invoice):
                 'ImportePorArticulos7_14_Otros': importe_no_sujeto
             }
 
-    if invoice.partner_id.aeat_registered:
-        contraparte = {
-            'NombreRazon': invoice.partner_id.name,
-            'NIF': invoice.partner_id.vat
-        }
-    else:
-        contraparte = {
-            'NombreRazon': invoice.partner_id.name,
-            'IDOtro': {
-                'CodigoPais': 'ES',
-                'IDType': '07',
-                'ID': invoice.partner_id.vat
-            }
-        }
-
     factura_expedida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
             invoice.sii_out_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.journal_id.name,
-        'Contraparte': contraparte,
+        'Contraparte': get_contraparte(invoice.partner_id, in_invoice=False),
         'TipoDesglose': {
             'DesgloseFactura': desglose_factura
         }
@@ -115,7 +118,7 @@ def get_factura_emitida(invoice):
 
 
 def get_factura_recibida(invoice):
-    iva_values = get_iva_values(invoice, in_invoice=False)
+    iva_values = get_iva_values(invoice, in_invoice=True)
     cuota_deducible = 0
 
     if iva_values['sujeta_a_iva'] and iva_values['iva_no_exento']:
@@ -133,9 +136,9 @@ def get_factura_recibida(invoice):
     else:
         desglose_factura = {
             'DesgloseIVA': {
-                'DetalleIVA': {
+                'DetalleIVA': [{
                     'BaseImponible': 0  # TODO deixem de moment 0 perquè no tindrem inversio sujeto pasivo
-                }
+                }]
             }
         }
 
@@ -145,10 +148,7 @@ def get_factura_recibida(invoice):
             invoice.sii_in_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.journal_id.name,
-        'Contraparte': {
-            'NombreRazon': invoice.partner_id.name,
-            'NIF': invoice.partner_id.vat
-        },
+        'Contraparte': get_contraparte(invoice.partner_id, in_invoice=True),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
         'FechaRegContable': '2017-12-31'  # TODO to change
