@@ -26,7 +26,7 @@ class Partner:
         self.country = country
         self.aeat_registered = aeat_registered
 
-    def get_vat_type(self):
+    def sii_get_vat_type(self):
         return '02'
 
 
