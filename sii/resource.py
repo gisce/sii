@@ -151,7 +151,7 @@ def get_factura_recibida(invoice):
         'Contraparte': get_contraparte(invoice.partner_id, in_invoice=True),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
-        'FechaRegContable': '2017-12-31'  # TODO to change
+        'FechaRegContable': invoice.date_invoice
     }
 
     return factura_recibida
@@ -228,7 +228,7 @@ def get_factura_recibida_dict(invoice, rectificativa=False):
                         'NIF': invoice.partner_id.vat
                     },
                     'NumSerieFacturaEmisor': invoice.origin,
-                    'FechaExpedicionFacturaEmisor': invoice.date_invoice
+                    'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
                 },
                 'FacturaRecibida': get_factura_recibida(invoice)
             }
