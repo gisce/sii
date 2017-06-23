@@ -267,16 +267,33 @@ class SII(object):
                 self.invoice, rectificativa=rectificativa
             )
         else:
-            raise AttributeError('Unknown value in invoice.type')
+            raise AttributeError(
+                'Valor desconocido en el tipo de factura: {}'.format(
+                    invoice.type
+                )
+            )
+
+    def get_validation_errors_list(self, errors):
+        error_messages = []
+
+        for val in errors.values():
+            if isinstance(val, dict):
+                error_messages += self.get_validation_errors_list(val)
+            else:
+                error_messages += val
+
+        return error_messages
 
     def validate_invoice(self):
 
+        res = {}
+
         errors = self.invoice_model.validate(self.invoice_dict)
 
-        res = {
-            'successful': False if errors else True,
-            'errors': errors
-        }
+        res['successful'] = False if errors else True
+        if errors:
+            errors_list = self.get_validation_errors_list(errors)
+            res['errors'] = errors_list
 
         return res
 
