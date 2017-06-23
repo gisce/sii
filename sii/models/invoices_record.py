@@ -1,9 +1,10 @@
 # coding=utf-8
 
 from marshmallow import Schema, fields, post_dump
-from marshmallow import validate, validates, validates_schema, ValidationError
+from marshmallow import validates_schema, ValidationError
 from sii import __SII_VERSION__
 from datetime import datetime
+import re
 
 TIPO_COMUNICACION_VALUES = ['A0', 'A1', 'A4']
 
@@ -110,6 +111,11 @@ CRE_FACTURAS_RECIBIDAS = [
 ]
 
 
+def convert_camel_case_to_underscore(name):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+
 class DateString(fields.String):
     def _validate(self, value):
         if value is None:
@@ -125,6 +131,108 @@ class DateString(fields.String):
 
 
 class MySchema(Schema):
+
+    @staticmethod
+    def get_atleast_one_of():
+        return []
+
+    @staticmethod
+    def get_atleast_one_of_error_message(choices):
+        """
+
+        :param choices:
+        :type choices: list of str
+        :return:
+        """
+        choices_str = ', '.join(['"{}"'.format(choice) for choice in choices])
+
+        res = 'Al menos uno de los dos campos siguientes ' \
+              'son obligatorios: {}'.format(choices_str)
+
+        return res
+
+    def validate_field_max_length(self, value, field_name, max_chars):
+        """
+        Validates maximum length for the field
+        :param value: field value
+        :type value: str
+        :param field_name: name of the field
+        :type field_name: str
+        :param max_chars: maximum number of chars for the field
+        :type max_chars: int
+        :return:
+        :raise ValidationError: if len(value) is greater than max_chars
+        """
+        if len(value) > max_chars:
+            raise ValidationError(
+                self.get_default_max_length_message(
+                    field_name=field_name, max_chars=max_chars
+                )
+            )
+
+    @staticmethod
+    def validate_field_is_one_of(value, field_name, choices):
+        """
+        Validates value is an element of choices
+        :param value: field value
+        :type value: str
+        :param field_name: name of the field
+        :type field_name: str
+        :param choices: list of choices for the field
+        :type choices: list of str
+        :return:
+        :raise ValidationError: if choices doesn't contain value
+        """
+        if value not in choices:
+            raise ValidationError(
+                'El campo "{}" es incorrecto'.format(field_name)
+            )
+
+    @staticmethod
+    def get_default_max_length_message(field_name, max_chars):
+        """
+        Returns default max_length message
+        :param field_name: String
+        :type field_name: str
+        :param max_chars: maximum number of chars for the field
+        :type max_chars: int
+        :return:
+        """
+        err_msg = 'El campo "{}" no puede contener mas ' \
+                  'de {} caracteres'.format(field_name, str(max_chars))
+        return err_msg
+
+    @validates_schema
+    def validate_all_fields(self, data):
+        validation_errors = []
+        for key in data.keys():
+            underscore_key = convert_camel_case_to_underscore(key)
+            validate_method = getattr(
+                self, 'validate_{}'.format(underscore_key), None
+            )
+            try:
+                if validate_method:
+                    validate_method(data[key])
+            except ValidationError as v:
+                validation_errors.append(
+                    '{0}: "{1}" - {2}'.format(key, data[key], v.message)
+                )
+        if validation_errors:
+            raise ValidationError(validation_errors)
+
+    @validates_schema
+    def validate_atleast_one_of(self, data):
+        choices_method = getattr(self, 'get_atleast_one_of', None)
+        if choices_method:
+            choices = choices_method()
+            if choices:
+                for elem in choices:
+                    if elem in data:
+                        return
+                raise ValidationError(
+                    self.get_atleast_one_of_error_message(choices)
+                )
+
     @validates_schema(pass_original=True)
     def check_unknown_fields(self, data, original_data):
         unknown = list(set(original_data) - set(self.fields))
@@ -133,54 +241,117 @@ class MySchema(Schema):
 
 
 class IDOtro(MySchema):
-    CodigoPais = fields.String(
-        required=True, validate=validate.OneOf(CODIGO_PAIS_VALUES)
-    )
-    IDType = fields.String(
-        required=True, validate=validate.OneOf(ID_TYPE_VALUES.keys())
-    )
-    ID = fields.String(required=True, validate=validate.Length(max=20))
+    CodigoPais = fields.String(required=True)
+    IDType = fields.String(required=True)
+    ID = fields.String(required=True)
+
+    def validate_codigo_pais(self, value):
+        self.validate_field_is_one_of(
+            value=value, field_name='Codigo de Pais',
+            choices=CODIGO_PAIS_VALUES
+        )
+
+    def validate_id_type(self, value):
+        self.validate_field_is_one_of(
+            value=value, field_name='Tipo de Identificacion',
+            choices=ID_TYPE_VALUES.keys()
+        )
+
+    def validate_id(self, value):
+        self.validate_field_max_length(
+            value=value, field_name='Identificacion', max_chars=20
+        )
 
 
 class NIF(MySchema):
-    NIF = fields.String(required=False, validate=validate.Length(max=9))
+    NIF = fields.String(required=False)
+
+    @staticmethod
+    def get_nif_field_name():
+        return 'NIF'
+
+    def validate_nif(self, value):
+        self.validate_field_max_length(
+            value=value, field_name=self.get_nif_field_name(), max_chars=9
+        )
 
 
 class Titular(NIF):
-    NombreRazon = fields.String(
-        required=True, validate=validate.Length(max=120)
-    )
+    NombreRazon = fields.String(required=True)
+
+    @staticmethod
+    def get_nif_field_name():
+        return 'NIF del Titular'
+
+    def validate_nombre_razon(self, value):
+        self.validate_field_max_length(
+            value=value, field_name='Nombre y Apellidos del Titular',
+            max_chars=120
+        )
 
 
 class Cabecera(MySchema):
     IDVersionSii = fields.String(required=True, default=__SII_VERSION__)
     Titular = fields.Nested(Titular, required=True)
-    TipoComunicacion = fields.String(
-        required=True, validate=validate.OneOf(TIPO_COMUNICACION_VALUES)
-    )
+    TipoComunicacion = fields.String(required=True)
+
+    @staticmethod
+    def validate_id_version_sii(value):
+        if value != __SII_VERSION__:
+            raise ValidationError(
+                'La version del SII es incorrecta. '
+                'Se esperaba "{}"'.format(__SII_VERSION__)
+            )
+
+    def validate_tipo_comunicacion(self, value):
+        self.validate_field_is_one_of(
+            value=value, field_name='Tipo de Comunicacion',
+            choices=TIPO_COMUNICACION_VALUES
+        )
 
 
 class PeriodoImpositivo(MySchema):
-    Ejercicio = fields.String(required=True, validate=validate.OneOf(
-        [str(x) for x in range(0, 10000)]
-    ))
-    Periodo = fields.String(
-        required=True, validate=validate.OneOf(PERIODO_VALUES)
-    )
+    Ejercicio = fields.String(required=True)
+    Periodo = fields.String(required=True)
+
+    def validate_ejercicio(self, value):
+        self.validate_field_is_one_of(
+            value=value, field_name='Ejercicio',
+            choices=[str(x) for x in range(0, 10000)]
+        )
+
+    def validate_periodo(self, value):
+        self.validate_field_is_one_of(
+            value=value, field_name='Periodo',
+            choices=PERIODO_VALUES
+        )
 
 
 class EmisorFactura(NIF):
+
+    @staticmethod
+    def get_nif_field_name():
+        return 'NIF del Emisor de la factura'
+
     pass
 
 
 class IdentificacionFactura(MySchema):
     IDEmisorFactura = fields.Nested(EmisorFactura, required=True)
-    NumSerieFacturaEmisor = fields.String(
-        required=True, validate=validate.Length(max=60)
-    )
-    FechaExpedicionFacturaEmisor = DateString(
-        required=True, validate=validate.Length(max=10)
-    )
+    NumSerieFacturaEmisor = fields.String(required=True)
+    FechaExpedicionFacturaEmisor = DateString(required=True)
+
+    def validate_num_serie_factura_emisor(self, value):
+        self.validate_field_max_length(
+            value=value, field_name='Numero de Factura del Emisor',
+            max_chars=60
+        )
+
+    def validate_fecha_expedicion_factura_emisor(self, value):
+        self.validate_field_max_length(
+            value=value, field_name='Fecha de Expedicion de la Factura',
+            max_chars=10
+        )
 
 
 class Factura(MySchema):
@@ -207,15 +378,23 @@ class DesgloseIVA(MySchema):
 
 
 class NoExenta(MySchema):
-    TipoNoExenta = fields.String(
-        required=True, validate=validate.OneOf(TIPO_NO_EXENTA_VALUES)
-    )
+    TipoNoExenta = fields.String(required=True)
     DesgloseIVA = fields.Nested(DesgloseIVA, required=True)
 
+    def validate_tipo_no_exenta(self, value):
+        self.validate_field_is_one_of(
+            value=value, field_name='Tipo No Exenta',
+            choices=TIPO_NO_EXENTA_VALUES
+        )
 
-class ExentaAIVA(MySchema):  # TODO obligatorio uno de los dos
+
+class ExentaAIVA(MySchema):
     Exenta = fields.Nested(Exenta)
     NoExenta = fields.Nested(NoExenta)
+
+    @staticmethod
+    def get_atleast_one_of():
+        return ['Exenta', 'NoExenta']
 
 
 class NoSujeta(MySchema):
@@ -223,14 +402,22 @@ class NoSujeta(MySchema):
     ImporteTAIReglasLocalizacion = fields.Float()
 
 
-class DesgloseFacturaEmitida(MySchema):  # TODO obligatorio uno de los dos
+class DesgloseFacturaEmitida(MySchema):
     Sujeta = fields.Nested(ExentaAIVA)
     NoSujeta = fields.Nested(NoSujeta)
 
+    @staticmethod
+    def get_atleast_one_of():
+        return ['Sujeta', 'NoSujeta']
 
-class DesgloseTipoOperacion(MySchema):  # TODO obligatorio uno de los dos
+
+class DesgloseTipoOperacion(MySchema):
     PrestacionServicios = fields.Nested(DesgloseFacturaEmitida)
     Entrega = fields.Nested(DesgloseFacturaEmitida)
+
+    @staticmethod
+    def get_atleast_one_of():
+        return ['PrestacionServicios', 'Entrega']
 
 
 class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos pero sólo puede haber uno
@@ -249,35 +436,44 @@ class ImporteRectificacion(MySchema):
 
 
 class DetalleFactura(MySchema):
-    TipoFactura = fields.String(
-        required=True, validate=validate.OneOf(TIPO_FACTURA_VALUES)
-    )
-    DescripcionOperacion = fields.String(
-        required=True, validate=validate.Length(max=500)
-    )
-    TipoRectificativa = fields.String(
-        validate=validate.OneOf(TIPO_RECTIFICATIVA_VALUES)
-    )  # TODO obligatorio si es una rectificativa
+    TipoFactura = fields.String(required=True)
+    DescripcionOperacion = fields.String(required=True)
+    TipoRectificativa = fields.String()  # TODO obligatorio si es una rectificativa
     ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si TipoRectificativa = 'S'
     # TODO ImporteTotal OBLIGATORIO si:
     # 1.Obligatorio si Baseimponible=0 y TipoFactura=”F2” o “R5”
     # 2.Obligatorio si Baseimponible=0 y ClaveRegimenEspecialOTranscedencia = “05”o “03”
     ImporteTotal = fields.Float()
 
+    def validate_tipo_factura(self, value):
+        self.validate_field_is_one_of(
+            value=value, field_name='Tipo de Factura',
+            choices=TIPO_FACTURA_VALUES
+        )
+
+    def validate_descripcion_operacion(self, value):
+        self.validate_field_max_length(
+            value=value, field_name='Descripcion de la Operacion',
+            max_chars=500
+        )
+
+    def validate_tipo_rectificativa(self, value):
+        self.validate_field_is_one_of(
+            value=value, field_name='Tipo de Rectificativa',
+            choices=TIPO_RECTIFICATIVA_VALUES
+        )
+
 
 class DetalleFacturaEmitida(DetalleFactura):
-    ClaveRegimenEspecialOTrascendencia = fields.String(
-        required=True,
-        validate=validate.OneOf(
-            choices=sorted(dict(CRE_FACTURAS_EMITIDAS).keys()),
-            labels=[v for k, v in sorted(dict(CRE_FACTURAS_EMITIDAS).items())],
-            error='El valor "{input}" de la Clave de Regimen Especial para '
-                  'facturas emitidas de la posicion fiscal de la factura no es '
-                  'valido'
-        )
-    )
+    ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
+
+    def validate_clave_regimen_especial_o_trascendencia(self, value):
+        self.validate_field_is_one_of(
+            value=value, choices=sorted(dict(CRE_FACTURAS_EMITIDAS).keys()),
+            field_name='Clave de Regimen Especial para Facturas Emitidas'
+        )
 
 
 class FacturaEmitida(Factura):
@@ -329,28 +525,33 @@ class DetalleIVAInversionSujetoPasivo(DesgloseIVA):
     DetalleIVA = fields.List(fields.Nested(DetalleIVARecibida), required=True)
 
 
-class DesgloseFacturaRecibida(MySchema):  # TODO obligatorio uno de los dos
+class DesgloseFacturaRecibida(MySchema):
     InversionSujetoPasivo = fields.Nested(DetalleIVAInversionSujetoPasivo)
     DesgloseIVA = fields.Nested(DesgloseIVARecibida)
 
+    @staticmethod
+    def get_atleast_one_of():
+        return ['InversionSujetoPasivo', 'DesgloseIVA']
+
 
 class DetalleFacturaRecibida(DetalleFactura):
-    ClaveRegimenEspecialOTrascendencia = fields.String(
-        required=True,
-        validate=validate.OneOf(
-            choices=sorted(dict(CRE_FACTURAS_RECIBIDAS).keys()),
-            labels=[v for k, v in sorted(dict(CRE_FACTURAS_RECIBIDAS).items())],
-            error='El valor "{input}" de la Clave de Regimen Especial para '
-                  'facturas recibidas de la posicion fiscal de la factura no '
-                  'es valido'
-        )
-    )
+    ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
     DesgloseFactura = fields.Nested(DesgloseFacturaRecibida, required=True)
     Contraparte = fields.Nested(Contraparte, required=True)
-    FechaRegContable = DateString(
-        required=True, validate=validate.Length(max=10)
-    )  # TODO FechaRegContable ≥ FechaExpedicionFacturaEmisor
+    FechaRegContable = DateString(required=True)  # TODO FechaRegContable ≥ FechaExpedicionFacturaEmisor
     CuotaDeducible = fields.Float(required=True)
+
+    def validate_clave_regimen_especial_o_trascendencia(self, value):
+        self.validate_field_is_one_of(
+            value=value, choices=sorted(dict(CRE_FACTURAS_RECIBIDAS).keys()),
+            field_name='Clave de Regimen Especial para Facturas Recibidas'
+        )
+
+    def validate_fecha_reg_contable(self, value):
+        self.validate_field_max_length(
+            value=value, field_name='Fecha de Registro Contable',
+            max_chars=10
+        )
 
 
 class FacturaRecibida(Factura):
