@@ -130,6 +130,108 @@ class DateString(fields.String):
 
 
 class MySchema(Schema):
+
+    @staticmethod
+    def get_atleast_one_of():
+        return []
+
+    @staticmethod
+    def get_atleast_one_of_error_message(choices):
+        """
+
+        :param choices:
+        :type choices: list of str
+        :return:
+        """
+        choices_str = ', '.join(['"{}"'.format(choice) for choice in choices])
+
+        res = 'Al menos uno de los dos campos siguientes ' \
+              'son obligatorios: {}'.format(choices_str)
+
+        return res
+
+    def validate_field_max_length(self, value, field_name, max_chars):
+        """
+        Validates maximum length for the field
+        :param value: field value
+        :type value: str
+        :param field_name: name of the field
+        :type field_name: str
+        :param max_chars: maximum number of chars for the field
+        :type max_chars: int
+        :return:
+        :raise ValidationError: if len(value) is greater than max_chars
+        """
+        if len(value) > max_chars:
+            raise ValidationError(
+                self.get_default_max_length_message(
+                    field_name=field_name, max_chars=max_chars
+                )
+            )
+
+    @staticmethod
+    def validate_field_is_one_of(value, field_name, choices):
+        """
+        Validates value is an element of choices
+        :param value: field value
+        :type value: str
+        :param field_name: name of the field
+        :type field_name: str
+        :param choices: list of choices for the field
+        :type choices: list of str
+        :return:
+        :raise ValidationError: if choices doesn't contain value
+        """
+        if value not in choices:
+            raise ValidationError(
+                'El campo "{}" es incorrecto'.format(field_name)
+            )
+
+    @staticmethod
+    def get_default_max_length_message(field_name, max_chars):
+        """
+        Returns default max_length message
+        :param field_name: String
+        :type field_name: str
+        :param max_chars: maximum number of chars for the field
+        :type max_chars: int
+        :return:
+        """
+        err_msg = 'El campo "{}" no puede contener mas ' \
+                  'de {} caracteres'.format(field_name, str(max_chars))
+        return err_msg
+
+    @validates_schema
+    def validate_all_fields(self, data):
+        validation_errors = []
+        for key in data.keys():
+            underscore_key = convert_camel_case_to_underscore(key)
+            validate_method = getattr(
+                self, 'validate_{}'.format(underscore_key), None
+            )
+            try:
+                if validate_method:
+                    validate_method(data[key])
+            except ValidationError as v:
+                validation_errors.append(
+                    '{0}: "{1}" - {2}'.format(key, data[key], v.message)
+                )
+        if validation_errors:
+            raise ValidationError(validation_errors)
+
+    @validates_schema
+    def validate_atleast_one_of(self, data):
+        choices_method = getattr(self, 'get_atleast_one_of', None)
+        if choices_method:
+            choices = choices_method()
+            if choices:
+                for elem in choices:
+                    if elem in data:
+                        return
+                raise ValidationError(
+                    self.get_atleast_one_of_error_message(choices)
+                )
+
     @validates_schema(pass_original=True)
     def check_unknown_fields(self, data, original_data):
         unknown = list(set(original_data) - set(self.fields))
