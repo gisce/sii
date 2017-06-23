@@ -1,9 +1,10 @@
 # coding=utf-8
 
 from marshmallow import Schema, fields, post_dump
-from marshmallow import validate, validates, validates_schema, ValidationError
+from marshmallow import validates_schema, ValidationError
 from sii import __SII_VERSION__
 from datetime import datetime
+import re
 
 TIPO_COMUNICACION_VALUES = ['A0', 'A1', 'A4']
 
