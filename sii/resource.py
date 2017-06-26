@@ -73,34 +73,66 @@ def get_contraparte(partner, in_invoice):
     return contraparte
 
 
-def get_factura_emitida(invoice):
-    iva_values = get_iva_values(invoice, in_invoice=False)
-    desglose_factura = {}
+def get_factura_emitida_tipo_desglose(invoice):
 
-    if iva_values['sujeta_a_iva']:
-        desglose_factura['Sujeta'] = {}
-        if iva_values['iva_exento']:
-            desglose_factura['Sujeta']['Exenta'] = \
-                iva_values['detalle_iva_exento']
-        if iva_values['iva_no_exento']:
-            desglose_factura['Sujeta']['NoExenta'] = {
-                'TipoNoExenta': 'S1',
-                'DesgloseIVA': {
-                    'DetalleIVA': iva_values['detalle_iva']
+    iva_values = get_iva_values(invoice, in_invoice=False)
+
+    if invoice.sii_out_clave_regimen_especial == '02':  # Exportación
+        entrega = {}
+
+        if iva_values['sujeta_a_iva']:
+            entrega = {
+                'Sujeta': {
+                    'NoExenta': {
+                        'TipoNoExenta': 'S1',
+                        'DesgloseIVA': {
+                            'DetalleIVA': iva_values['detalle_iva']
+                        }
+                    }
                 }
             }
-    if iva_values['no_sujeta_a_iva']:
-        importe_no_sujeto = iva_values['importe_no_sujeto']
 
-        fp = invoice.fiscal_position
-        if fp and 'islas canarias' in unidecode(fp.name.lower()):
-            desglose_factura['NoSujeta'] = {
-                'ImporteTAIReglasLocalizacion': importe_no_sujeto
+        tipo_desglose = {
+            'DesgloseTipoOperacion': {
+                'Entrega': entrega
             }
-        else:
-            desglose_factura['NoSujeta'] = {
-                'ImportePorArticulos7_14_Otros': importe_no_sujeto
-            }
+        }
+    else:
+        desglose_factura = {}
+
+        if iva_values['sujeta_a_iva']:
+            desglose_factura['Sujeta'] = {}
+            if iva_values['iva_exento']:
+                desglose_factura['Sujeta']['Exenta'] = \
+                    iva_values['detalle_iva_exento']
+            if iva_values['iva_no_exento']:
+                desglose_factura['Sujeta']['NoExenta'] = {
+                    'TipoNoExenta': 'S1',
+                    'DesgloseIVA': {
+                        'DetalleIVA': iva_values['detalle_iva']
+                    }
+                }
+        if iva_values['no_sujeta_a_iva']:
+            importe_no_sujeto = iva_values['importe_no_sujeto']
+
+            fp = invoice.fiscal_position
+            if fp and 'islas canarias' in unidecode(fp.name.lower()):
+                desglose_factura['NoSujeta'] = {
+                    'ImporteTAIReglasLocalizacion': importe_no_sujeto
+                }
+            else:
+                desglose_factura['NoSujeta'] = {
+                    'ImportePorArticulos7_14_Otros': importe_no_sujeto
+                }
+
+        tipo_desglose = {
+            'DesgloseFactura': desglose_factura
+        }
+
+    return tipo_desglose
+
+
+def get_factura_emitida(invoice):
 
     factura_expedida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
@@ -109,9 +141,7 @@ def get_factura_emitida(invoice):
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion': invoice.journal_id.name,
         'Contraparte': get_contraparte(invoice.partner_id, in_invoice=False),
-        'TipoDesglose': {
-            'DesgloseFactura': desglose_factura
-        }
+        'TipoDesglose': get_factura_emitida_tipo_desglose(invoice)
     }
 
     return factura_expedida
@@ -276,11 +306,11 @@ class SII(object):
     def get_validation_errors_list(self, errors):
         error_messages = []
 
-        for val in errors.values():
-            if isinstance(val, dict):
-                error_messages += self.get_validation_errors_list(val)
+        for key, values in errors.items():
+            if isinstance(values, dict):
+                error_messages += self.get_validation_errors_list(values)
             else:
-                error_messages += val
+                error_messages += ['{}: {}'.format(key, val) for val in values]
 
         return error_messages
 
