@@ -116,6 +116,18 @@ def convert_camel_case_to_underscore(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
+def get_error_message(field_name, value, error_msg):
+    msg = '{0}: "{1}" - {2}'.format(field_name, value, error_msg)
+    return msg
+
+
+class CustomStringField(fields.String):
+
+    default_error_messages = {
+        'invalid': 'No es un String valido'
+    }
+
+
 class DateString(fields.String):
     def _validate(self, value):
         if value is None:
@@ -214,9 +226,10 @@ class MySchema(Schema):
                 if validate_method:
                     validate_method(data[key])
             except ValidationError as v:
-                validation_errors.append(
-                    '{0}: "{1}" - {2}'.format(key, data[key], v.message)
+                msg = get_error_message(
+                    field_name=key, value=data[key], error_msg=v.message
                 )
+                validation_errors.append(msg)
         if validation_errors:
             raise ValidationError(validation_errors)
 
@@ -241,9 +254,9 @@ class MySchema(Schema):
 
 
 class IDOtro(MySchema):
-    CodigoPais = fields.String(required=True)
-    IDType = fields.String(required=True)
-    ID = fields.String(required=True)
+    CodigoPais = CustomStringField(required=True)
+    IDType = CustomStringField(required=True)
+    ID = CustomStringField(required=True)
 
     def validate_codigo_pais(self, value):
         self.validate_field_is_one_of(
@@ -264,7 +277,7 @@ class IDOtro(MySchema):
 
 
 class NIF(MySchema):
-    NIF = fields.String(required=False)
+    NIF = CustomStringField(required=False)
 
     @staticmethod
     def get_nif_field_name():
@@ -277,7 +290,7 @@ class NIF(MySchema):
 
 
 class Titular(NIF):
-    NombreRazon = fields.String(required=True)
+    NombreRazon = CustomStringField(required=True)
 
     @staticmethod
     def get_nif_field_name():
@@ -291,9 +304,9 @@ class Titular(NIF):
 
 
 class Cabecera(MySchema):
-    IDVersionSii = fields.String(required=True, default=__SII_VERSION__)
+    IDVersionSii = CustomStringField(required=True, default=__SII_VERSION__)
     Titular = fields.Nested(Titular, required=True)
-    TipoComunicacion = fields.String(required=True)
+    TipoComunicacion = CustomStringField(required=True)
 
     @staticmethod
     def validate_id_version_sii(value):
@@ -311,8 +324,8 @@ class Cabecera(MySchema):
 
 
 class PeriodoImpositivo(MySchema):
-    Ejercicio = fields.String(required=True)
-    Periodo = fields.String(required=True)
+    Ejercicio = CustomStringField(required=True)
+    Periodo = CustomStringField(required=True)
 
     def validate_ejercicio(self, value):
         self.validate_field_is_one_of(
@@ -338,7 +351,7 @@ class EmisorFactura(NIF):
 
 class IdentificacionFactura(MySchema):
     IDEmisorFactura = fields.Nested(EmisorFactura, required=True)
-    NumSerieFacturaEmisor = fields.String(required=True)
+    NumSerieFacturaEmisor = CustomStringField(required=True)
     FechaExpedicionFacturaEmisor = DateString(required=True)
 
     def validate_num_serie_factura_emisor(self, value):
@@ -378,7 +391,7 @@ class DesgloseIVA(MySchema):
 
 
 class NoExenta(MySchema):
-    TipoNoExenta = fields.String(required=True)
+    TipoNoExenta = CustomStringField(required=True)
     DesgloseIVA = fields.Nested(DesgloseIVA, required=True)
 
     def validate_tipo_no_exenta(self, value):
@@ -436,9 +449,9 @@ class ImporteRectificacion(MySchema):
 
 
 class DetalleFactura(MySchema):
-    TipoFactura = fields.String(required=True)
-    DescripcionOperacion = fields.String(required=True)
-    TipoRectificativa = fields.String()  # TODO obligatorio si es una rectificativa
+    TipoFactura = CustomStringField(required=True)
+    DescripcionOperacion = CustomStringField(required=True)
+    TipoRectificativa = CustomStringField()  # TODO obligatorio si es una rectificativa
     ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si TipoRectificativa = 'S'
     # TODO ImporteTotal OBLIGATORIO si:
     # 1.Obligatorio si Baseimponible=0 y TipoFactura=”F2” o “R5”
@@ -465,7 +478,13 @@ class DetalleFactura(MySchema):
 
 
 class DetalleFacturaEmitida(DetalleFactura):
-    ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
+    ClaveRegimenEspecialOTrascendencia = CustomStringField(
+        required=True,
+        error_messages={
+            'invalid': 'La Clave de Regimen Especial para '
+                       'Facturas Emitidas no es valida'
+        }
+    )
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
 
@@ -503,13 +522,13 @@ class DetalleIVADesglose(DetalleIVA):
     # ClaveRegimenEspecialOTranscedencia="02" (Operaciones por las que los
     # Empresarios satisfacen compensaciones REAGYP)
     # 2. Solo se permiten los valores 12% y 10,5 %.
-    PorcentCompensacionREAGYP = fields.String()
+    PorcentCompensacionREAGYP = CustomStringField()
     # TODO 1.Sólo se podrá rellenar (y es obligatorio) si
     # ClaveRegimenEspecialOTranscedencia="02" (Operaciones por las que los
     # Empresarios satisfacen compensaciones REAGYP)
     # 2. Importe compensación = Base * Porcentaje compensación +/-1 % de la
     # Base
-    ImporteCompensacionREAGYP = fields.String()
+    ImporteCompensacionREAGYP = CustomStringField()
 
 
 class DesgloseIVARecibida(MySchema):
@@ -535,7 +554,13 @@ class DesgloseFacturaRecibida(MySchema):
 
 
 class DetalleFacturaRecibida(DetalleFactura):
-    ClaveRegimenEspecialOTrascendencia = fields.String(required=True)
+    ClaveRegimenEspecialOTrascendencia = CustomStringField(
+        required=True,
+        error_messages={
+            'invalid': 'La Clave de Regimen Especial para '
+                       'Facturas Recibidas no es valida'
+        }
+    )
     DesgloseFactura = fields.Nested(DesgloseFacturaRecibida, required=True)
     Contraparte = fields.Nested(Contraparte, required=True)
     FechaRegContable = DateString(required=True)  # TODO FechaRegContable ≥ FechaExpedicionFacturaEmisor

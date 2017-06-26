@@ -276,11 +276,11 @@ class SII(object):
     def get_validation_errors_list(self, errors):
         error_messages = []
 
-        for val in errors.values():
-            if isinstance(val, dict):
-                error_messages += self.get_validation_errors_list(val)
+        for key, values in errors.items():
+            if isinstance(values, dict):
+                error_messages += self.get_validation_errors_list(values)
             else:
-                error_messages += val
+                error_messages += ['{}: {}'.format(key, val) for val in values]
 
         return error_messages
 
