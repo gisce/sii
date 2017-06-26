@@ -16,6 +16,9 @@ PERIODO_VALUES = [
     '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '0A'
 ]
 
+TIPO_IMPOSITIVO_VALUES = [0.0, 4.0, 10.0, 21.0,  # Tipos impositivos actuales
+                          7.0, 8.0, 16.0, 18.0]  # Tipos en fecha <= 2012
+
 TIPO_NO_EXENTA_VALUES = ['S1', 'S2', 'S3']
 
 TIPO_RECTIFICATIVA_VALUES = ['S', 'I']
@@ -375,6 +378,7 @@ class Factura(MySchema):
 
 class DetalleIVA(MySchema):
     BaseImponible = fields.Float(required=True)
+    CausaExencion = CustomStringField()
 
 
 class Exenta(DetalleIVA):
@@ -384,6 +388,12 @@ class Exenta(DetalleIVA):
 class DetalleIVAEmitida(DetalleIVA):
     TipoImpositivo = fields.Float()
     CuotaRepercutida = fields.Float()
+
+    def validate_tipo_impositivo(self, value):
+        self.validate_field_is_one_of(
+            value=value, field_name='Tipo Impositivo',
+            choices=TIPO_IMPOSITIVO_VALUES
+        )
 
 
 class DesgloseIVA(MySchema):
