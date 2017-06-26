@@ -116,6 +116,18 @@ def convert_camel_case_to_underscore(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
+def get_error_message(field_name, value, error_msg):
+    msg = '{0}: "{1}" - {2}'.format(field_name, value, error_msg)
+    return msg
+
+
+class CustomStringField(fields.String):
+
+    default_error_messages = {
+        'invalid': 'No es un String valido'
+    }
+
+
 class DateString(fields.String):
     def _validate(self, value):
         if value is None:
@@ -214,9 +226,10 @@ class MySchema(Schema):
                 if validate_method:
                     validate_method(data[key])
             except ValidationError as v:
-                validation_errors.append(
-                    '{0}: "{1}" - {2}'.format(key, data[key], v.message)
+                msg = get_error_message(
+                    field_name=key, value=data[key], error_msg=v.message
                 )
+                validation_errors.append(msg)
         if validation_errors:
             raise ValidationError(validation_errors)
 
