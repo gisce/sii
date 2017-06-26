@@ -378,6 +378,7 @@ class Factura(MySchema):
 
 class DetalleIVA(MySchema):
     BaseImponible = fields.Float(required=True)
+    CausaExencion = CustomStringField()
 
 
 class Exenta(DetalleIVA):
