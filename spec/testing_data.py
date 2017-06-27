@@ -31,8 +31,9 @@ class Partner:
 
 
 class Journal:
-    def __init__(self, name):
+    def __init__(self, name, description):
         self.name = name
+        self.description = description
 
 
 class FiscalPosition:
@@ -181,7 +182,8 @@ class DataGenerator:
 
     def get_in_invoice(self):
         journal = Journal(
-            name='Factura de Energía Recibida'
+            name='Factura de Energía Recibida',
+            description='Descripción Facturas Recibidas'
         )
 
         invoice = Invoice(
@@ -207,7 +209,8 @@ class DataGenerator:
 
     def get_out_invoice(self):
         journal = Journal(
-            name='Factura de Energía Emitida'
+            name='Factura de Energía Emitida',
+            description='Descripción Facturas Emitidas'
         )
 
         invoice = Invoice(
@@ -232,7 +235,8 @@ class DataGenerator:
 
     def get_in_refund_invoice(self):
         journal = Journal(
-            name='Factura de Energía Rectificativa Recibida'
+            name='Factura de Energía Rectificativa Recibida',
+            description='Descripción Facturas Rectificativas Recibidas'
         )
 
         invoice = Invoice(
@@ -258,7 +262,8 @@ class DataGenerator:
 
     def get_out_refund_invoice(self):
         journal = Journal(
-            name='Factura de Energía Rectificativa Emitida'
+            name='Factura de Energía Rectificativa Emitida',
+            description='Descripción Facturas Rectificativas Emitidas'
         )
 
         invoice = Invoice(
