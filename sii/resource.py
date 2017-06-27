@@ -8,7 +8,7 @@ from sii.models import invoices_record
 SIGN = {'B': -1, 'A': -1, 'N': 1, 'R': 1}
 
 
-def get_iva_values(invoice, in_invoice):
+def get_iva_values(invoice, in_invoice, export):
     vals = {
         'sujeta_a_iva': False,
         'detalle_iva': [],
@@ -26,7 +26,10 @@ def get_iva_values(invoice, in_invoice):
 
             invoice_total -= (abs(inv_tax.tax_amount) + abs(inv_tax.base))
 
-            if inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent':
+            is_iva_exento = (
+                inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent'
+            )
+            if not export and is_iva_exento:
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
             else:
@@ -75,9 +78,8 @@ def get_contraparte(partner, in_invoice):
 
 def get_factura_emitida_tipo_desglose(invoice):
 
-    iva_values = get_iva_values(invoice, in_invoice=False)
-
     if invoice.sii_out_clave_regimen_especial == '02':  # Exportación
+        iva_values = get_iva_values(invoice, in_invoice=False, export=True)
         entrega = {}
 
         if iva_values['sujeta_a_iva']:
@@ -98,6 +100,7 @@ def get_factura_emitida_tipo_desglose(invoice):
             }
         }
     else:
+        iva_values = get_iva_values(invoice, in_invoice=False, export=False)
         desglose_factura = {}
 
         if iva_values['sujeta_a_iva']:
@@ -148,7 +151,7 @@ def get_factura_emitida(invoice):
 
 
 def get_factura_recibida(invoice):
-    iva_values = get_iva_values(invoice, in_invoice=True)
+    iva_values = get_iva_values(invoice, in_invoice=True, export=False)
     cuota_deducible = 0
 
     if iva_values['sujeta_a_iva'] and iva_values['iva_no_exento']:
