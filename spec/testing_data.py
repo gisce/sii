@@ -31,9 +31,9 @@ class Partner:
 
 
 class Journal:
-    def __init__(self, name, description):
+    def __init__(self, name, sii_description):
         self.name = name
-        self.description = description
+        self.sii_description = sii_description
 
 
 class FiscalPosition:
@@ -183,7 +183,7 @@ class DataGenerator:
     def get_in_invoice(self):
         journal = Journal(
             name='Factura de Energía Recibida',
-            description='Descripción Facturas Recibidas'
+            sii_description='Descripción Facturas Recibidas'
         )
 
         invoice = Invoice(
@@ -210,7 +210,7 @@ class DataGenerator:
     def get_out_invoice(self):
         journal = Journal(
             name='Factura de Energía Emitida',
-            description='Descripción Facturas Emitidas'
+            sii_description='Descripción Facturas Emitidas'
         )
 
         invoice = Invoice(
@@ -236,7 +236,7 @@ class DataGenerator:
     def get_in_refund_invoice(self):
         journal = Journal(
             name='Factura de Energía Rectificativa Recibida',
-            description='Descripción Facturas Rectificativas Recibidas'
+            sii_description='Descripción Facturas Rectificativas Recibidas'
         )
 
         invoice = Invoice(
@@ -263,7 +263,7 @@ class DataGenerator:
     def get_out_refund_invoice(self):
         journal = Journal(
             name='Factura de Energía Rectificativa Emitida',
-            description='Descripción Facturas Rectificativas Emitidas'
+            sii_description='Descripción Facturas Rectificativas Emitidas'
         )
 
         invoice = Invoice(

@@ -143,7 +143,7 @@ def get_factura_emitida(invoice):
             invoice.sii_out_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion':
-            invoice.journal_id.description or invoice.journal_id.name,
+            invoice.journal_id.sii_description or invoice.journal_id.name,
         'Contraparte': get_contraparte(invoice.partner_id, in_invoice=False),
         'TipoDesglose': get_factura_emitida_tipo_desglose(invoice)
     }
@@ -182,7 +182,7 @@ def get_factura_recibida(invoice):
             invoice.sii_in_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
         'DescripcionOperacion':
-            invoice.journal_id.description or invoice.journal_id.name,
+            invoice.journal_id.sii_description or invoice.journal_id.name,
         'Contraparte': get_contraparte(invoice.partner_id, in_invoice=True),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
