@@ -238,6 +238,43 @@ with description('El XML Generado'):
                     self.in_invoice.tax_line[0].tax_id.amount * 100)
                 )
 
+        with context('si es una importación'):
+            with before.all:
+                # Clave Régimen Especial importación: '13'
+                self.cre_importacion = '13'
+                self.in_invoice.sii_in_clave_regimen_especial = (
+                    self.cre_importacion
+                )
+
+                self.import_inv_obj = SII(self.in_invoice).generate_object()
+                self.factura_recibida = (
+                    self.import_inv_obj['SuministroLRFacturasRecibidas']
+                    ['RegistroLRFacturasRecibidas']
+                )
+
+            with context('en los detalles del IVA'):
+                with it('el detalle de DesgloseIVA debe ser la original'):
+                    # TODO change TipoImpositivo and CuotaSoportada should be '0'
+                    detalle_iva_desglose_iva = (
+                        self.factura_recibida['FacturaRecibida']
+                        ['DesgloseFactura']['DesgloseIVA']['DetalleIVA']
+                    )
+                    expect(
+                        detalle_iva_desglose_iva[0]['BaseImponible']
+                    ).to(equal(
+                        self.in_invoice.tax_line[0].base)
+                    )
+                    expect(
+                        detalle_iva_desglose_iva[0]['CuotaSoportada']
+                    ).to(equal(
+                        self.in_invoice.tax_line[0].tax_amount)
+                    )
+                    expect(
+                        detalle_iva_desglose_iva[0]['TipoImpositivo']
+                    ).to(equal(
+                        self.in_invoice.tax_line[0].tax_id.amount * 100)
+                    )
+
     with description('en los datos de una factura rectificativa emitida'):
         with before.all:
             self.out_refund = self.data_gen.get_out_refund_invoice()
