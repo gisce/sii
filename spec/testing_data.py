@@ -103,8 +103,8 @@ class Invoice:
 
 
 class DataGenerator:
-    def __init__(self, contraparte_registered=True):
-        self.sii_registered = False
+    def __init__(self, invoice_registered=False, contraparte_registered=True):
+        self.sii_registered = invoice_registered
         self.period = Period(name='12/2016')
         name_iva_21 = 'IVA 21%'
         name_iva_4 = 'IVA 4%'
