@@ -26,6 +26,18 @@ with description('El XML Generado'):
             with it('el tipo de comunicación debe ser "A0"'):
                 expect(self.cabecera['TipoComunicacion']).to(equal('A0'))
 
+        with context('cuando es de tipo modificación'):
+            with before.all:
+                new_data_gen = DataGenerator(invoice_registered=True)
+                invoice = new_data_gen.get_out_invoice()
+                invoice_obj = SII(invoice).generate_object()
+                self.cabecera = (
+                    invoice_obj['SuministroLRFacturasEmitidas']['Cabecera']
+                )
+
+            with it('el tipo de comunicación debe ser "A1"'):
+                expect(self.cabecera['TipoComunicacion']).to(equal('A1'))
+
         with context('en el titular'):
             with it('el nif deben ser los del titular'):
                 expect(
