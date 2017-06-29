@@ -189,7 +189,7 @@ def get_factura_recibida(invoice):
         desglose_factura = {
             'DesgloseIVA': {
                 'DetalleIVA': [{
-                    'BaseImponible': 0  # TODO deixem de moment 0 perquè no tindrem inversio sujeto pasivo
+                    'BaseImponible': invoice.amount_untaxed
                 }]
             }
         }
