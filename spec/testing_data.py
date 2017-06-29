@@ -63,18 +63,33 @@ class InvoiceLine:
 
 
 class Invoice:
-    def __init__(self, journal_id, number, type, partner_id, company_id,
-                 amount_total, period_id, date_invoice, tax_line, sii_registered,
-                 rectificative_type, fiscal_position, invoice_line,
-                 sii_in_clave_regimen_especial, sii_out_clave_regimen_especial,
-                 origin_date_invoice, origin=None):
+    def __init__(self,
+                 journal_id,
+                 number,
+                 invoice_type,
+                 partner_id,
+                 company_id,
+                 amount_total,
+                 amount_untaxed,
+                 period_id,
+                 date_invoice,
+                 tax_line,
+                 sii_registered,
+                 rectificative_type,
+                 fiscal_position,
+                 invoice_line,
+                 sii_in_clave_regimen_especial,
+                 sii_out_clave_regimen_especial,
+                 origin_date_invoice,
+                 origin=None):
         self.journal_id = journal_id
         self.number = number
-        self.type = type
+        self.type = invoice_type
         self.partner_id = partner_id
         self.company_id = company_id
         self.period_id = period_id
         self.amount_total = amount_total
+        self.amount_untaxed = amount_untaxed
         self.origin_date_invoice = origin_date_invoice
         self.date_invoice = date_invoice
         self.tax_line = tax_line
@@ -173,6 +188,7 @@ class DataGenerator:
         self.date_invoice = '2016-12-31'
         taxes_amount = sum([tax.tax_amount for tax in self.tax_line])
         base_amount = sum([line.price_subtotal for line in self.invoice_line])
+        self.amount_untaxed = base_amount
         self.amount_total = taxes_amount + base_amount
         self.fiscal_position = FiscalPosition(
             name=u'Régimen Islas Canarias'
@@ -187,7 +203,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            type='in_invoice',
+            invoice_type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
             number='FRecib{}'.format(self.invoice_number),
@@ -195,6 +211,7 @@ class DataGenerator:
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
             period_id=self.period,
             origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
@@ -214,13 +231,14 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            type='out_invoice',
+            invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='N',
             number='FEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
             period_id=self.period,
             origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
@@ -240,7 +258,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            type='in_refund',
+            invoice_type='in_refund',
             journal_id=journal,
             rectificative_type='R',
             number='FRectRecib{}'.format(self.invoice_number),
@@ -248,6 +266,7 @@ class DataGenerator:
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
             period_id=self.period,
             origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
@@ -267,13 +286,14 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            type='out_refund',
+            invoice_type='out_refund',
             journal_id=journal,
             rectificative_type='R',
             number='FRectEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
             period_id=self.period,
             origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
