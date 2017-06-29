@@ -93,6 +93,14 @@ def get_factura_emitida_tipo_desglose(invoice):
                     }
                 }
             }
+        else:
+            entrega = {
+                'Sujeta': {
+                    'Exenta': iva_values['detalle_iva_exento']
+                }
+            }
+            # Exenta por el artículo 21
+            entrega['Sujeta']['Exenta']['CausaExencion'] = 'E2'
 
         tipo_desglose = {
             'DesgloseTipoOperacion': {
@@ -104,12 +112,11 @@ def get_factura_emitida_tipo_desglose(invoice):
         desglose = {}
 
         if iva_values['sujeta_a_iva']:
-            desglose_factura['Sujeta'] = {}
+            desglose['Sujeta'] = {}
             if iva_values['iva_exento']:
-                desglose_factura['Sujeta']['Exenta'] = \
-                    iva_values['detalle_iva_exento']
+                desglose['Sujeta']['Exenta'] = iva_values['detalle_iva_exento']
             if iva_values['iva_no_exento']:
-                desglose_factura['Sujeta']['NoExenta'] = {
+                desglose['Sujeta']['NoExenta'] = {
                     'TipoNoExenta': 'S1',
                     'DesgloseIVA': {
                         'DetalleIVA': iva_values['detalle_iva']
@@ -120,17 +127,23 @@ def get_factura_emitida_tipo_desglose(invoice):
 
             fp = invoice.fiscal_position
             if fp and 'islas canarias' in unidecode(fp.name.lower()):
-                desglose_factura['NoSujeta'] = {
+                desglose['NoSujeta'] = {
                     'ImporteTAIReglasLocalizacion': importe_no_sujeto
                 }
             else:
-                desglose_factura['NoSujeta'] = {
+                desglose['NoSujeta'] = {
                     'ImportePorArticulos7_14_Otros': importe_no_sujeto
                 }
 
-        tipo_desglose = {
-            'DesgloseFactura': desglose_factura
-        }
+        partner_vat = invoice.partner_id.vat
+        if partner_vat and partner_vat.upper().startswith('N'):
+            tipo_desglose = {
+                'DesgloseTipoOperacion': desglose
+            }
+        else:
+            tipo_desglose = {
+                'DesgloseFactura': desglose
+            }
 
     return tipo_desglose
 
