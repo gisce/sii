@@ -8,14 +8,15 @@ from sii.models import invoices_record
 SIGN = {'B': -1, 'A': -1, 'N': 1, 'R': 1}
 
 
-def get_iva_values(invoice, in_invoice, export):
+def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     vals = {
         'sujeta_a_iva': False,
         'detalle_iva': [],
         'no_sujeta_a_iva': False,
         'iva_exento': False,
         'iva_no_exento': False,
-        'detalle_iva_exento': {'BaseImponible': 0}
+        'detalle_iva_exento': {'BaseImponible': 0},
+        'importe_no_sujeto': 0
     }
 
     invoice_total = invoice.amount_total
@@ -29,7 +30,7 @@ def get_iva_values(invoice, in_invoice, export):
             is_iva_exento = (
                 inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent'
             )
-            if not export and is_iva_exento:
+            if not is_export and not is_import and is_iva_exento:
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
             else:
@@ -79,8 +80,7 @@ def get_contraparte(partner, in_invoice):
 def get_factura_emitida_tipo_desglose(invoice):
 
     if invoice.sii_out_clave_regimen_especial == '02':  # Exportación
-        iva_values = get_iva_values(invoice, in_invoice=False, export=True)
-        entrega = {}
+        iva_values = get_iva_values(invoice, in_invoice=False, is_export=True)
 
         if iva_values['sujeta_a_iva']:
             entrega = {
@@ -93,6 +93,14 @@ def get_factura_emitida_tipo_desglose(invoice):
                     }
                 }
             }
+        else:
+            entrega = {
+                'Sujeta': {
+                    'Exenta': iva_values['detalle_iva_exento']
+                }
+            }
+            # Exenta por el artículo 21
+            entrega['Sujeta']['Exenta']['CausaExencion'] = 'E2'
 
         tipo_desglose = {
             'DesgloseTipoOperacion': {
@@ -100,16 +108,15 @@ def get_factura_emitida_tipo_desglose(invoice):
             }
         }
     else:
-        iva_values = get_iva_values(invoice, in_invoice=False, export=False)
-        desglose_factura = {}
+        iva_values = get_iva_values(invoice, in_invoice=False)
+        desglose = {}
 
         if iva_values['sujeta_a_iva']:
-            desglose_factura['Sujeta'] = {}
+            desglose['Sujeta'] = {}
             if iva_values['iva_exento']:
-                desglose_factura['Sujeta']['Exenta'] = \
-                    iva_values['detalle_iva_exento']
+                desglose['Sujeta']['Exenta'] = iva_values['detalle_iva_exento']
             if iva_values['iva_no_exento']:
-                desglose_factura['Sujeta']['NoExenta'] = {
+                desglose['Sujeta']['NoExenta'] = {
                     'TipoNoExenta': 'S1',
                     'DesgloseIVA': {
                         'DetalleIVA': iva_values['detalle_iva']
@@ -120,17 +127,23 @@ def get_factura_emitida_tipo_desglose(invoice):
 
             fp = invoice.fiscal_position
             if fp and 'islas canarias' in unidecode(fp.name.lower()):
-                desglose_factura['NoSujeta'] = {
+                desglose['NoSujeta'] = {
                     'ImporteTAIReglasLocalizacion': importe_no_sujeto
                 }
             else:
-                desglose_factura['NoSujeta'] = {
+                desglose['NoSujeta'] = {
                     'ImportePorArticulos7_14_Otros': importe_no_sujeto
                 }
 
-        tipo_desglose = {
-            'DesgloseFactura': desglose_factura
-        }
+        partner_vat = invoice.partner_id.vat
+        if partner_vat and partner_vat.upper().startswith('N'):
+            tipo_desglose = {
+                'DesgloseTipoOperacion': desglose
+            }
+        else:
+            tipo_desglose = {
+                'DesgloseFactura': desglose
+            }
 
     return tipo_desglose
 
@@ -152,8 +165,13 @@ def get_factura_emitida(invoice):
 
 
 def get_factura_recibida(invoice):
-    iva_values = get_iva_values(invoice, in_invoice=True, export=False)
     cuota_deducible = 0
+
+    # Factura correspondiente a una importación (informada sin asociar a un DUA
+    if invoice.sii_in_clave_regimen_especial == '13':
+        iva_values = get_iva_values(invoice, in_invoice=True, is_import=True)
+    else:
+        iva_values = get_iva_values(invoice, in_invoice=True)
 
     if iva_values['sujeta_a_iva'] and iva_values['iva_no_exento']:
         desglose_factura = {  # TODO to change
@@ -171,7 +189,7 @@ def get_factura_recibida(invoice):
         desglose_factura = {
             'DesgloseIVA': {
                 'DetalleIVA': [{
-                    'BaseImponible': 0  # TODO deixem de moment 0 perquè no tindrem inversio sujeto pasivo
+                    'BaseImponible': invoice.amount_untaxed
                 }]
             }
         }
