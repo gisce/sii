@@ -173,6 +173,40 @@ with description('El XML Generado'):
                     self.invoice.tax_line[0].tax_id.amount * 100)
                 )
 
+        with context('si es una exportación'):
+            with before.all:
+                # Clave Régimen Especial exportación: '02'
+                self.cre_exportacion = '02'
+                self.out_invoice.sii_out_clave_regimen_especial = (
+                    self.cre_exportacion
+                )
+                self.export_inv_obj = SII(self.out_invoice).generate_object()
+                self.factura_emitida = (
+                    self.export_inv_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']
+                )
+
+            with context('en los detalles del IVA'):
+                with before.all:
+                    self.detalle_iva = (
+                        self.factura_emitida['FacturaExpedida']['TipoDesglose']
+                        ['DesgloseTipoOperacion']['Entrega']['Sujeta']
+                        ['NoExenta']['DesgloseIVA']['DetalleIVA']
+                    )
+
+                with it('la BaseImponible debe ser la original'):
+                    expect(self.detalle_iva[0]['BaseImponible']).to(equal(
+                        self.out_invoice.tax_line[0].base)
+                    )
+                with it('la CuotaRepercutida debe ser la original'):
+                    expect(self.detalle_iva[0]['CuotaRepercutida']).to(equal(
+                        self.out_invoice.tax_line[0].tax_amount)
+                    )
+                with it('el TipoImpositivo debe ser la original'):
+                    expect(self.detalle_iva[0]['TipoImpositivo']).to(equal(
+                        self.out_invoice.tax_line[0].tax_id.amount * 100)
+                    )
+
     with description('en los datos de una factura recibida'):
         with before.all:
             self.in_invoice = self.data_gen.get_in_invoice()
