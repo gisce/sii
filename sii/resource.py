@@ -138,7 +138,9 @@ def get_factura_emitida_tipo_desglose(invoice):
         partner_vat = invoice.partner_id.vat
         if partner_vat and partner_vat.upper().startswith('N'):
             tipo_desglose = {
-                'DesgloseTipoOperacion': desglose
+                'DesgloseTipoOperacion': {
+                    'PrestacionServicios': desglose
+                }
             }
         else:
             tipo_desglose = {
