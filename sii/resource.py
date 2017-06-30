@@ -136,7 +136,9 @@ def get_factura_emitida_tipo_desglose(invoice):
                 }
 
         partner_vat = invoice.partner_id.vat
-        if partner_vat and partner_vat.upper().startswith('N'):
+        partner_vat_starts_with_n = partner_vat and partner_vat.upper().startswith('N')
+        has_id_otro = invoice.partner_id.sii_get_vat_type() != '02'
+        if has_id_otro or partner_vat_starts_with_n:
             tipo_desglose = {
                 'DesgloseTipoOperacion': {
                     'PrestacionServicios': desglose
