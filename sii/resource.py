@@ -8,34 +8,29 @@ from sii.models import invoices_record
 SIGN = {'B': -1, 'A': -1, 'N': 1, 'R': 1}
 
 
-def get_importe_no_sujeto_a_iva(invoice):
-    importe_no_sujeto = 0
-
-    for line in invoice.invoice_line:
-        no_iva = True
-        for tax in line.invoice_line_tax_id:
-            if 'iva' in tax.name.lower():
-                no_iva = False
-                break
-        if no_iva:
-            importe_no_sujeto += line.price_subtotal
-
-    return importe_no_sujeto
-
-
-def get_iva_values(invoice, in_invoice):
+def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     vals = {
         'sujeta_a_iva': False,
         'detalle_iva': [],
         'no_sujeta_a_iva': False,
         'iva_exento': False,
         'iva_no_exento': False,
-        'detalle_iva_exento': {'BaseImponible': 0}
+        'detalle_iva_exento': {'BaseImponible': 0},
+        'importe_no_sujeto': 0
     }
+
+    invoice_total = invoice.amount_total
+
     for inv_tax in invoice.tax_line:
         if 'iva' in inv_tax.name.lower():
             vals['sujeta_a_iva'] = True
-            if inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent':
+
+            invoice_total -= (abs(inv_tax.tax_amount) + abs(inv_tax.base))
+
+            is_iva_exento = (
+                inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent'
+            )
+            if not is_export and not is_import and is_iva_exento:
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
             else:
@@ -45,89 +40,142 @@ def get_iva_values(invoice, in_invoice):
                     'TipoImpositivo': inv_tax.tax_id.amount * 100
                 }
                 if in_invoice:
-                    iva['CuotaRepercutida'] = sign * abs(inv_tax.tax_amount)
-                else:
                     iva['CuotaSoportada'] = sign * abs(inv_tax.tax_amount)
+                else:
+                    iva['CuotaRepercutida'] = sign * abs(inv_tax.tax_amount)
                 vals['iva_no_exento'] = True
                 vals['detalle_iva'].append(iva)
-        elif 'sobre la electricidad' not in inv_tax.name.lower():
-            vals['no_sujeta_a_iva'] = True
+
+    invoice_total = round(invoice_total, 2)
+    if invoice_total > 0:
+        vals['no_sujeta_a_iva'] = True
+        vals['importe_no_sujeto'] = invoice_total
+
     return vals
 
 
-def get_factura_emitida(invoice):
-    iva_values = get_iva_values(invoice, in_invoice=True)
-    desglose_factura = {}
+def get_contraparte(partner, in_invoice):
+    vat_type = partner.sii_get_vat_type()
+    contraparte = {'NombreRazon': partner.name}
 
-    if iva_values['sujeta_a_iva']:
-        desglose_factura['Sujeta'] = {}
-        if iva_values['iva_exento']:
-            desglose_factura['Sujeta']['Exenta'] = \
-                iva_values['detalle_iva_exento']
-        if iva_values['iva_no_exento']:
-            desglose_factura['Sujeta']['NoExenta'] = {
-                'TipoNoExenta': 'S1',
-                'DesgloseIVA': {
-                    'DetalleIVA': iva_values['detalle_iva']
+    if not partner.aeat_registered and not in_invoice:
+        contraparte['IDOtro'] = {
+            'CodigoPais': partner.country.code,
+            'IDType': '07',
+            'ID': partner.vat
+        }
+    else:
+        if vat_type == '02':
+            contraparte['NIF'] = partner.vat
+        else:
+            contraparte['IDOtro'] = {
+                'CodigoPais': partner.country.code,
+                'IDType': vat_type,
+                'ID': partner.vat
+            }
+
+    return contraparte
+
+
+def get_factura_emitida_tipo_desglose(invoice):
+
+    if invoice.sii_out_clave_regimen_especial == '02':  # Exportación
+        iva_values = get_iva_values(invoice, in_invoice=False, is_export=True)
+
+        if iva_values['sujeta_a_iva']:
+            entrega = {
+                'Sujeta': {
+                    'NoExenta': {
+                        'TipoNoExenta': 'S1',
+                        'DesgloseIVA': {
+                            'DetalleIVA': iva_values['detalle_iva']
+                        }
+                    }
                 }
             }
-    if iva_values['no_sujeta_a_iva']:
-        importe_no_sujeto = get_importe_no_sujeto_a_iva(invoice)
+        else:
+            entrega = {
+                'Sujeta': {
+                    'Exenta': iva_values['detalle_iva_exento']
+                }
+            }
+            # Exenta por el artículo 21
+            entrega['Sujeta']['Exenta']['CausaExencion'] = 'E2'
 
-        fp = invoice.fiscal_position
-        if fp and 'islas canarias' in unidecode(fp.name.lower()):
-            desglose_factura['NoSujeta'] = {
-                'ImporteTAIReglasLocalizacion': importe_no_sujeto
+        tipo_desglose = {
+            'DesgloseTipoOperacion': {
+                'Entrega': entrega
+            }
+        }
+    else:
+        iva_values = get_iva_values(invoice, in_invoice=False)
+        desglose = {}
+
+        if iva_values['sujeta_a_iva']:
+            desglose['Sujeta'] = {}
+            if iva_values['iva_exento']:
+                desglose['Sujeta']['Exenta'] = iva_values['detalle_iva_exento']
+            if iva_values['iva_no_exento']:
+                desglose['Sujeta']['NoExenta'] = {
+                    'TipoNoExenta': 'S1',
+                    'DesgloseIVA': {
+                        'DetalleIVA': iva_values['detalle_iva']
+                    }
+                }
+        if iva_values['no_sujeta_a_iva']:
+            importe_no_sujeto = iva_values['importe_no_sujeto']
+
+            fp = invoice.fiscal_position
+            if fp and 'islas canarias' in unidecode(fp.name.lower()):
+                desglose['NoSujeta'] = {
+                    'ImporteTAIReglasLocalizacion': importe_no_sujeto
+                }
+            else:
+                desglose['NoSujeta'] = {
+                    'ImportePorArticulos7_14_Otros': importe_no_sujeto
+                }
+
+        partner_vat = invoice.partner_id.vat
+        partner_vat_starts_with_n = partner_vat and partner_vat.upper().startswith('N')
+        has_id_otro = invoice.partner_id.sii_get_vat_type() != '02'
+        if has_id_otro or partner_vat_starts_with_n:
+            tipo_desglose = {
+                'DesgloseTipoOperacion': {
+                    'PrestacionServicios': desglose
+                }
             }
         else:
-            desglose_factura['NoSujeta'] = {
-                'ImportePorArticulos7_14_Otros': importe_no_sujeto
+            tipo_desglose = {
+                'DesgloseFactura': desglose
             }
 
-    if invoice.partner_id.aeat_registered:
-        contraparte = {
-            'NombreRazon': invoice.partner_id.name,
-            'NIF': invoice.partner_id.vat
-        }
-    else:
-        contraparte = {
-            'NombreRazon': invoice.partner_id.name,
-            'IDOtro': {
-                'CodigoPais': 'ES',
-                'IDType': '07',
-                'ID': invoice.partner_id.vat
-            }
-        }
+    return tipo_desglose
 
-    if invoice.fiscal_position:
-        clave_regimen_escpecial = \
-            invoice.fiscal_position.sii_out_clave_regimen_especial
-    elif invoice.partner_id.property_account_position:
-        clave_regimen_escpecial = \
-            invoice.partner_id.property_account_position.sii_out_clave_regimen_especial
-    elif invoice.journal_id:
-        clave_regimen_escpecial = \
-            invoice.journal_id.sii_out_clave_regimen_especial
-    else:
-        raise AttributeError('La Factura no tiene Clave de Régimen Especial')
+
+def get_factura_emitida(invoice):
 
     factura_expedida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
-        'ClaveRegimenEspecialOTrascendencia': clave_regimen_escpecial,
+        'ClaveRegimenEspecialOTrascendencia':
+            invoice.sii_out_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
-        'DescripcionOperacion': invoice.journal_id.name,
-        'Contraparte': contraparte,
-        'TipoDesglose': {
-            'DesgloseFactura': desglose_factura
-        }
+        'DescripcionOperacion':
+            invoice.journal_id.sii_description or invoice.journal_id.name,
+        'Contraparte': get_contraparte(invoice.partner_id, in_invoice=False),
+        'TipoDesglose': get_factura_emitida_tipo_desglose(invoice)
     }
 
     return factura_expedida
 
 
 def get_factura_recibida(invoice):
-    iva_values = get_iva_values(invoice, in_invoice=False)
     cuota_deducible = 0
+
+    # Factura correspondiente a una importación (informada sin asociar a un DUA
+    if invoice.sii_in_clave_regimen_especial == '13':
+        iva_values = get_iva_values(invoice, in_invoice=True, is_import=True)
+    else:
+        iva_values = get_iva_values(invoice, in_invoice=True)
 
     if iva_values['sujeta_a_iva'] and iva_values['iva_no_exento']:
         desglose_factura = {  # TODO to change
@@ -144,31 +192,23 @@ def get_factura_recibida(invoice):
     else:
         desglose_factura = {
             'DesgloseIVA': {
-                'DetalleIVA': {
-                    'BaseImponible': 0  # TODO deixem de moment 0 perquè no tindrem inversio sujeto pasivo
-                }
+                'DetalleIVA': [{
+                    'BaseImponible': invoice.amount_untaxed
+                }]
             }
         }
 
-    if invoice.fiscal_position:
-        clave_regimen_escpecial = \
-            invoice.fiscal_position.sii_in_clave_regimen_especial
-    else:
-        clave_regimen_escpecial = \
-            invoice.journal_id.sii_in_clave_regimen_especial
-
     factura_recibida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
-        'ClaveRegimenEspecialOTrascendencia': clave_regimen_escpecial,
+        'ClaveRegimenEspecialOTrascendencia':
+            invoice.sii_in_clave_regimen_especial,
         'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
-        'DescripcionOperacion': invoice.journal_id.name,
-        'Contraparte': {
-            'NombreRazon': invoice.partner_id.name,
-            'NIF': invoice.partner_id.vat
-        },
+        'DescripcionOperacion':
+            invoice.journal_id.sii_description or invoice.journal_id.name,
+        'Contraparte': get_contraparte(invoice.partner_id, in_invoice=True),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
-        'FechaRegContable': '2017-12-31'  # TODO to change
+        'FechaRegContable': invoice.date_invoice
     }
 
     return factura_recibida
@@ -245,7 +285,7 @@ def get_factura_recibida_dict(invoice, rectificativa=False):
                         'NIF': invoice.partner_id.vat
                     },
                     'NumSerieFacturaEmisor': invoice.origin,
-                    'FechaExpedicionFacturaEmisor': invoice.date_invoice
+                    'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
                 },
                 'FacturaRecibida': get_factura_recibida(invoice)
             }
@@ -284,16 +324,33 @@ class SII(object):
                 self.invoice, rectificativa=rectificativa
             )
         else:
-            raise AttributeError('Unknown value in invoice.type')
+            raise AttributeError(
+                'Valor desconocido en el tipo de factura: {}'.format(
+                    invoice.type
+                )
+            )
+
+    def get_validation_errors_list(self, errors):
+        error_messages = []
+
+        for key, values in errors.items():
+            if isinstance(values, dict):
+                error_messages += self.get_validation_errors_list(values)
+            else:
+                error_messages += ['{}: {}'.format(key, val) for val in values]
+
+        return error_messages
 
     def validate_invoice(self):
 
+        res = {}
+
         errors = self.invoice_model.validate(self.invoice_dict)
 
-        res = {
-            'successful': False if errors else True,
-            'errors': errors
-        }
+        res['successful'] = False if errors else True
+        if errors:
+            errors_list = self.get_validation_errors_list(errors)
+            res['errors'] = errors_list
 
         return res
 

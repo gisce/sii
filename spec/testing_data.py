@@ -14,25 +14,31 @@ class Company:
         self.partner_id = partner_id
 
 
+class Country:
+    def __init__(self, code):
+        self.code = code
+
+
 class Partner:
-    def __init__(self, name, nif, aeat_registered=True):
+    def __init__(self, name, nif, country, aeat_registered=True):
         self.name = name
         self.vat = nif
+        self.country = country
         self.aeat_registered = aeat_registered
+
+    def sii_get_vat_type(self):
+        return '02'
 
 
 class Journal:
-    def __init__(self, name, cre_in_invoice, cre_out_invoice):
+    def __init__(self, name, sii_description):
         self.name = name
-        self.sii_in_clave_regimen_especial = cre_in_invoice
-        self.sii_out_clave_regimen_especial = cre_out_invoice
+        self.sii_description = sii_description
 
 
 class FiscalPosition:
-    def __init__(self, name, cre_in_invoice, cre_out_invoice):
+    def __init__(self, name):
         self.name = name
-        self.sii_in_clave_regimen_especial = cre_in_invoice
-        self.sii_out_clave_regimen_especial = cre_out_invoice
 
 
 class Tax:
@@ -57,29 +63,48 @@ class InvoiceLine:
 
 
 class Invoice:
-    def __init__(self, journal_id, number, type, partner_id, company_id,
-                 amount_total, period_id, date_invoice, tax_line, sii_registered,
-                 rectificative_type, fiscal_position, invoice_line,
+    def __init__(self,
+                 journal_id,
+                 number,
+                 invoice_type,
+                 partner_id,
+                 company_id,
+                 amount_total,
+                 amount_untaxed,
+                 period_id,
+                 date_invoice,
+                 tax_line,
+                 sii_registered,
+                 rectificative_type,
+                 fiscal_position,
+                 invoice_line,
+                 sii_in_clave_regimen_especial,
+                 sii_out_clave_regimen_especial,
+                 origin_date_invoice,
                  origin=None):
         self.journal_id = journal_id
         self.number = number
-        self.type = type
+        self.type = invoice_type
         self.partner_id = partner_id
         self.company_id = company_id
         self.period_id = period_id
         self.amount_total = amount_total
+        self.amount_untaxed = amount_untaxed
+        self.origin_date_invoice = origin_date_invoice
         self.date_invoice = date_invoice
         self.tax_line = tax_line
         self.invoice_line = invoice_line
         self.fiscal_position = fiscal_position
         self.sii_registered = sii_registered
         self.origin = origin
+        self.sii_in_clave_regimen_especial = sii_in_clave_regimen_especial
+        self.sii_out_clave_regimen_especial = sii_out_clave_regimen_especial
         self.rectificative_type = rectificative_type
 
 
 class DataGenerator:
-    def __init__(self, contraparte_registered=True):
-        self.sii_registered = False
+    def __init__(self, invoice_registered=False, contraparte_registered=True):
+        self.sii_registered = invoice_registered
         self.period = Period(name='12/2016')
         name_iva_21 = 'IVA 21%'
         name_iva_4 = 'IVA 4%'
@@ -146,38 +171,39 @@ class DataGenerator:
             invoice_tax_iva_21, invoice_tax_iva_4, invoice_tax_ibi,
             invoice_tax_iva_exento
         ]
-
+        spain = Country(code='ES')
         self.partner_invoice = Partner(
             name=os.environ.get('NOMBRE_CONTRAPARTE', u'Francisco García'),
             nif=os.environ.get('NIF_CONTRAPARTE', u'12345678T'),
-            aeat_registered=contraparte_registered
+            country=spain, aeat_registered=contraparte_registered
         )
         partner_company = Partner(
             name=os.environ.get('NOMBRE_TITULAR', u'Compañía Eléctrica S.A.'),
-            nif=os.environ.get('NIF_TITULAR', '55555555T')
+            nif=os.environ.get('NIF_TITULAR', '55555555T'), country=spain
         )
         self.company = Company(partner_id=partner_company)
 
         self.invoice_number = str(random.randrange(0, 100000)).zfill(5)
+        self.origin_date_invoice = '2016-12-01'
         self.date_invoice = '2016-12-31'
         taxes_amount = sum([tax.tax_amount for tax in self.tax_line])
         base_amount = sum([line.price_subtotal for line in self.invoice_line])
+        self.amount_untaxed = base_amount
         self.amount_total = taxes_amount + base_amount
-        cre_in_invoice = '01'
-        cre_out_invoice = '01'
         self.fiscal_position = FiscalPosition(
-            name=u'Régimen Islas Canarias', cre_in_invoice=cre_in_invoice,
-            cre_out_invoice=cre_out_invoice
+            name=u'Régimen Islas Canarias'
         )
+        self.sii_in_clave_regimen_especial = '01'
+        self.sii_out_clave_regimen_especial = '01'
 
     def get_in_invoice(self):
         journal = Journal(
             name='Factura de Energía Recibida',
-            cre_in_invoice='01', cre_out_invoice='01'
+            sii_description='Descripción Facturas Recibidas'
         )
 
         invoice = Invoice(
-            type='in_invoice',
+            invoice_type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
             number='FRecib{}'.format(self.invoice_number),
@@ -185,46 +211,54 @@ class DataGenerator:
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
             period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
-            fiscal_position=self.fiscal_position
+            fiscal_position=self.fiscal_position,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
         return invoice
 
     def get_out_invoice(self):
         journal = Journal(
             name='Factura de Energía Emitida',
-            cre_in_invoice='01', cre_out_invoice='01'
+            sii_description='Descripción Facturas Emitidas'
         )
 
         invoice = Invoice(
-            type='out_invoice',
+            invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='N',
             number='FEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
             period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
-            fiscal_position=self.fiscal_position
+            fiscal_position=self.fiscal_position,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
         return invoice
 
     def get_in_refund_invoice(self):
         journal = Journal(
             name='Factura de Energía Rectificativa Recibida',
-            cre_in_invoice='01', cre_out_invoice='01'
+            sii_description='Descripción Facturas Rectificativas Recibidas'
         )
 
         invoice = Invoice(
-            type='in_refund',
+            invoice_type='in_refund',
             journal_id=journal,
             rectificative_type='R',
             number='FRectRecib{}'.format(self.invoice_number),
@@ -232,34 +266,42 @@ class DataGenerator:
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
             period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
-            fiscal_position=self.fiscal_position
+            fiscal_position=self.fiscal_position,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
         return invoice
 
     def get_out_refund_invoice(self):
         journal = Journal(
             name='Factura de Energía Rectificativa Emitida',
-            cre_in_invoice='01', cre_out_invoice='01'
+            sii_description='Descripción Facturas Rectificativas Emitidas'
         )
 
         invoice = Invoice(
-            type='out_refund',
+            invoice_type='out_refund',
             journal_id=journal,
             rectificative_type='R',
             number='FRectEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             company_id=self.company,
             amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
             period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
-            fiscal_position=self.fiscal_position
+            fiscal_position=self.fiscal_position,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
         return invoice
