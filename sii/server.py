@@ -101,7 +101,7 @@ class IDService(Service):
 class SiiService(Service):
     def __init__(self, certificate, key, url=None, test_mode=False):
         super(SiiService, self).__init__(certificate, key, url)
-        self.test_mode = True  # Force now work in test mode
+        self.test_mode = test_mode
         self.emitted_service = None
         self.received_service = None
         self.url = url
