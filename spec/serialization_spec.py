@@ -207,6 +207,105 @@ with description('El XML Generado'):
                         self.out_invoice.tax_line[0].tax_id.amount * 100)
                     )
 
+        with context('si es una operación de alquiler (CRE "12" o "13")'):
+            with before.all:
+                new_data_gen = DataGenerator()
+                self.out_invoice = new_data_gen.get_out_invoice()
+                self.out_invoice.sii_out_clave_regimen_especial = '12'
+                provincia = (
+                    self.out_invoice.address_contact_id.state_id
+                )
+                self.comunidad_autonoma = provincia.comunitat_autonoma
+
+            with context('si el inmueble pertenece a España'):
+
+                with it('si tiene referencia catastral'):
+                    ref_catastral = '9872023 VH5797S 0001 WX'
+                    self.out_invoice.address_contact_id.ref_catastral = \
+                        ref_catastral
+                    out_invoice_obj = SII(self.out_invoice).generate_object()
+                    detalle_inmueble = (
+                        out_invoice_obj['SuministroLRFacturasEmitidas']
+                        ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                        ['DatosInmueble']['DetalleInmueble']
+                    )
+
+                    expect(detalle_inmueble['ReferenciaCatastral']).to(equal(
+                        ref_catastral
+                    ))
+
+                with context('si no tiene referencia catastral'):
+                    with it('no debe tener referencia catastral'):
+                        ref_catastral = '9872023 VH5797S 0001 WX'
+                        self.out_invoice.address_contact_id.ref_catastral = \
+                            False
+                        out_invoice_obj = \
+                            SII(self.out_invoice).generate_object()
+                        detalle_inmueble = (
+                            out_invoice_obj['SuministroLRFacturasEmitidas']
+                            ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                            ['DatosInmueble']['DetalleInmueble']
+                        )
+
+                        expect(
+                            dict(CRE_FACTURAS_EMITIDAS).keys()
+                        ).to(contain(
+                            (self.factura['FacturaExpedida']
+                             ['ClaveRegimenEspecialOTrascendencia'])
+                        ))
+
+                        expect(detalle_inmueble.keys()).not_to(
+                            contain('ReferenciaCatastral')
+                        )
+
+                with it('si no es de Navarra ni País Basco la situación '
+                        'inmueble debe ser "1"'):
+                    self.comunidad_autonoma.codi = '01'
+                    out_invoice_obj = SII(self.out_invoice).generate_object()
+                    detalle_inmueble = (
+                        out_invoice_obj['SuministroLRFacturasEmitidas']
+                        ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                        ['DatosInmueble']['DetalleInmueble']
+                    )
+
+                    expect(detalle_inmueble['SituacionInmueble']).to(equal('1'))
+
+                with it('si es de Navarra la situación inmueble debe ser "2"'):
+                    self.comunidad_autonoma.codi = '15'
+                    out_invoice_obj = SII(self.out_invoice).generate_object()
+                    detalle_inmueble = (
+                        out_invoice_obj['SuministroLRFacturasEmitidas']
+                        ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                        ['DatosInmueble']['DetalleInmueble']
+                    )
+
+                    expect(detalle_inmueble['SituacionInmueble']).to(equal('2'))
+
+                with it('si es de País Basco la situación inmueble '
+                        'debe ser "2"'):
+                    self.comunidad_autonoma.codi = '16'
+                    out_invoice_obj = SII(self.out_invoice).generate_object()
+                    detalle_inmueble = (
+                        out_invoice_obj['SuministroLRFacturasEmitidas']
+                        ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                        ['DatosInmueble']['DetalleInmueble']
+                    )
+
+                    expect(detalle_inmueble['SituacionInmueble']).to(equal('2'))
+
+            with context('si el inmueble no pertenece a España'):
+
+                with it('la situación inmueble debe ser "4"'):
+                    self.comunidad_autonoma.codi = '20'
+                    out_invoice_obj = SII(self.out_invoice).generate_object()
+                    detalle_inmueble = (
+                        out_invoice_obj['SuministroLRFacturasEmitidas']
+                        ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                        ['DatosInmueble']['DetalleInmueble']
+                    )
+
+                    expect(detalle_inmueble['SituacionInmueble']).to(equal('4'))
+
     with description('en los datos de una factura recibida'):
         with before.all:
             self.in_invoice = self.data_gen.get_in_invoice()
