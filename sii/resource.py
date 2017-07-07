@@ -165,6 +165,37 @@ def get_factura_emitida(invoice):
         'TipoDesglose': get_factura_emitida_tipo_desglose(invoice)
     }
 
+    # Si la factura es una operación de arrendamiento
+    # de local de negocio (alquiler)
+    if invoice.sii_out_clave_regimen_especial in ['12', '13']:
+        detalle_inmueble = {}
+
+        codigo_comunidad_autonoma = \
+            invoice.address_contact_id.state_id.comunitat_autonoma.codi
+
+        # '01', '02', ..., '19': Comunidades autónomas de España
+        if codigo_comunidad_autonoma in [str(s).zfill(2) for s in range(1, 20)]:
+            ref_catastral = invoice.address_contact_id.ref_catastral
+            if ref_catastral:
+                detalle_inmueble['ReferenciaCatastral'] = ref_catastral
+
+                # '15': Comunidad Foral de Navarra
+                # '16': País Vasco
+                if codigo_comunidad_autonoma not in ['15', '16']:
+                    situacion_inmueble = '1'
+                else:
+                    situacion_inmueble = '2'
+            else:
+                situacion_inmueble = '3'
+        else:
+            situacion_inmueble = '4'
+
+        detalle_inmueble['SituacionInmueble'] = situacion_inmueble
+
+        factura_expedida['DatosInmueble'] = {
+            'DetalleInmueble': detalle_inmueble
+        }
+
     return factura_expedida
 
 
