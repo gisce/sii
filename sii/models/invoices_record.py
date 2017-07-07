@@ -501,7 +501,7 @@ class DetalleInmueble(MySchema):
 
 
 class DatosInmueble(MySchema):
-    DatosInmueble = fields.Nested(DetalleInmueble)
+    DetalleInmueble = fields.Nested(DetalleInmueble)
     # TODO comprobar si es obligatorio y añadir máximo 15
     # <element name="DetalleInmueble" type="sii:DatosInmuebleType" maxOccurs="15"/>
 
@@ -516,7 +516,7 @@ class DetalleFacturaEmitida(DetalleFactura):
     )
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
-    DatosInmueble = fields.Nested(DetalleInmueble)  # TODO obligatorio si ClaveRegimenEspecialOTranscedencia= “12” o “13”
+    DatosInmueble = fields.Nested(DatosInmueble)  # TODO obligatorio si ClaveRegimenEspecialOTranscedencia= “12” o “13”
 
     def validate_clave_regimen_especial_o_trascendencia(self, value):
         self.validate_field_is_one_of(
