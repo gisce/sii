@@ -19,6 +19,23 @@ class Country:
         self.code = code
 
 
+class ComunidadAutonoma:
+    def __init__(self, code, name):
+        self.codi = code
+        self.name = name
+
+
+class State:
+    def __init__(self, comunidad_autonoma):
+        self.comunitat_autonoma = comunidad_autonoma
+
+
+class ResPartnerAddress:
+    def __init__(self, state, ref_catastral=False):
+        self.state_id = state
+        self.ref_catastral = ref_catastral
+
+
 class Partner:
     def __init__(self, name, nif, country, aeat_registered=True):
         self.name = name
@@ -68,6 +85,7 @@ class Invoice:
                  number,
                  invoice_type,
                  partner_id,
+                 address_contact_id,
                  company_id,
                  amount_total,
                  amount_untaxed,
@@ -86,6 +104,7 @@ class Invoice:
         self.number = number
         self.type = invoice_type
         self.partner_id = partner_id
+        self.address_contact_id = address_contact_id
         self.company_id = company_id
         self.period_id = period_id
         self.amount_total = amount_total
@@ -183,6 +202,10 @@ class DataGenerator:
         )
         self.company = Company(partner_id=partner_company)
 
+        comunidad_autonoma = ComunidadAutonoma(code='01', name='Andalucia')
+        provincia = State(comunidad_autonoma=comunidad_autonoma)
+        self.address_contact_id = ResPartnerAddress(state=provincia)
+
         self.invoice_number = str(random.randrange(0, 100000)).zfill(5)
         self.origin_date_invoice = '2016-12-01'
         self.date_invoice = '2016-12-31'
@@ -198,8 +221,8 @@ class DataGenerator:
 
     def get_in_invoice(self):
         journal = Journal(
-            name='Factura de Energía Recibida',
-            sii_description='Descripción Facturas Recibidas'
+            name=u'Factura de Energía Recibida',
+            sii_description=u'Descripción Facturas Recibidas'
         )
 
         invoice = Invoice(
@@ -209,6 +232,7 @@ class DataGenerator:
             number='FRecib{}'.format(self.invoice_number),
             origin='FRecibOrigen{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
             company_id=self.company,
             amount_total=self.amount_total,
             amount_untaxed=self.amount_untaxed,
@@ -226,8 +250,8 @@ class DataGenerator:
 
     def get_out_invoice(self):
         journal = Journal(
-            name='Factura de Energía Emitida',
-            sii_description='Descripción Facturas Emitidas'
+            name=u'Factura de Energía Emitida',
+            sii_description=u'Descripción Facturas Emitidas'
         )
 
         invoice = Invoice(
@@ -236,6 +260,7 @@ class DataGenerator:
             rectificative_type='N',
             number='FEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
             company_id=self.company,
             amount_total=self.amount_total,
             amount_untaxed=self.amount_untaxed,
@@ -253,8 +278,8 @@ class DataGenerator:
 
     def get_in_refund_invoice(self):
         journal = Journal(
-            name='Factura de Energía Rectificativa Recibida',
-            sii_description='Descripción Facturas Rectificativas Recibidas'
+            name=u'Factura de Energía Rectificativa Recibida',
+            sii_description=u'Descripción Facturas Rectificativas Recibidas'
         )
 
         invoice = Invoice(
@@ -264,6 +289,7 @@ class DataGenerator:
             number='FRectRecib{}'.format(self.invoice_number),
             origin='FRectRecibOrigen{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
             company_id=self.company,
             amount_total=self.amount_total,
             amount_untaxed=self.amount_untaxed,
@@ -281,8 +307,8 @@ class DataGenerator:
 
     def get_out_refund_invoice(self):
         journal = Journal(
-            name='Factura de Energía Rectificativa Emitida',
-            sii_description='Descripción Facturas Rectificativas Emitidas'
+            name=u'Factura de Energía Rectificativa Emitida',
+            sii_description=u'Descripción Facturas Rectificativas Emitidas'
         )
 
         invoice = Invoice(
@@ -291,6 +317,7 @@ class DataGenerator:
             rectificative_type='R',
             number='FRectEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
             company_id=self.company,
             amount_total=self.amount_total,
             amount_untaxed=self.amount_untaxed,

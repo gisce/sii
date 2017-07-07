@@ -113,6 +113,8 @@ CRE_FACTURAS_RECIBIDAS = [
     ('14', u'Primer semestre 2017')
 ]
 
+SITUACION_INMUEBLE_VALUES = ['1', '2', '3', '4']
+
 
 def convert_camel_case_to_underscore(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
@@ -449,6 +451,11 @@ class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos pero sólo pued
 
 
 class Contraparte(Titular):
+
+    @staticmethod
+    def get_nif_field_name():
+        return 'NIF del Receptor de la factura'
+
     IDOtro = fields.Nested(IDOtro)
     pass
 
@@ -487,6 +494,23 @@ class DetalleFactura(MySchema):
         )
 
 
+class DetalleInmueble(MySchema):
+    SituacionInmueble = CustomStringField(required=True)
+    ReferenciaCatastral = CustomStringField()  # TODO obligatorio si SituaciónInmueble <> 3 o 4
+
+    def validate_situacion_inmueble(self, value):
+        self.validate_field_is_one_of(
+            value=value, field_name='Situacion Inmueble',
+            choices=SITUACION_INMUEBLE_VALUES
+        )
+
+
+class DatosInmueble(MySchema):
+    DetalleInmueble = fields.Nested(DetalleInmueble)
+    # TODO comprobar si es obligatorio y añadir máximo 15
+    # <element name="DetalleInmueble" type="sii:DatosInmuebleType" maxOccurs="15"/>
+
+
 class DetalleFacturaEmitida(DetalleFactura):
     ClaveRegimenEspecialOTrascendencia = CustomStringField(
         required=True,
@@ -497,6 +521,7 @@ class DetalleFacturaEmitida(DetalleFactura):
     )
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
+    DatosInmueble = fields.Nested(DatosInmueble)  # TODO obligatorio si ClaveRegimenEspecialOTranscedencia= “12” o “13”
 
     def validate_clave_regimen_especial_o_trascendencia(self, value):
         self.validate_field_is_one_of(
