@@ -198,8 +198,8 @@ class DataGenerator:
 
     def get_in_invoice(self):
         journal = Journal(
-            name='Factura de Energía Recibida',
-            sii_description='Descripción Facturas Recibidas'
+            name=u'Factura de Energía Recibida',
+            sii_description=u'Descripción Facturas Recibidas'
         )
 
         invoice = Invoice(
@@ -226,8 +226,8 @@ class DataGenerator:
 
     def get_out_invoice(self):
         journal = Journal(
-            name='Factura de Energía Emitida',
-            sii_description='Descripción Facturas Emitidas'
+            name=u'Factura de Energía Emitida',
+            sii_description=u'Descripción Facturas Emitidas'
         )
 
         invoice = Invoice(
@@ -253,8 +253,8 @@ class DataGenerator:
 
     def get_in_refund_invoice(self):
         journal = Journal(
-            name='Factura de Energía Rectificativa Recibida',
-            sii_description='Descripción Facturas Rectificativas Recibidas'
+            name=u'Factura de Energía Rectificativa Recibida',
+            sii_description=u'Descripción Facturas Rectificativas Recibidas'
         )
 
         invoice = Invoice(
@@ -281,8 +281,8 @@ class DataGenerator:
 
     def get_out_refund_invoice(self):
         journal = Journal(
-            name='Factura de Energía Rectificativa Emitida',
-            sii_description='Descripción Facturas Rectificativas Emitidas'
+            name=u'Factura de Energía Rectificativa Emitida',
+            sii_description=u'Descripción Facturas Rectificativas Emitidas'
         )
 
         invoice = Invoice(
