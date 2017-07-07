@@ -31,8 +31,9 @@ class State:
 
 
 class ResPartnerAddress:
-    def __init__(self, state):
+    def __init__(self, state, ref_catastral=False):
         self.state_id = state
+        self.ref_catastral = ref_catastral
 
 
 class Partner:
