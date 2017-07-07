@@ -449,6 +449,11 @@ class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos pero sólo pued
 
 
 class Contraparte(Titular):
+
+    @staticmethod
+    def get_nif_field_name():
+        return 'NIF del Receptor de la factura'
+
     IDOtro = fields.Nested(IDOtro)
     pass
 
