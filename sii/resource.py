@@ -56,7 +56,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
 
 def get_contraparte(partner, in_invoice):
     vat_type = partner.sii_get_vat_type()
-    contraparte = {'NombreRazon': partner.name}
+    contraparte = {'NombreRazon': unidecode(partner.name)}
 
     if not partner.aeat_registered and not in_invoice:
         contraparte['IDOtro'] = {
