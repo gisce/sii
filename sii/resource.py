@@ -58,9 +58,11 @@ def get_contraparte(partner, in_invoice):
     vat_type = partner.sii_get_vat_type()
     contraparte = {'NombreRazon': unidecode(partner.name)}
 
+    partner_country = partner.country or partner.country_id
+
     if not partner.aeat_registered and not in_invoice:
         contraparte['IDOtro'] = {
-            'CodigoPais': partner.country_id.code,
+            'CodigoPais': partner_country.code,
             'IDType': '07',
             'ID': partner.vat
         }
@@ -69,7 +71,7 @@ def get_contraparte(partner, in_invoice):
             contraparte['NIF'] = partner.vat
         else:
             contraparte['IDOtro'] = {
-                'CodigoPais': partner.country_id.code,
+                'CodigoPais': partner_country.code,
                 'IDType': vat_type,
                 'ID': partner.vat
             }
