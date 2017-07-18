@@ -60,7 +60,7 @@ def get_contraparte(partner, in_invoice):
 
     if not partner.aeat_registered and not in_invoice:
         contraparte['IDOtro'] = {
-            'CodigoPais': partner.country.code,
+            'CodigoPais': partner.country_id.code,
             'IDType': '07',
             'ID': partner.vat
         }
@@ -69,7 +69,7 @@ def get_contraparte(partner, in_invoice):
             contraparte['NIF'] = partner.vat
         else:
             contraparte['IDOtro'] = {
-                'CodigoPais': partner.country.code,
+                'CodigoPais': partner.country_id.code,
                 'IDType': vat_type,
                 'ID': partner.vat
             }
