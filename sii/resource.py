@@ -58,7 +58,7 @@ def get_contraparte(partner, in_invoice):
     vat_type = partner.sii_get_vat_type()
     contraparte = {'NombreRazon': unidecode(partner.name)}
 
-    partner_country = partner.country or partner.country_id
+    partner_country = partner.country_id or partner.country
 
     if vat_type == '02':
         if not partner.aeat_registered and not in_invoice:
