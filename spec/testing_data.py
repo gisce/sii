@@ -40,7 +40,7 @@ class Partner:
     def __init__(self, name, nif, country, aeat_registered=True):
         self.name = name
         self.vat = nif
-        self.country = country
+        self.country_id = country
         self.aeat_registered = aeat_registered
 
     def sii_get_vat_type(self):

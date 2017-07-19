@@ -182,7 +182,7 @@ class MySchema(Schema):
         """
         if len(value) > max_chars:
             raise ValidationError(
-                self.get_default_max_length_message(
+                self.get_max_length_error_message(
                     field_name=field_name, max_chars=max_chars
                 )
             )
@@ -206,7 +206,7 @@ class MySchema(Schema):
             )
 
     @staticmethod
-    def get_default_max_length_message(field_name, max_chars):
+    def get_max_length_error_message(field_name, max_chars):
         """
         Returns default max_length message
         :param field_name: String
