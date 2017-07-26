@@ -47,7 +47,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                 vals['detalle_iva'].append(iva)
 
     invoice_total = round(invoice_total, 2)
-    if invoice_total > 0:
+    if invoice_total != 0:
         vals['no_sujeta_a_iva'] = True
         vals['importe_no_sujeto'] = invoice_total
 
