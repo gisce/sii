@@ -25,7 +25,10 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
         if 'iva' in inv_tax.name.lower():
             vals['sujeta_a_iva'] = True
 
-            invoice_total -= (abs(inv_tax.tax_amount) + abs(inv_tax.base))
+            if invoice_total < 0:
+                invoice_total += (abs(inv_tax.tax_amount) + abs(inv_tax.base))
+            else:
+                invoice_total -= (abs(inv_tax.tax_amount) + abs(inv_tax.base))
 
             is_iva_exento = (
                 inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent'
