@@ -384,6 +384,7 @@ class SII(object):
         errors = self.invoice_model.validate(self.invoice_dict)
 
         res['successful'] = False if errors else True
+        res['object_validated'] = self.invoice_dict
         if errors:
             errors_list = self.get_validation_errors_list(errors)
             res['errors'] = errors_list
