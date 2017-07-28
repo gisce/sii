@@ -48,9 +48,8 @@ class Partner:
 
 
 class Journal:
-    def __init__(self, name, sii_description):
+    def __init__(self, name):
         self.name = name
-        self.sii_description = sii_description
 
 
 class FiscalPosition:
@@ -96,6 +95,7 @@ class Invoice:
                  rectificative_type,
                  fiscal_position,
                  invoice_line,
+                 sii_description,
                  sii_in_clave_regimen_especial,
                  sii_out_clave_regimen_especial,
                  origin_date_invoice,
@@ -116,6 +116,7 @@ class Invoice:
         self.fiscal_position = fiscal_position
         self.sii_registered = sii_registered
         self.origin = origin
+        self.sii_description = sii_description
         self.sii_in_clave_regimen_especial = sii_in_clave_regimen_especial
         self.sii_out_clave_regimen_especial = sii_out_clave_regimen_especial
         self.rectificative_type = rectificative_type
@@ -216,13 +217,13 @@ class DataGenerator:
         self.fiscal_position = FiscalPosition(
             name=u'Régimen Islas Canarias'
         )
+        self.sii_description = u'Descripción de operación estándar'
         self.sii_in_clave_regimen_especial = '01'
         self.sii_out_clave_regimen_especial = '01'
 
     def get_in_invoice(self):
         journal = Journal(
-            name=u'Factura de Energía Recibida',
-            sii_description=u'Descripción Facturas Recibidas'
+            name=u'Factura de Energía Recibida'
         )
 
         invoice = Invoice(
@@ -243,6 +244,7 @@ class DataGenerator:
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
             sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
             sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
@@ -250,8 +252,7 @@ class DataGenerator:
 
     def get_out_invoice(self):
         journal = Journal(
-            name=u'Factura de Energía Emitida',
-            sii_description=u'Descripción Facturas Emitidas'
+            name=u'Factura de Energía Emitida'
         )
 
         invoice = Invoice(
@@ -271,6 +272,7 @@ class DataGenerator:
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
             sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
             sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
@@ -278,8 +280,7 @@ class DataGenerator:
 
     def get_in_refund_invoice(self):
         journal = Journal(
-            name=u'Factura de Energía Rectificativa Recibida',
-            sii_description=u'Descripción Facturas Rectificativas Recibidas'
+            name=u'Factura de Energía Rectificativa Recibida'
         )
 
         invoice = Invoice(
@@ -300,6 +301,7 @@ class DataGenerator:
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
             sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
             sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
@@ -307,8 +309,7 @@ class DataGenerator:
 
     def get_out_refund_invoice(self):
         journal = Journal(
-            name=u'Factura de Energía Rectificativa Emitida',
-            sii_description=u'Descripción Facturas Rectificativas Emitidas'
+            name=u'Factura de Energía Rectificativa Emitida'
         )
 
         invoice = Invoice(
@@ -328,6 +329,7 @@ class DataGenerator:
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
             sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
             sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
