@@ -94,6 +94,11 @@ with description('El XML Generado'):
                  ['ClaveRegimenEspecialOTrascendencia'])
             ))
 
+        with it('la descripción de la operación debe ser el de la factura'):
+            expect(
+                self.factura['FacturaExpedida']['DescripcionOperacion']
+            ).to(equal(self.invoice.sii_description))
+
         with it('el número de la factura debe ser el de la factura original'):
             expect(
                 self.factura['IDFactura']['NumSerieFacturaEmisor']
