@@ -481,3 +481,19 @@ with description('El XML Generado'):
                 expect(self.detalle_iva[0]['TipoImpositivo']).to(equal(
                     self.invoice.tax_line[0].tax_id.amount * 100)
                 )
+
+    with description('en los datos de una factura emitida rectificativa '
+                     'sin anuladora RA'):
+        with before.all:
+            self.out_invoice_RA = self.data_gen.get_out_invoice_RA()
+            self.out_invoice_RA_obj = SII(self.out_invoice_RA).generate_object()
+            self.fact_RA_emitida = (
+                self.out_invoice_RA_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+
+        with context('en los datos de rectificación'):
+            with it('el TipoRectificativa debe ser por diferencias (I)'):
+                expect(
+                    self.fact_RA_emitida['FacturaEmitida']['TipoRectificativa']
+                ).to(equal('I'))
