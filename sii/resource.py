@@ -8,6 +8,12 @@ from sii.models import invoices_record
 SIGN = {'B': -1, 'A': -1, 'N': 1, 'R': 1}
 
 
+def get_invoice_sign(invoice):
+    if invoice.type.endswith('refund'):
+        return -1
+    return 1
+
+
 def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     vals = {
         'sujeta_a_iva': False,
@@ -37,7 +43,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
             else:
-                sign = SIGN[invoice.rectificative_type]
+                sign = get_invoice_sign(invoice)
                 iva = {
                     'BaseImponible': sign * abs(inv_tax.base),
                     'TipoImpositivo': inv_tax.tax_id.amount * 100
@@ -165,7 +171,7 @@ def get_factura_emitida(invoice):
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
             invoice.sii_out_clave_regimen_especial,
-        'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
+        'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
         'DescripcionOperacion': invoice.sii_description,
         'Contraparte': get_contraparte(invoice.partner_id, in_invoice=False),
         'TipoDesglose': get_factura_emitida_tipo_desglose(invoice)
@@ -239,7 +245,7 @@ def get_factura_recibida(invoice):
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
             invoice.sii_in_clave_regimen_especial,
-        'ImporteTotal': SIGN[invoice.rectificative_type] * invoice.amount_total,
+        'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
         'DescripcionOperacion': invoice.sii_description,
         'Contraparte': get_contraparte(invoice.partner_id, in_invoice=True),
         'DesgloseFactura': desglose_factura,
