@@ -420,11 +420,11 @@ with description('El XML Generado'):
 
             with it('la BaseImponible debe ser la original'):
                 expect(self.detalle_iva[0]['BaseImponible']).to(equal(
-                    self.invoice.tax_line[0].base)
+                    -1 * abs(self.invoice.tax_line[0].base))
                 )
             with it('la CuotaRepercutida debe ser la original'):
                 expect(self.detalle_iva[0]['CuotaRepercutida']).to(equal(
-                    self.invoice.tax_line[0].tax_amount)
+                    -1 * abs(self.invoice.tax_line[0].tax_amount))
                 )
             with it('el TipoImpositivo debe ser la original'):
                 expect(self.detalle_iva[0]['TipoImpositivo']).to(equal(
@@ -471,11 +471,11 @@ with description('El XML Generado'):
 
             with it('la BaseImponible debe ser la original'):
                 expect(self.detalle_iva[0]['BaseImponible']).to(equal(
-                    self.invoice.tax_line[0].base)
+                    -1 * abs(self.invoice.tax_line[0].base))
                 )
             with it('la CuotaRepercutida debe ser la original'):
                 expect(self.detalle_iva[0]['CuotaSoportada']).to(equal(
-                    self.invoice.tax_line[0].tax_amount)
+                    -1 * abs(self.invoice.tax_line[0].tax_amount))
                 )
             with it('el TipoImpositivo debe ser la original'):
                 expect(self.detalle_iva[0]['TipoImpositivo']).to(equal(
