@@ -211,32 +211,81 @@ def get_factura_emitida(invoice):
     return factura_expedida
 
 
-def get_factura_recibida(invoice):
-    cuota_deducible = 0
+def get_factura_recibida(invoice,
+                         rect_sustitucion=False, rect_diferencias=False):
 
-    # Factura correspondiente a una importación (informada sin asociar a un DUA
-    if invoice.sii_in_clave_regimen_especial == '13':
-        iva_values = get_iva_values(invoice, in_invoice=True, is_import=True)
-    else:
-        iva_values = get_iva_values(invoice, in_invoice=True)
+    # Factura correspondiente a una importación (informada sin asociar a un DUA)
+    is_import = invoice.sii_in_clave_regimen_especial == '13'
+    iva_values = get_iva_values(invoice, in_invoice=True, is_import=is_import)
+
+    cuota_deducible = 0
+    importe_total = get_invoice_sign(invoice) * invoice.amount_total
 
     if iva_values['sujeta_a_iva'] and iva_values['iva_no_exento']:
-        desglose_factura = {  # TODO to change
-            # 'InversionSujetoPasivo': {
-            #     'DetalleIVA': iva_values['detalle_iva']
-            # },
-            'DesgloseIVA': {
-                'DetalleIVA': iva_values['detalle_iva']
+        if rect_diferencias:
+            factura_rectificada = invoice.rectifying_id
+            f_rect_iva = get_iva_values(
+                factura_rectificada, in_invoice=True, is_import=is_import)
+
+            aux_iva_values = {}
+
+            for inv_iva in iva_values['detalle_iva']:
+                tipo_impositivo = inv_iva['TipoImpositivo']
+                base_imponible = inv_iva['BaseImponible']
+                cuota_soportada = inv_iva['CuotaSoportada']
+                if tipo_impositivo in aux_iva_values:
+                    aux = aux_iva_values[tipo_impositivo]
+                    aux['BaseImponible'] += base_imponible
+                    aux['CuotaSoportada'] += cuota_soportada
+                else:
+                    aux_iva_values[tipo_impositivo] = inv_iva.copy()
+
+            for rect_iva in f_rect_iva['detalle_iva']:
+                tipo_impositivo = rect_iva['TipoImpositivo']
+                base_imponible = rect_iva['BaseImponible']
+                cuota_soportada = rect_iva['CuotaSoportada']
+                if tipo_impositivo in aux_iva_values:
+                    aux = aux_iva_values[tipo_impositivo]
+                    aux['BaseImponible'] -= base_imponible
+                    aux['CuotaSoportada'] -= cuota_soportada
+                else:
+                    aux_iva_values[tipo_impositivo] = {
+                        'TipoImpositivo': tipo_impositivo,
+                        'BaseImponible': -base_imponible,
+                        'CuotaSoportada': -cuota_soportada
+                    }
+
+            importe_total = (
+                invoice.amount_total - factura_rectificada.amount_total
+            )
+            desglose_factura = {
+                'DesgloseIVA': {
+                    'DetalleIVA': aux_iva_values.values()
+                }
             }
-        }
+        else:
+            desglose_factura = {  # TODO to change
+                # 'InversionSujetoPasivo': {
+                #     'DetalleIVA': iva_values['detalle_iva']
+                # },
+                'DesgloseIVA': {
+                    'DetalleIVA': iva_values['detalle_iva']
+                }
+            }
 
         for detalle_iva in iva_values['detalle_iva']:
             cuota_deducible += detalle_iva['CuotaSoportada']
     else:
+        base_imponible_factura = invoice.amount_untaxed
+
+        if rect_diferencias:
+            factura_rectificada = invoice.rectifying_id
+            base_imponible_factura -= factura_rectificada.amount_untaxed
+
         desglose_factura = {
             'DesgloseIVA': {
                 'DetalleIVA': [{
-                    'BaseImponible': invoice.amount_untaxed
+                    'BaseImponible': base_imponible_factura
                 }]
             }
         }
@@ -245,13 +294,22 @@ def get_factura_recibida(invoice):
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
             invoice.sii_in_clave_regimen_especial,
-        'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
+        'ImporteTotal': importe_total,
         'DescripcionOperacion': invoice.sii_description,
         'Contraparte': get_contraparte(invoice.partner_id, in_invoice=True),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
         'FechaRegContable': invoice.date_invoice
     }
+
+    if rect_sustitucion:
+        vals = get_factura_rectificativa_sustitucion_fields()
+        factura_recibida['TipoRectificativa'] = 'S'  # Por sustitución
+        factura_recibida.update(vals)
+    if rect_diferencias:
+        factura_recibida.update({
+            'TipoRectificativa': 'I'  # Por diferencias
+        })
 
     return factura_recibida
 
@@ -313,7 +371,8 @@ def get_factura_emitida_dict(invoice, rectificativa=False):
     return obj
 
 
-def get_factura_recibida_dict(invoice, rectificativa=False):
+def get_factura_recibida_dict(invoice,
+                              rect_sustitucion=False, rect_diferencias=False):
     obj = {
         'SuministroLRFacturasRecibidas': {
             'Cabecera': get_header(invoice),
@@ -329,18 +388,12 @@ def get_factura_recibida_dict(invoice, rectificativa=False):
                     'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
                 },
-                'FacturaRecibida': get_factura_recibida(invoice)
+                'FacturaRecibida': get_factura_recibida(
+                    invoice, rect_sustitucion, rect_diferencias
+                )
             }
         }
     }
-
-    if rectificativa:
-        vals = get_factura_rectificativa_fields()
-
-        (
-            obj['SuministroLRFacturasRecibidas']['RegistroLRFacturasRecibidas']
-            ['FacturaRecibida']
-        ).update(vals)
 
     return obj
 
@@ -355,11 +408,16 @@ class SII(object):
     def __init__(self, invoice):
         self.invoice = invoice
         refactor_nifs(self.invoice)
-        rectificativa = invoice.rectificative_type == 'R'
+        refactor_decimals(self.invoice)
+        tipo_rectificativa = invoice.rectificative_type
+        rectificativa_sustitucion = tipo_rectificativa == 'R'
+        rectificativa_diferencias = tipo_rectificativa == 'RA'
         if invoice.type.startswith('in'):
             self.invoice_model = invoices_record.SuministroFacturasRecibidas()
             self.invoice_dict = get_factura_recibida_dict(
-                self.invoice, rectificativa=rectificativa
+                invoice=self.invoice,
+                rect_sustitucion=rectificativa_sustitucion,
+                rect_diferencias=rectificativa_diferencias
             )
         elif invoice.type.startswith('out'):
             self.invoice_model = invoices_record.SuministroFacturasEmitidas()
