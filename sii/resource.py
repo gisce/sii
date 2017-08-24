@@ -310,54 +310,24 @@ def get_factura_emitida(invoice):
 
 def get_factura_recibida(invoice,
                          rect_sustitucion=False, rect_diferencias=False):
-
+    in_invoice = True
     # Factura correspondiente a una importación (informada sin asociar a un DUA)
     is_import = invoice.sii_in_clave_regimen_especial == '13'
-    iva_values = get_iva_values(invoice, in_invoice=True, is_import=is_import)
+    iva_values = get_iva_values(
+        invoice, in_invoice=in_invoice, is_import=is_import
+    )
 
     cuota_deducible = 0
     importe_total = get_invoice_sign(invoice) * invoice.amount_total
 
     if iva_values['sujeta_a_iva'] and iva_values['iva_no_exento']:
         if rect_diferencias:
-            factura_rectificada = invoice.rectifying_id
-            f_rect_iva = get_iva_values(
-                factura_rectificada, in_invoice=True, is_import=is_import)
+            new_iva_values = get_rectified_iva_values(
+                invoice, in_invoice=in_invoice, is_import=is_import)
 
-            aux_iva_values = {}
-
-            for inv_iva in iva_values['detalle_iva']:
-                tipo_impositivo = inv_iva['TipoImpositivo']
-                base_imponible = inv_iva['BaseImponible']
-                cuota_soportada = inv_iva['CuotaSoportada']
-                if tipo_impositivo in aux_iva_values:
-                    aux = aux_iva_values[tipo_impositivo]
-                    aux['BaseImponible'] += base_imponible
-                    aux['CuotaSoportada'] += cuota_soportada
-                else:
-                    aux_iva_values[tipo_impositivo] = inv_iva.copy()
-
-            for rect_iva in f_rect_iva['detalle_iva']:
-                tipo_impositivo = rect_iva['TipoImpositivo']
-                base_imponible = rect_iva['BaseImponible']
-                cuota_soportada = rect_iva['CuotaSoportada']
-                if tipo_impositivo in aux_iva_values:
-                    aux = aux_iva_values[tipo_impositivo]
-                    aux['BaseImponible'] -= base_imponible
-                    aux['CuotaSoportada'] -= cuota_soportada
-                else:
-                    aux_iva_values[tipo_impositivo] = {
-                        'TipoImpositivo': tipo_impositivo,
-                        'BaseImponible': -base_imponible,
-                        'CuotaSoportada': -cuota_soportada
-                    }
-
-            importe_total = (
-                invoice.amount_total - factura_rectificada.amount_total
-            )
             desglose_factura = {
                 'DesgloseIVA': {
-                    'DetalleIVA': aux_iva_values.values()
+                    'DetalleIVA': new_iva_values
                 }
             }
         else:
@@ -393,7 +363,8 @@ def get_factura_recibida(invoice,
             invoice.sii_in_clave_regimen_especial,
         'ImporteTotal': importe_total,
         'DescripcionOperacion': invoice.sii_description,
-        'Contraparte': get_contraparte(invoice.partner_id, in_invoice=True),
+        'Contraparte': get_contraparte(
+            invoice.partner_id, in_invoice=in_invoice),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
         'FechaRegContable': invoice.date_invoice
@@ -404,7 +375,10 @@ def get_factura_recibida(invoice,
         factura_recibida['TipoRectificativa'] = 'S'  # Por sustitución
         factura_recibida.update(vals)
     if rect_diferencias:
+        factura_rectificada = invoice.rectifying_id
+        importe_total = invoice.amount_total - factura_rectificada.amount_total
         factura_recibida.update({
+            'ImporteTotal': importe_total,
             'TipoRectificativa': 'I'  # Por diferencias
         })
 
