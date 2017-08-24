@@ -16,6 +16,19 @@ def get_invoice_sign(invoice):
 
 
 def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
+    """
+
+    :param invoice:
+    :param in_invoice: indica si es una factura recibida
+    :type in_invoice: bool
+    :param is_export: indica si es una exportación
+    :type  is_export: bool
+    :param is_import: indica si es una importación
+    :type is_import: bool
+    :param rect_dif: indica si es una rectificativa por diferencias
+    :type rect_dif: bool
+    :return:
+    """
     vals = {
         'sujeta_a_iva': False,
         'detalle_iva': [],
