@@ -404,6 +404,32 @@ def refactor_nifs(invoice):
             partner.vat = re.sub('^ES', '', partner.vat.upper())
 
 
+def refactor_decimals(invoice):
+    def transform(f):
+        return Decimal(str(f))
+
+    invoice.amount_total = transform(invoice.amount_total)
+    invoice.amount_untaxed = transform(invoice.amount_untaxed)
+
+    for inv_tax in invoice.tax_line:
+        inv_tax.tax_amount = transform(inv_tax.tax_amount)
+        inv_tax.base = transform(inv_tax.base)
+        inv_tax.tax_id.amount = transform(inv_tax.tax_id.amount)
+
+    if invoice.rectifying_id:
+        rectified_invoice = invoice.rectifying_id
+
+        rectified_invoice.amount_total = transform(
+            rectified_invoice.amount_total)
+        rectified_invoice.amount_untaxed = transform(
+            rectified_invoice.amount_untaxed)
+
+        for rect_inv_tax in rectified_invoice.tax_line:
+            rect_inv_tax.tax_amount = transform(rect_inv_tax.tax_amount)
+            rect_inv_tax.base = transform(rect_inv_tax.base)
+            rect_inv_tax.tax_id.amount = transform(rect_inv_tax.tax_id.amount)
+
+
 class SII(object):
     def __init__(self, invoice):
         self.invoice = invoice
