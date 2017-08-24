@@ -40,6 +40,22 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     }
 
     invoice_total = invoice.amount_total
+    # iva_values es un diccionario que agrupa los valores del IVA por el tipo
+    # impositivo. ejemplo:
+    #
+    # iva_values = {
+    #     21.0: {
+    #         'BaseImponible': ...,
+    #         'TipoImpositivo': ...,
+    #         'Cuota...': ...
+    #     },
+    #     18.0: {
+    #         'BaseImponible': ...,
+    #         'TipoImpositivo': ...,
+    #         'Cuota...': ...
+    #     }
+    # }
+    iva_values = {}
 
     for inv_tax in invoice.tax_line:
         if 'iva' in inv_tax.name.lower():
@@ -53,21 +69,34 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
             is_iva_exento = (
                 inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent'
             )
+            # IVA 0% Exportaciones y IVA 0% Importaciones tienen amount 0 y se
+            # detectan como IVA exento
             if not is_export and not is_import and is_iva_exento:
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
             else:
                 sign = get_invoice_sign(invoice)
-                iva = {
-                    'BaseImponible': sign * abs(inv_tax.base),
-                    'TipoImpositivo': inv_tax.tax_id.amount * 100
-                }
+                tipo_impositivo = inv_tax.tax_id.amount * 100
+                base_imponible = sign * abs(inv_tax.base)
                 if in_invoice:
-                    iva['CuotaSoportada'] = sign * abs(inv_tax.tax_amount)
+                    cuota_key = 'CuotaSoportada'
                 else:
-                    iva['CuotaRepercutida'] = sign * abs(inv_tax.tax_amount)
+                    cuota_key = 'CuotaRepercutida'
+                cuota = sign * abs(inv_tax.tax_amount)
+                if tipo_impositivo in iva_values:
+                    aux = iva_values[tipo_impositivo]
+                    aux['BaseImponible'] += base_imponible
+                    aux[cuota_key] += cuota
+                else:
+                    iva = {
+                        'BaseImponible': base_imponible,
+                        'TipoImpositivo': tipo_impositivo,
+                        cuota_key: cuota
+                    }
+                    iva_values[tipo_impositivo] = iva
                 vals['iva_no_exento'] = True
-                vals['detalle_iva'].append(iva)
+
+    vals['detalle_iva'] = iva_values.values()
 
     invoice_total = round(invoice_total, 2)
     if invoice_total != 0:
