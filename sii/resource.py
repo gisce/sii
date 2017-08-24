@@ -165,6 +165,17 @@ def get_factura_emitida_tipo_desglose(invoice):
     return tipo_desglose
 
 
+def get_factura_rectificativa_sustitucion_fields():
+    rectificativa_fields = {
+        'ImporteRectificacion': {
+            'BaseRectificada': 0,
+            'CuotaRectificada': 0
+        }
+    }
+
+    return rectificativa_fields
+
+
 def get_factura_emitida(invoice):
 
     factura_expedida = {
@@ -325,18 +336,6 @@ def get_header(invoice):
     }
 
     return cabecera
-
-
-def get_factura_rectificativa_fields():
-    rectificativa_fields = {
-        'TipoRectificativa': 'S',  # Por sustitución
-        'ImporteRectificacion': {
-            'BaseRectificada': 0,
-            'CuotaRectificada': 0
-        }
-    }
-
-    return rectificativa_fields
 
 
 def get_factura_emitida_dict(invoice, rectificativa=False):
