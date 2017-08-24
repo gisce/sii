@@ -1,6 +1,7 @@
 # coding=utf-8
 import re
 from unidecode import unidecode
+from decimal import Decimal, localcontext
 
 from sii import __SII_VERSION__
 from sii.models import invoices_record
