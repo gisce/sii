@@ -106,6 +106,49 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     return vals
 
 
+def get_rectified_iva_values(invoice, in_invoice=False,
+                             is_export=False, is_import=False):
+    iva_values = get_iva_values(
+        invoice, in_invoice=in_invoice,
+        is_export=is_export, is_import=is_import
+    )
+    factura_rectificada = invoice.rectifying_id
+    f_rect_iva = get_iva_values(
+        factura_rectificada, in_invoice=in_invoice,
+        is_export=is_export, is_import=is_import
+    )
+
+    aux_iva_values = {}
+
+    for inv_iva in iva_values['detalle_iva']:
+        tipo_impositivo = inv_iva['TipoImpositivo']
+        base_imponible = inv_iva['BaseImponible']
+        cuota_soportada = inv_iva['CuotaSoportada']
+        if tipo_impositivo in aux_iva_values:
+            aux = aux_iva_values[tipo_impositivo]
+            aux['BaseImponible'] += base_imponible
+            aux['CuotaSoportada'] += cuota_soportada
+        else:
+            aux_iva_values[tipo_impositivo] = inv_iva.copy()
+
+    for rect_iva in f_rect_iva['detalle_iva']:
+        tipo_impositivo = rect_iva['TipoImpositivo']
+        base_imponible = rect_iva['BaseImponible']
+        cuota_soportada = rect_iva['CuotaSoportada']
+        if tipo_impositivo in aux_iva_values:
+            aux = aux_iva_values[tipo_impositivo]
+            aux['BaseImponible'] -= base_imponible
+            aux['CuotaSoportada'] -= cuota_soportada
+        else:
+            aux_iva_values[tipo_impositivo] = {
+                'TipoImpositivo': tipo_impositivo,
+                'BaseImponible': -base_imponible,
+                'CuotaSoportada': -cuota_soportada
+            }
+
+    return aux_iva_values.values()
+
+
 def get_contraparte(partner, in_invoice):
     vat_type = partner.sii_get_vat_type()
     contraparte = {'NombreRazon': unidecode(partner.name)}
