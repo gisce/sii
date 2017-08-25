@@ -348,7 +348,8 @@ def get_factura_recibida_dict(invoice, rectificativa=False):
 def refactor_nifs(invoice):
     for partner in (invoice.partner_id, invoice.company_id.partner_id):
         if partner.vat:
-            partner.vat = re.sub('^ES', '', partner.vat.upper())
+            # partner.vat = re.sub('^ES', '', partner.vat.upper())
+            partner.vat = partner.vat[2:]
 
 
 class SII(object):
