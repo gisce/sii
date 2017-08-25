@@ -6,7 +6,7 @@ from decimal import Decimal, localcontext
 from sii import __SII_VERSION__
 from sii.models import invoices_record
 
-SIGN = {'B': -1, 'A': -1, 'N': 1, 'R': 1}
+SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
 
 
 def get_invoice_sign(invoice):
