@@ -183,26 +183,50 @@ def get_contraparte(partner, in_invoice):
     return contraparte
 
 
-def get_factura_emitida_tipo_desglose(invoice):
+def get_factura_emitida_tipo_desglose(invoice, rect_diferencias=False):
+    in_invoice = False
+    is_export = invoice.sii_out_clave_regimen_especial == '02'  # Exportación
+    iva_values = get_iva_values(
+        invoice, in_invoice=in_invoice, is_export=is_export
+    )
 
-    if invoice.sii_out_clave_regimen_especial == '02':  # Exportación
-        iva_values = get_iva_values(invoice, in_invoice=False, is_export=True)
-
+    if bool(is_export):
         if iva_values['sujeta_a_iva']:
+            new_iva_values = iva_values['detalle_iva']
+
+            if rect_diferencias:
+                new_iva_values = get_rectified_iva_values(
+                    invoice, in_invoice=in_invoice, is_export=is_export
+                )
+
             entrega = {
                 'Sujeta': {
                     'NoExenta': {
                         'TipoNoExenta': 'S1',
                         'DesgloseIVA': {
-                            'DetalleIVA': iva_values['detalle_iva']
+                            'DetalleIVA': new_iva_values
                         }
                     }
                 }
             }
         else:
+            detalle_iva_exento = iva_values['detalle_iva_exento']
+
+            if rect_diferencias:
+                factura_rectificada = invoice.rectifying_id
+                f_rect_iva = get_iva_values(
+                    factura_rectificada, in_invoice=in_invoice,
+                    is_export=is_export
+                )
+                f_rect_detalle_iva_exento = f_rect_iva['detalle_iva_exento']
+                if f_rect_detalle_iva_exento:
+                    detalle_iva_exento['BaseImponible'] -= (
+                        f_rect_detalle_iva_exento['BaseImponible']
+                    )
+
             entrega = {
                 'Sujeta': {
-                    'Exenta': iva_values['detalle_iva_exento']
+                    'Exenta': detalle_iva_exento
                 }
             }
             # Exenta por el artículo 21
@@ -214,23 +238,41 @@ def get_factura_emitida_tipo_desglose(invoice):
             }
         }
     else:
-        iva_values = get_iva_values(invoice, in_invoice=False)
         desglose = {}
+        detalle_iva_exento = iva_values['detalle_iva_exento']
+        new_iva_values = iva_values['detalle_iva']
+        importe_no_sujeto = iva_values['importe_no_sujeto']
+
+        if rect_diferencias:
+            new_iva_values = get_rectified_iva_values(
+                invoice, in_invoice=in_invoice, is_export=is_export
+            )
+
+            factura_rectificada = invoice.rectifying_id
+            f_rect_iva = get_iva_values(
+                factura_rectificada, in_invoice=in_invoice,
+                is_export=is_export
+            )
+            f_rect_detalle_iva_exento = f_rect_iva['detalle_iva_exento']
+            if f_rect_detalle_iva_exento:
+                detalle_iva_exento['BaseImponible'] -= (
+                    f_rect_detalle_iva_exento['BaseImponible']
+                )
+
+            importe_no_sujeto -= f_rect_iva['importe_no_sujeto']
 
         if iva_values['sujeta_a_iva']:
             desglose['Sujeta'] = {}
             if iva_values['iva_exento']:
-                desglose['Sujeta']['Exenta'] = iva_values['detalle_iva_exento']
+                desglose['Sujeta']['Exenta'] = detalle_iva_exento
             if iva_values['iva_no_exento']:
                 desglose['Sujeta']['NoExenta'] = {
                     'TipoNoExenta': 'S1',
                     'DesgloseIVA': {
-                        'DetalleIVA': iva_values['detalle_iva']
+                        'DetalleIVA': new_iva_values
                     }
                 }
         if iva_values['no_sujeta_a_iva']:
-            importe_no_sujeto = iva_values['importe_no_sujeto']
-
             fp = invoice.fiscal_position
             if fp and 'islas canarias' in unidecode(fp.name.lower()):
                 desglose['NoSujeta'] = {
@@ -271,7 +313,8 @@ def get_factura_rectificativa_sustitucion_fields():
     return rectificativa_fields
 
 
-def get_factura_emitida(invoice):
+def get_factura_emitida(invoice,
+                        rect_sustitucion=False, rect_diferencias=False):
 
     factura_expedida = {
         'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
@@ -280,7 +323,8 @@ def get_factura_emitida(invoice):
         'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
         'DescripcionOperacion': invoice.sii_description,
         'Contraparte': get_contraparte(invoice.partner_id, in_invoice=False),
-        'TipoDesglose': get_factura_emitida_tipo_desglose(invoice)
+        'TipoDesglose': get_factura_emitida_tipo_desglose(
+            invoice, rect_diferencias=rect_diferencias)
     }
 
     # Si la factura es una operación de arrendamiento
@@ -313,6 +357,18 @@ def get_factura_emitida(invoice):
         factura_expedida['DatosInmueble'] = {
             'DetalleInmueble': detalle_inmueble
         }
+
+    if rect_sustitucion:
+        vals = get_factura_rectificativa_sustitucion_fields()
+        factura_expedida.update(vals)
+    if rect_diferencias:
+        factura_rectificada = invoice.rectifying_id
+
+        importe_total = invoice.amount_total - factura_rectificada.amount_total
+        factura_expedida.update({
+            'ImporteTotal': importe_total,
+            'TipoRectificativa': 'I'  # Por diferencias
+        })
 
     return factura_expedida
 
@@ -403,7 +459,8 @@ def get_header(invoice):
     return cabecera
 
 
-def get_factura_emitida_dict(invoice, rectificativa=False):
+def get_factura_emitida_dict(invoice,
+                             rect_sustitucion=False, rect_diferencias=False):
     obj = {
         'SuministroLRFacturasEmitidas': {
             'Cabecera': get_header(invoice),
@@ -419,18 +476,12 @@ def get_factura_emitida_dict(invoice, rectificativa=False):
                     'NumSerieFacturaEmisor': invoice.number,
                     'FechaExpedicionFacturaEmisor': invoice.date_invoice
                 },
-                'FacturaExpedida': get_factura_emitida(invoice)
+                'FacturaExpedida': get_factura_emitida(
+                    invoice, rect_sustitucion, rect_diferencias
+                )
             }
         }
     }
-
-    if rectificativa:
-        vals = get_factura_rectificativa_fields()
-
-        (
-            obj['SuministroLRFacturasEmitidas']['RegistroLRFacturasEmitidas']
-            ['FacturaExpedida']
-        ).update(vals)
 
     return obj
 
@@ -512,7 +563,9 @@ class SII(object):
         elif invoice.type.startswith('out'):
             self.invoice_model = invoices_record.SuministroFacturasEmitidas()
             self.invoice_dict = get_factura_emitida_dict(
-                self.invoice, rectificativa=rectificativa
+                invoice=self.invoice,
+                rect_sustitucion=rectificativa_sustitucion,
+                rect_diferencias=rectificativa_diferencias
             )
         else:
             raise AttributeError(
