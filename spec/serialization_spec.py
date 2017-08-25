@@ -547,8 +547,8 @@ with description('El XML Generado'):
                 ['RegistroLRFacturasEmitidas']
             )
 
-        with _context('en los datos de rectificación'):
+        with context('en los datos de rectificación'):
             with it('el TipoRectificativa debe ser por diferencias (I)'):
                 expect(
-                    self.fact_RA_emitida['FacturaEmitida']['TipoRectificativa']
+                    self.fact_RA_emitida['FacturaExpedida']['TipoRectificativa']
                 ).to(equal('I'))
