@@ -82,7 +82,7 @@ class Invoice:
     def __init__(self,
                  journal_id,
                  number,
-                 invoice_type,
+                 type,
                  partner_id,
                  address_contact_id,
                  company_id,
@@ -93,6 +93,7 @@ class Invoice:
                  tax_line,
                  sii_registered,
                  rectificative_type,
+                 rectifying_id,
                  fiscal_position,
                  invoice_line,
                  sii_description,
@@ -102,7 +103,7 @@ class Invoice:
                  origin=None):
         self.journal_id = journal_id
         self.number = number
-        self.type = invoice_type
+        self.type = type
         self.partner_id = partner_id
         self.address_contact_id = address_contact_id
         self.company_id = company_id
@@ -120,6 +121,7 @@ class Invoice:
         self.sii_in_clave_regimen_especial = sii_in_clave_regimen_especial
         self.sii_out_clave_regimen_especial = sii_out_clave_regimen_especial
         self.rectificative_type = rectificative_type
+        self.rectifying_id = rectifying_id
 
 
 class DataGenerator:
@@ -194,12 +196,12 @@ class DataGenerator:
         spain = Country(code='ES')
         self.partner_invoice = Partner(
             name=os.environ.get('NOMBRE_CONTRAPARTE', u'Francisco García'),
-            nif=os.environ.get('NIF_CONTRAPARTE', u'12345678T'),
+            nif=os.environ.get('NIF_CONTRAPARTE', u'ES12345678T'),
             country=spain, aeat_registered=contraparte_registered
         )
         partner_company = Partner(
             name=os.environ.get('NOMBRE_TITULAR', u'Compañía Eléctrica S.A.'),
-            nif=os.environ.get('NIF_TITULAR', '55555555T'), country=spain
+            nif=os.environ.get('NIF_TITULAR', 'ES55555555T'), country=spain
         )
         self.company = Company(partner_id=partner_company)
 
@@ -227,9 +229,10 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            invoice_type='in_invoice',
+            type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
+            rectifying_id=False,
             number='FRecib{}'.format(self.invoice_number),
             origin='FRecibOrigen{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
@@ -256,9 +259,10 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            invoice_type='out_invoice',
+            type='out_invoice',
             journal_id=journal,
             rectificative_type='N',
+            rectifying_id=False,
             number='FEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             address_contact_id=self.address_contact_id,
@@ -284,9 +288,10 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            invoice_type='in_refund',
+            type='in_refund',
             journal_id=journal,
             rectificative_type='R',
+            rectifying_id=False,
             number='FRectRecib{}'.format(self.invoice_number),
             origin='FRectRecibOrigen{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
@@ -313,9 +318,10 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            invoice_type='out_refund',
+            type='out_refund',
             journal_id=journal,
             rectificative_type='R',
+            rectifying_id=False,
             number='FRectEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             address_contact_id=self.address_contact_id,
@@ -333,4 +339,57 @@ class DataGenerator:
             sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
             sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
+        return invoice
+
+    def get_out_invoice_RA(self):
+        journal = Journal(
+            name=u'Factura de Energía Emitida'
+        )
+
+        rect_invoice = Invoice(
+            type='out_invoice',
+            journal_id=journal,
+            rectificative_type='RA',
+            rectifying_id=False,
+            number='FEmitRectificada{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
+            period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
+            date_invoice=self.date_invoice,
+            tax_line=self.tax_line,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
+        )
+
+        invoice = Invoice(
+            type='out_invoice',
+            journal_id=journal,
+            rectificative_type='RA',
+            rectifying_id=rect_invoice,
+            number='FEmitSinAnuladora{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
+            period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
+            date_invoice=self.date_invoice,
+            tax_line=self.tax_line,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
+        )
+
         return invoice
