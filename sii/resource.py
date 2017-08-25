@@ -130,30 +130,32 @@ def get_rectified_iva_values(invoice, in_invoice=False,
 
     aux_iva_values = {}
 
+    cuota_key = 'CuotaSoportada' if in_invoice else 'CuotaRepercutida'
+
     for inv_iva in iva_values['detalle_iva']:
         tipo_impositivo = inv_iva['TipoImpositivo']
         base_imponible = inv_iva['BaseImponible']
-        cuota_soportada = inv_iva['CuotaSoportada']
+        cuota = inv_iva[cuota_key]
         if tipo_impositivo in aux_iva_values:
             aux = aux_iva_values[tipo_impositivo]
             aux['BaseImponible'] += base_imponible
-            aux['CuotaSoportada'] += cuota_soportada
+            aux[cuota_key] += cuota
         else:
             aux_iva_values[tipo_impositivo] = inv_iva.copy()
 
     for rect_iva in f_rect_iva['detalle_iva']:
         tipo_impositivo = rect_iva['TipoImpositivo']
         base_imponible = rect_iva['BaseImponible']
-        cuota_soportada = rect_iva['CuotaSoportada']
+        cuota = rect_iva[cuota_key]
         if tipo_impositivo in aux_iva_values:
             aux = aux_iva_values[tipo_impositivo]
             aux['BaseImponible'] -= base_imponible
-            aux['CuotaSoportada'] -= cuota_soportada
+            aux[cuota_key] -= cuota
         else:
             aux_iva_values[tipo_impositivo] = {
                 'TipoImpositivo': tipo_impositivo,
                 'BaseImponible': -base_imponible,
-                'CuotaSoportada': -cuota_soportada
+                cuota_key: -cuota
             }
 
     return aux_iva_values.values()
