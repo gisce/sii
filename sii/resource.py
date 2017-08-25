@@ -388,7 +388,8 @@ def get_factura_recibida(invoice,
     if iva_values['sujeta_a_iva'] and iva_values['iva_no_exento']:
         if rect_diferencias:
             new_iva_values = get_rectified_iva_values(
-                invoice, in_invoice=in_invoice, is_import=is_import)
+                invoice, in_invoice=in_invoice, is_import=is_import
+            )
         else:
             new_iva_values = iva_values['detalle_iva']
 
