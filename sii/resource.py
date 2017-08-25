@@ -1,5 +1,6 @@
 # coding=utf-8
 import re
+from copy import deepcopy
 from unidecode import unidecode
 from decimal import Decimal, localcontext
 
@@ -548,7 +549,7 @@ def refactor_decimals(invoice):
 
 class SII(object):
     def __init__(self, invoice):
-        self.invoice = invoice
+        self.invoice = deepcopy(invoice)
         refactor_nifs(self.invoice)
         refactor_decimals(self.invoice)
         tipo_rectificativa = invoice.rectificative_type
