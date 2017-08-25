@@ -361,6 +361,7 @@ def get_factura_emitida(invoice,
 
     if rect_sustitucion:
         vals = get_factura_rectificativa_sustitucion_fields()
+        factura_expedida['TipoRectificativa'] = 'S'  # Por sustitución
         factura_expedida.update(vals)
     if rect_diferencias:
         factura_rectificada = invoice.rectifying_id
