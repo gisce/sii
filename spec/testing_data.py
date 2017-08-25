@@ -82,7 +82,7 @@ class Invoice:
     def __init__(self,
                  journal_id,
                  number,
-                 invoice_type,
+                 type,
                  partner_id,
                  address_contact_id,
                  company_id,
@@ -103,7 +103,7 @@ class Invoice:
                  origin=None):
         self.journal_id = journal_id
         self.number = number
-        self.type = invoice_type
+        self.type = type
         self.partner_id = partner_id
         self.address_contact_id = address_contact_id
         self.company_id = company_id
@@ -229,7 +229,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            invoice_type='in_invoice',
+            type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -259,7 +259,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            invoice_type='out_invoice',
+            type='out_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -288,7 +288,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            invoice_type='in_refund',
+            type='in_refund',
             journal_id=journal,
             rectificative_type='R',
             rectifying_id=False,
@@ -318,7 +318,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            invoice_type='out_refund',
+            type='out_refund',
             journal_id=journal,
             rectificative_type='R',
             rectifying_id=False,
@@ -347,7 +347,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            invoice_type='out_invoice',
+            type='out_invoice',
             journal_id=journal,
             rectificative_type='RA',
             rectifying_id=False,
