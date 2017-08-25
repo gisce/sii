@@ -423,8 +423,10 @@ def get_factura_recibida(invoice,
             }
         }
 
+    rectificativa = rect_sustitucion or rect_diferencias
+
     factura_recibida = {
-        'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
+        'TipoFactura': 'R4' if rectificativa else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
             invoice.sii_in_clave_regimen_especial,
         'ImporteTotal': importe_total,
