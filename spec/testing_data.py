@@ -93,6 +93,7 @@ class Invoice:
                  tax_line,
                  sii_registered,
                  rectificative_type,
+                 rectifying_id,
                  fiscal_position,
                  invoice_line,
                  sii_description,
@@ -120,6 +121,7 @@ class Invoice:
         self.sii_in_clave_regimen_especial = sii_in_clave_regimen_especial
         self.sii_out_clave_regimen_especial = sii_out_clave_regimen_especial
         self.rectificative_type = rectificative_type
+        self.rectifying_id = rectifying_id
 
 
 class DataGenerator:
@@ -230,6 +232,7 @@ class DataGenerator:
             invoice_type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
+            rectifying_id=False,
             number='FRecib{}'.format(self.invoice_number),
             origin='FRecibOrigen{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
@@ -259,6 +262,7 @@ class DataGenerator:
             invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='N',
+            rectifying_id=False,
             number='FEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             address_contact_id=self.address_contact_id,
@@ -287,6 +291,7 @@ class DataGenerator:
             invoice_type='in_refund',
             journal_id=journal,
             rectificative_type='R',
+            rectifying_id=False,
             number='FRectRecib{}'.format(self.invoice_number),
             origin='FRectRecibOrigen{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
@@ -316,6 +321,7 @@ class DataGenerator:
             invoice_type='out_refund',
             journal_id=journal,
             rectificative_type='R',
+            rectifying_id=False,
             number='FRectEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             address_contact_id=self.address_contact_id,
@@ -344,6 +350,7 @@ class DataGenerator:
             invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='RA',
+            rectifying_id=False,
             number='FEmitSinAnuladora{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             address_contact_id=self.address_contact_id,
