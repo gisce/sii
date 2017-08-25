@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 
-__LIBRARY_VERSION__ = '1.2.1'
+__LIBRARY_VERSION__ = '1.3.0'
 __SII_VERSION__ = '1.0'
