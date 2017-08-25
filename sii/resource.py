@@ -324,23 +324,19 @@ def get_factura_recibida(invoice,
         if rect_diferencias:
             new_iva_values = get_rectified_iva_values(
                 invoice, in_invoice=in_invoice, is_import=is_import)
-
-            desglose_factura = {
-                'DesgloseIVA': {
-                    'DetalleIVA': new_iva_values
-                }
-            }
         else:
-            desglose_factura = {  # TODO to change
-                # 'InversionSujetoPasivo': {
-                #     'DetalleIVA': iva_values['detalle_iva']
-                # },
-                'DesgloseIVA': {
-                    'DetalleIVA': iva_values['detalle_iva']
-                }
-            }
+            new_iva_values = iva_values['detalle_iva']
 
-        for detalle_iva in iva_values['detalle_iva']:
+        desglose_factura = {  # TODO to change
+            # 'InversionSujetoPasivo': {
+            #     'DetalleIVA': iva_values['detalle_iva']
+            # },
+            'DesgloseIVA': {
+                'DetalleIVA': new_iva_values
+            }
+        }
+
+        for detalle_iva in new_iva_values:
             cuota_deducible += detalle_iva['CuotaSoportada']
     else:
         base_imponible_factura = invoice.amount_untaxed
