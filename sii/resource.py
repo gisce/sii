@@ -25,8 +25,6 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     :type  is_export: bool
     :param is_import: indica si es una importación
     :type is_import: bool
-    :param rect_dif: indica si es una rectificativa por diferencias
-    :type rect_dif: bool
     :return:
     """
     vals = {
