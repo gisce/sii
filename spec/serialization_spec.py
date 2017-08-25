@@ -62,7 +62,7 @@ with description('El XML Generado'):
             with it('el nif deben ser los del titular'):
                 expect(
                     self.cabecera['Titular']['NIF']
-                ).to(equal(self.invoice.company_id.partner_id.vat))
+                ).to(equal(self.invoice.company_id.partner_id.vat[2:]))
 
             with it('el nombre y apellidos deben ser los del titular'):
                 expect(
