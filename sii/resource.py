@@ -106,6 +106,17 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
 
 def get_rectified_iva_values(invoice, in_invoice=False,
                              is_export=False, is_import=False):
+    """
+
+    :param invoice:
+    :param in_invoice: indica si es una factura recibida
+    :type in_invoice: bool
+    :param is_export: indica si es una exportación
+    :type  is_export: bool
+    :param is_import: indica si es una importación
+    :type is_import: bool
+    :return:
+    """
     iva_values = get_iva_values(
         invoice, in_invoice=in_invoice,
         is_export=is_export, is_import=is_import
