@@ -346,11 +346,34 @@ class DataGenerator:
             name=u'Factura de Energía Emitida'
         )
 
-        invoice = Invoice(
+        rect_invoice = Invoice(
             type='out_invoice',
             journal_id=journal,
             rectificative_type='RA',
             rectifying_id=False,
+            number='FEmitRectificada{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
+            period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
+            date_invoice=self.date_invoice,
+            tax_line=self.tax_line,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
+        )
+
+        invoice = Invoice(
+            type='out_invoice',
+            journal_id=journal,
+            rectificative_type='RA',
+            rectifying_id=rect_invoice,
             number='FEmitSinAnuladora{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             address_contact_id=self.address_contact_id,
@@ -368,4 +391,5 @@ class DataGenerator:
             sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
             sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
+
         return invoice
