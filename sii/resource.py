@@ -319,8 +319,10 @@ def get_factura_rectificativa_sustitucion_fields():
 def get_factura_emitida(invoice,
                         rect_sustitucion=False, rect_diferencias=False):
 
+    rectificativa = rect_sustitucion or rect_diferencias
+
     factura_expedida = {
-        'TipoFactura': 'R4' if invoice.rectificative_type == 'R' else 'F1',
+        'TipoFactura': 'R4' if rectificativa == 'R' else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
             invoice.sii_out_clave_regimen_especial,
         'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
