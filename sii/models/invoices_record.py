@@ -395,8 +395,8 @@ class DetalleIVAEmitida(DetalleIVA):
 
     def validate_tipo_impositivo(self, value):
         self.validate_field_is_one_of(
-            value=value, field_name='Tipo Impositivo',
-            choices=TIPO_IMPOSITIVO_VALUES
+            value=str(value), field_name='Tipo Impositivo',
+            choices=[str(x) for x in TIPO_IMPOSITIVO_VALUES]
         )
 
 
