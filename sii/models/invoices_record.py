@@ -163,8 +163,10 @@ class MySchema(Schema):
         """
         choices_str = ', '.join(['"{}"'.format(choice) for choice in choices])
 
-        res = 'Al menos uno de los dos campos siguientes ' \
-              'son obligatorios: {}'.format(choices_str)
+        res = (
+            'Al menos uno de los campos siguientes son '
+            'obligatorios: {}'.format(choices_str)
+        )
 
         return res
 
