@@ -163,8 +163,10 @@ class MySchema(Schema):
         """
         choices_str = ', '.join(['"{}"'.format(choice) for choice in choices])
 
-        res = 'Al menos uno de los dos campos siguientes ' \
-              'son obligatorios: {}'.format(choices_str)
+        res = (
+            'Al menos uno de los campos siguientes son '
+            'obligatorios: {}'.format(choices_str)
+        )
 
         return res
 
@@ -393,8 +395,8 @@ class DetalleIVAEmitida(DetalleIVA):
 
     def validate_tipo_impositivo(self, value):
         self.validate_field_is_one_of(
-            value=value, field_name='Tipo Impositivo',
-            choices=TIPO_IMPOSITIVO_VALUES
+            value=str(value), field_name='Tipo Impositivo',
+            choices=[str(x) for x in TIPO_IMPOSITIVO_VALUES]
         )
 
 
