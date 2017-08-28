@@ -6,6 +6,7 @@ from decimal import Decimal, localcontext
 
 from sii import __SII_VERSION__
 from sii.models import invoices_record
+from sii.utils import COUNTRY_CODES
 
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
 
@@ -524,7 +525,8 @@ def get_factura_recibida_dict(invoice,
 
 def refactor_nifs(invoice):
     for partner in (invoice.partner_id, invoice.company_id.partner_id):
-        if partner.vat:
+        country_code = partner.vat[:2].upper()
+        if country_code in COUNTRY_CODES or country_code == 'PS':
             # partner.vat = re.sub('^ES', '', partner.vat.upper())
             partner.vat = partner.vat[2:]
 
