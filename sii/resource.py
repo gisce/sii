@@ -520,15 +520,6 @@ def refactor_decimals(invoice):
             rect_inv_tax.tax_id.amount = transform(rect_inv_tax.tax_id.amount)
 
 
-def format_errors(errors_list):
-    formatted_errors = '\n'.join(['-> {}'.format(err) for err in errors_list])
-    return formatted_errors
-
-
-with localcontext() as ctx:
-    ctx.prec = 3
-
-
 class SII(object):
     def __init__(self, invoice):
         self.invoice = invoice
