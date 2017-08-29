@@ -409,8 +409,8 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         factura_rectificada = invoice.rectifying_id
         vals['FacturasRectificadas'] = {
             'IDFacturaRectificada': [{
-                'NumSerieFacturaEmisor': factura_rectificada.number,
-                'FechaExpedicionFacturaEmisor': factura_rectificada.date_invoice
+                'NumSerieFacturaEmisor': factura_rectificada.origin,
+                'FechaExpedicionFacturaEmisor': factura_rectificada.origin_date_invoice
             }]
         }
 
