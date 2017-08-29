@@ -88,6 +88,7 @@ class Invoice:
                  company_id,
                  amount_total,
                  amount_untaxed,
+                 amount_tax,
                  period_id,
                  date_invoice,
                  tax_line,
@@ -110,6 +111,7 @@ class Invoice:
         self.period_id = period_id
         self.amount_total = amount_total
         self.amount_untaxed = amount_untaxed
+        self.amount_tax = amount_tax
         self.origin_date_invoice = origin_date_invoice
         self.date_invoice = date_invoice
         self.tax_line = tax_line
@@ -214,6 +216,7 @@ class DataGenerator:
         self.date_invoice = '2016-12-31'
         taxes_amount = sum([tax.tax_amount for tax in self.tax_line])
         base_amount = sum([line.price_subtotal for line in self.invoice_line])
+        self.amount_tax = taxes_amount
         self.amount_untaxed = base_amount
         self.amount_total = taxes_amount + base_amount
         self.fiscal_position = FiscalPosition(
@@ -240,6 +243,7 @@ class DataGenerator:
             company_id=self.company,
             amount_total=self.amount_total,
             amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
             period_id=self.period,
             origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
@@ -269,6 +273,7 @@ class DataGenerator:
             company_id=self.company,
             amount_total=self.amount_total,
             amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
             period_id=self.period,
             origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
@@ -323,6 +328,7 @@ class DataGenerator:
             company_id=self.company,
             amount_total=self.amount_total,
             amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
             period_id=self.period,
             origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
@@ -376,6 +382,7 @@ class DataGenerator:
             company_id=self.company,
             amount_total=self.amount_total,
             amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
             period_id=self.period,
             origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
@@ -405,6 +412,7 @@ class DataGenerator:
             company_id=self.company,
             amount_total=self.amount_total,
             amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
             period_id=self.period,
             origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
@@ -428,6 +436,7 @@ class DataGenerator:
             company_id=self.company,
             amount_total=self.amount_total,
             amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
             period_id=self.period,
             origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
