@@ -299,8 +299,9 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
     if invoice.sii_out_clave_regimen_especial in ['12', '13']:
         detalle_inmueble = {}
 
-        codigo_comunidad_autonoma = \
+        codigo_comunidad_autonoma = (
             invoice.address_contact_id.state_id.comunitat_autonoma.codi
+        )
 
         # '01', '02', ..., '19': Comunidades autónomas de España
         if codigo_comunidad_autonoma in [str(s).zfill(2) for s in range(1, 20)]:
