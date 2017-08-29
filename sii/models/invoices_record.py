@@ -467,11 +467,36 @@ class ImporteRectificacion(MySchema):
     CuotaRectificada = fields.Float(required=True)
 
 
+class IDFacturaRectificada(MySchema):
+    NumSerieFacturaEmisor = CustomStringField(required=True)
+    FechaExpedicionFacturaEmisor = DateString(required=True)
+
+    def validate_num_serie_factura_emisor(self, value):
+        self.validate_field_max_length(
+            value=value, field_name='Numero de la Factura Rectificada',
+            max_chars=60
+        )
+
+    def validate_fecha_expedicion_factura_emisor(self, value):
+        self.validate_field_max_length(
+            value=value,
+            field_name='Fecha de Expedicion de la Factura Rectificada',
+            max_chars=10
+        )
+
+
+class FacturasRectificadas(MySchema):
+    IDFacturaRectificada = fields.List(
+        fields.Nested(IDFacturaRectificada), required=True
+    )
+
+
 class DetalleFactura(MySchema):
     TipoFactura = CustomStringField(required=True)
     DescripcionOperacion = CustomStringField(required=True)
     TipoRectificativa = CustomStringField()  # TODO obligatorio si es una rectificativa
     ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si TipoRectificativa = 'S'
+    FacturasRectificadas = fields.Nested(FacturasRectificadas)  # TODO opcional si TipoFactura = Rectificativa
     # TODO ImporteTotal OBLIGATORIO si:
     # 1.Obligatorio si Baseimponible=0 y TipoFactura=”F2” o “R5”
     # 2.Obligatorio si Baseimponible=0 y ClaveRegimenEspecialOTranscedencia = “05”o “03”

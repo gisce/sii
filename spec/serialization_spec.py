@@ -3,6 +3,7 @@
 from sii.resource import SII
 from sii.models.invoices_record import CRE_FACTURAS_EMITIDAS
 from expects import *
+from datetime import datetime
 from spec.testing_data import DataGenerator
 import os
 
@@ -39,7 +40,7 @@ with description('El XML Generado'):
                 self.invoice_obj['SuministroLRFacturasEmitidas']['Cabecera']
             )
 
-        with it('la versión es la "0.7"'):
+        with it('la versión es la "1.0"'):
             expect(self.cabecera['IDVersionSii']).to(equal('1.0'))
 
         with context('cuando es de tipo alta'):
@@ -548,7 +549,40 @@ with description('El XML Generado'):
             )
 
         with context('en los datos de rectificación'):
-            with it('el TipoRectificativa debe ser por diferencias (I)'):
+            with it('el TipoRectificativa debe ser por sustitución (S)'):
                 expect(
                     self.fact_RA_emitida['FacturaExpedida']['TipoRectificativa']
-                ).to(equal('I'))
+                ).to(equal('S'))
+
+            with it('debe contener las FacturasRectificadas'):
+                expect(
+                    self.fact_RA_emitida['FacturaExpedida']
+                    ['FacturasRectificadas']['IDFacturaRectificada'][0]
+                    ['NumSerieFacturaEmisor']
+                ).to(equal(
+                    self.out_invoice_RA.rectifying_id.number
+                ))
+
+                fecha_expedicion = (
+                    self.fact_RA_emitida['FacturaExpedida']
+                    ['FacturasRectificadas']['IDFacturaRectificada'][0]
+                    ['FechaExpedicionFacturaEmisor']
+                )
+                expect(
+                    datetime.strptime(
+                        fecha_expedicion, '%d-%m-%Y'
+                    ).strftime('%Y-%m-%d')
+                ).to(equal(
+                    self.out_invoice_RA.rectifying_id.date_invoice
+                ))
+
+            with it('debe contener el ImporteRectificacion'):
+                expect(
+                    self.fact_RA_emitida['FacturaExpedida']
+                    ['ImporteRectificacion']
+                ).to(have_key('BaseRectificada'))
+
+                expect(
+                    self.fact_RA_emitida['FacturaExpedida']
+                    ['ImporteRectificacion']
+                ).to(have_key('CuotaRectificada'))
