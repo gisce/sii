@@ -40,7 +40,7 @@ with description('El XML Generado'):
                 self.invoice_obj['SuministroLRFacturasEmitidas']['Cabecera']
             )
 
-        with it('la versión es la "0.7"'):
+        with it('la versión es la "1.0"'):
             expect(self.cabecera['IDVersionSii']).to(equal('1.0'))
 
         with context('cuando es de tipo alta'):
