@@ -298,6 +298,7 @@ class DataGenerator:
             rectificative_type='N',
             rectifying_id=False,
             number='FRecibRectificada{}'.format(self.invoice_number),
+            origin='FRectRecibRectificadaOrigen{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             address_contact_id=self.address_contact_id,
             company_id=self.company,
