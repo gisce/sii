@@ -285,7 +285,7 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
     rectificativa = rect_sust_opc1 or rect_sust_opc2
 
     factura_expedida = {
-        'TipoFactura': 'R4' if rectificativa == 'R' else 'F1',
+        'TipoFactura': 'R4' if rectificativa else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
             invoice.sii_out_clave_regimen_especial,
         'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
