@@ -335,7 +335,7 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         vals = get_fact_rect_sustitucion_fields(invoice, opcion=opcion)
 
         fact_rect = invoice.rectifying_id
-        if fact_rect.sii_registered:
+        if fact_rect and fact_rect.sii_registered:
             numero_factura = fact_rect.number
             fecha_expedicion_factura = fact_rect.date_invoice
 
@@ -411,7 +411,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         vals = get_fact_rect_sustitucion_fields(invoice, opcion=opcion)
 
         fact_rect = invoice.rectifying_id
-        if fact_rect.sii_registered:
+        if fact_rect and fact_rect.sii_registered:
             numero_factura = fact_rect.origin
             fecha_expedicion_factura = fact_rect.origin_date_invoice
 
