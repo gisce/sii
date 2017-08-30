@@ -334,13 +334,17 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             opcion = 2
         vals = get_fact_rect_sustitucion_fields(invoice, opcion=opcion)
 
-        factura_rectificada = invoice.rectifying_id
-        vals['FacturasRectificadas'] = {
-            'IDFacturaRectificada': [{
-                'NumSerieFacturaEmisor': factura_rectificada.number,
-                'FechaExpedicionFacturaEmisor': factura_rectificada.date_invoice
-            }]
-        }
+        fact_rect = invoice.rectifying_id
+        if fact_rect and fact_rect.sii_registered:
+            numero_factura = fact_rect.number
+            fecha_expedicion_factura = fact_rect.date_invoice
+
+            vals['FacturasRectificadas'] = {
+                'IDFacturaRectificada': [{
+                    'NumSerieFacturaEmisor': numero_factura,
+                    'FechaExpedicionFacturaEmisor': fecha_expedicion_factura
+                }]
+            }
 
         factura_expedida.update(vals)
 
@@ -406,14 +410,17 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             opcion = 2
         vals = get_fact_rect_sustitucion_fields(invoice, opcion=opcion)
 
-        factura_rectificada = invoice.rectifying_id
-        vals['FacturasRectificadas'] = {
-            'IDFacturaRectificada': [{
-                'NumSerieFacturaEmisor': factura_rectificada.origin,
-                'FechaExpedicionFacturaEmisor':
-                    factura_rectificada.origin_date_invoice
-            }]
-        }
+        fact_rect = invoice.rectifying_id
+        if fact_rect and fact_rect.sii_registered:
+            numero_factura = fact_rect.origin
+            fecha_expedicion_factura = fact_rect.origin_date_invoice
+
+            vals['FacturasRectificadas'] = {
+                'IDFacturaRectificada': [{
+                    'NumSerieFacturaEmisor': numero_factura,
+                    'FechaExpedicionFacturaEmisor': fecha_expedicion_factura
+                }]
+            }
 
         factura_recibida.update(vals)
 

@@ -542,6 +542,7 @@ with description('El XML Generado'):
                      'sin anuladora RA'):
         with before.all:
             self.out_invoice_RA = self.data_gen.get_out_invoice_RA()
+            self.out_invoice_RA.rectifying_id.sii_registered = True
             self.out_invoice_RA_obj = SII(self.out_invoice_RA).generate_object()
             self.fact_RA_emitida = (
                 self.out_invoice_RA_obj['SuministroLRFacturasEmitidas']
@@ -579,10 +580,14 @@ with description('El XML Generado'):
             with it('debe contener el ImporteRectificacion'):
                 expect(
                     self.fact_RA_emitida['FacturaExpedida']
-                    ['ImporteRectificacion']
-                ).to(have_key('BaseRectificada'))
+                    ['ImporteRectificacion']['BaseRectificada']
+                ).to(equal(
+                    self.out_invoice_RA.rectifying_id.amount_untaxed
+                ))
 
                 expect(
                     self.fact_RA_emitida['FacturaExpedida']
-                    ['ImporteRectificacion']
-                ).to(have_key('CuotaRectificada'))
+                    ['ImporteRectificacion']['CuotaRectificada']
+                ).to(equal(
+                    self.out_invoice_RA.rectifying_id.amount_tax
+                ))
