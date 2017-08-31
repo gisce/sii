@@ -496,10 +496,12 @@ def get_factura_recibida_dict(invoice,
 
 def refactor_nifs(invoice):
     for partner in (invoice.partner_id, invoice.company_id.partner_id):
-        country_code = partner.vat[:2].upper()
-        if country_code in COUNTRY_CODES or country_code == 'PS':
-            # partner.vat = re.sub('^ES', '', partner.vat.upper())
-            partner.vat = partner.vat[2:]
+        partner_vat = partner.vat
+        if partner_vat and len(partner_vat) >= 2:
+            country_code = partner_vat[:2].upper()
+            if country_code in COUNTRY_CODES or country_code == 'PS':
+                # partner.vat = re.sub('^ES', '', partner.vat.upper())
+                partner.vat = partner_vat[2:]
 
 
 def refactor_decimals(invoice):
