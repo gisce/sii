@@ -61,10 +61,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
         if 'iva' in inv_tax.name.lower():
             vals['sujeta_a_iva'] = True
 
-            if invoice_total < 0:
-                invoice_total += (abs(inv_tax.tax_amount) + abs(inv_tax.base))
-            else:
-                invoice_total -= (abs(inv_tax.tax_amount) + abs(inv_tax.base))
+            invoice_total -= (inv_tax.tax_amount + inv_tax.base)
 
             is_iva_exento = (
                 inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent'
@@ -77,12 +74,12 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
             else:
                 sign = get_invoice_sign(invoice)
                 tipo_impositivo = inv_tax.tax_id.amount * 100
-                base_imponible = sign * abs(inv_tax.base)
+                base_imponible = sign * inv_tax.base
                 if in_invoice:
                     cuota_key = 'CuotaSoportada'
                 else:
                     cuota_key = 'CuotaRepercutida'
-                cuota = sign * abs(inv_tax.tax_amount)
+                cuota = sign * inv_tax.tax_amount
                 if tipo_impositivo in iva_values:
                     aux = iva_values[tipo_impositivo]
                     aux['BaseImponible'] += base_imponible
