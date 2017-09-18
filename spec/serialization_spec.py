@@ -621,9 +621,6 @@ with description('El XML Generado en una baja de una factura emitida'):
                     self.cabecera['Titular']['NombreRazon']
                 ).to(equal(self.invoice.company_id.partner_id.name))
 
-        with _it('validar cabecera'):
-            validar_cabecera_baja(self.cabecera)
-
     with description('en la baja de una factura'):
         with before.all:
             self.invoice = self.data_gen.get_out_invoice()
