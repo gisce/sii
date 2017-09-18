@@ -631,7 +631,8 @@ with description('El XML Generado en una baja de una factura emitida'):
             )
 
         with context('en los datos del período'):
-            self.periodo = self.factura_emitida['PeriodoImpositivo']
+            with before.all:
+                self.periodo = self.factura_emitida['PeriodoImpositivo']
 
             with it('el ejercicio es el correspondiente al año de la factura'):
                 expect(
@@ -644,7 +645,8 @@ with description('El XML Generado en una baja de una factura emitida'):
                 ).to(equal(self.invoice.period_id.name[0:2]))
 
         with context('en los datos de la factura'):
-            self.factura = self.factura_emitida['IDFactura']
+            with before.all:
+                self.factura = self.factura_emitida['IDFactura']
 
             with it('el NIF del emisor de la factura es correcto'):
                 expect(
@@ -706,7 +708,8 @@ with description('El XML Generado en una baja de una factura recibida'):
             )
 
         with context('en los datos del período'):
-            self.periodo = self.factura_emitida['PeriodoImpositivo']
+            with before.all:
+                self.periodo = self.factura_emitida['PeriodoImpositivo']
 
             with it('el ejercicio es el correspondiente al año de la factura'):
                 expect(
@@ -719,7 +722,8 @@ with description('El XML Generado en una baja de una factura recibida'):
                 ).to(equal(self.invoice.period_id.name[0:2]))
 
         with context('en los datos de la factura'):
-            self.factura = self.factura_emitida['IDFactura']
+            with before.all:
+                self.factura = self.factura_emitida['IDFactura']
 
             with it('el nombre del emisor de la factura es correcto'):
                 expect(
