@@ -26,7 +26,6 @@ class RegistroFacturas(MySchema):
 
 
 class IdentificacionFactura(MySchema):
-    IDEmisorFactura = fields.Nested(NIF, required=True)
     NumSerieFacturaEmisor = CustomStringField(required=True)
     FechaExpedicionFacturaEmisor = DateString(required=True)
 
@@ -41,6 +40,14 @@ class IdentificacionFactura(MySchema):
             value=value, field_name='Fecha de Expedicion de la Factura',
             max_chars=10
         )
+
+
+class IdentificacionFacturaEmitida(IdentificacionFactura):
+    IDEmisorFactura = fields.Nested(NIF, required=True)
+
+
+class IdentificacionFacturaRecibida(IdentificacionFactura):
+    IDEmisorFactura = fields.Nested(Titular, required=True)
 
 
 class PeriodoImpositivo(MySchema):
@@ -62,11 +69,18 @@ class PeriodoImpositivo(MySchema):
 
 class Factura(MySchema):
     PeriodoImpositivo = fields.Nested(PeriodoImpositivo, required=True)
-    IDFactura = fields.Nested(IdentificacionFactura, required=True)
+
+
+class FacturaEmitida(Factura):
+    IDFactura = fields.Nested(IdentificacionFacturaEmitida, required=True)
+
+
+class FacturaRecibida(Factura):
+    IDFactura = fields.Nested(IdentificacionFacturaRecibida, required=True)
 
 
 class RegistroBajaExpedidas(RegistroFacturas):
-    RegistroLRBajaExpedidas = fields.Nested(Factura, required=True)
+    RegistroLRBajaExpedidas = fields.Nested(FacturaEmitida, required=True)
 
 
 class BajaFacturasEmitidas(MySchema):
@@ -74,7 +88,7 @@ class BajaFacturasEmitidas(MySchema):
 
 
 class RegistroBajaRecibidas(RegistroFacturas):
-    RegistroLRBajaRecibidas = fields.Nested(Factura, required=True)
+    RegistroLRBajaRecibidas = fields.Nested(FacturaRecibida, required=True)
 
 
 class BajaFacturasRecibidas(MySchema):
