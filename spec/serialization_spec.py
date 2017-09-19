@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from sii.resource import SII
+from sii.resource import SII, SIIDeregister
 from sii.models.invoices_record import CRE_FACTURAS_EMITIDAS
 from expects import *
 from datetime import datetime
@@ -599,7 +599,9 @@ with description('El XML Generado en una baja de una factura emitida'):
     with description('en la cabecera'):
         with before.all:
             self.invoice = self.data_gen.get_out_invoice()
-            self.invoice_obj = SII(self.invoice).generate_object()
+            self.invoice_obj = (
+                SIIDeregister(self.invoice).generate_deregister_object()
+            )
             self.cabecera = (
                 self.invoice_obj['BajaLRFacturasEmitidas']['Cabecera']
             )
@@ -624,7 +626,9 @@ with description('El XML Generado en una baja de una factura emitida'):
     with description('en la baja de una factura'):
         with before.all:
             self.invoice = self.data_gen.get_out_invoice()
-            self.invoice_obj = SII(self.invoice).generate_object()
+            self.invoice_obj = (
+                SIIDeregister(self.invoice).generate_deregister_object()
+            )
             self.factura_emitida = (
                 self.invoice_obj['BajaLRFacturasEmitidas']
                 ['RegistroLRBajaExpedidas']
@@ -664,7 +668,9 @@ with description('El XML Generado en una baja de una factura emitida'):
 
             with it('la fecha de factura es correcto'):
                 expect(
-                    self.factura['FechaExpedicionFacturaEmisor']
+                    datetime.strptime(
+                        self.factura['FechaExpedicionFacturaEmisor'], '%d-%m-%Y'
+                    ).strftime('%Y-%m-%d')
                 ).to(equal(
                     self.invoice.date_invoice
                 ))
@@ -676,7 +682,9 @@ with description('El XML Generado en una baja de una factura recibida'):
     with description('en la cabecera'):
         with before.all:
             self.invoice = self.data_gen.get_in_invoice()
-            self.invoice_obj = SII(self.invoice).generate_object()
+            self.invoice_obj = (
+                SIIDeregister(self.invoice).generate_deregister_object()
+            )
             self.cabecera = (
                 self.invoice_obj['BajaLRFacturasRecibidas']['Cabecera']
             )
@@ -700,16 +708,18 @@ with description('El XML Generado en una baja de una factura recibida'):
 
     with description('en la baja de una factura'):
         with before.all:
-            self.invoice = self.data_gen.get_out_invoice()
-            self.invoice_obj = SII(self.invoice).generate_object()
-            self.factura_emitida = (
+            self.invoice = self.data_gen.get_in_invoice()
+            self.invoice_obj = (
+                SIIDeregister(self.invoice).generate_deregister_object()
+            )
+            self.factura_recibida = (
                 self.invoice_obj['BajaLRFacturasRecibidas']
                 ['RegistroLRBajaRecibidas']
             )
 
         with context('en los datos del período'):
             with before.all:
-                self.periodo = self.factura_emitida['PeriodoImpositivo']
+                self.periodo = self.factura_recibida['PeriodoImpositivo']
 
             with it('el ejercicio es el correspondiente al año de la factura'):
                 expect(
@@ -723,7 +733,7 @@ with description('El XML Generado en una baja de una factura recibida'):
 
         with context('en los datos de la factura'):
             with before.all:
-                self.factura = self.factura_emitida['IDFactura']
+                self.factura = self.factura_recibida['IDFactura']
 
             with it('el nombre del emisor de la factura es correcto'):
                 expect(
@@ -748,7 +758,9 @@ with description('El XML Generado en una baja de una factura recibida'):
 
             with it('la fecha de factura es correcto'):
                 expect(
-                    self.factura['FechaExpedicionFacturaEmisor']
+                    datetime.strptime(
+                        self.factura['FechaExpedicionFacturaEmisor'], '%d-%m-%Y'
+                    ).strftime('%Y-%m-%d')
                 ).to(equal(
                     self.invoice.origin_date_invoice
                 ))
