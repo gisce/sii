@@ -5,7 +5,7 @@ from unidecode import unidecode
 from decimal import Decimal, localcontext
 
 from sii import __SII_VERSION__
-from sii.models import invoices_record
+from sii.models import invoices_record, invoices_deregister
 from sii.utils import COUNTRY_CODES
 
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
@@ -591,6 +591,123 @@ class SII(object):
             )
 
         res = self.invoice_model.dump(self.invoice_dict)
+        if res.errors:
+            raise Exception(
+                'Errors were found while trying to generate the dump:',
+                res.errors
+            )
+
+        return res.data
+
+
+def get_baja_factura_recibida_dict(invoice):
+
+    cabecera = get_header(invoice)
+    cabecera.pop('TipoComunicacion')
+
+    obj = {
+        'BajaLRFacturasRecibidas': {
+            'Cabecera': cabecera,
+            'RegistroLRBajaRecibidas': {
+                'PeriodoImpositivo': {
+                    'Ejercicio': invoice.period_id.name[3:7],
+                    'Periodo': invoice.period_id.name[0:2]
+                },
+                'IDFactura': {
+                    'IDEmisorFactura': {
+                        'NombreRazon': invoice.partner_id.name,
+                        'NIF': invoice.partner_id.vat
+                    },
+                    'NumSerieFacturaEmisor': invoice.origin,
+                    'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
+                }
+            }
+        }
+    }
+
+    return obj
+
+
+def get_baja_factura_emitida_dict(invoice):
+
+    cabecera = get_header(invoice)
+    cabecera.pop('TipoComunicacion')
+
+    obj = {
+        'BajaLRFacturasEmitidas': {
+            'Cabecera': cabecera,
+            'RegistroLRBajaExpedidas': {
+                'PeriodoImpositivo': {
+                    'Ejercicio': invoice.period_id.name[3:7],
+                    'Periodo': invoice.period_id.name[0:2]
+                },
+                'IDFactura': {
+                    'IDEmisorFactura': {
+                        'NIF': invoice.company_id.partner_id.vat
+                    },
+                    'NumSerieFacturaEmisor': invoice.number,
+                    'FechaExpedicionFacturaEmisor': invoice.date_invoice
+                }
+            }
+        }
+    }
+
+    return obj
+
+
+class SIIDeregister(SII):
+
+    def __init__(self, invoice):
+        super(SIIDeregister, self).__init__(invoice)
+        if invoice.type.startswith('in'):
+            self.invoice_deregister_model = (
+                invoices_deregister.BajaFacturasRecibidas()
+            )
+            self.invoice_deregister_dict = get_baja_factura_recibida_dict(
+                self.invoice
+            )
+        elif invoice.type.startswith('out'):
+            self.invoice_deregister_model = (
+                invoices_deregister.BajaFacturasEmitidas()
+            )
+            self.invoice_deregister_dict = get_baja_factura_emitida_dict(
+                self.invoice
+            )
+        else:
+            raise AttributeError(
+                'Valor desconocido en el tipo de factura: {}'.format(
+                    invoice.type
+                )
+            )
+
+    def validate_deregister_invoice(self):
+
+        res = {}
+
+        errors = self.invoice_deregister_model.validate(
+            self.invoice_deregister_dict
+        )
+
+        res['successful'] = False if errors else True
+        res['object_validated'] = self.invoice_deregister_dict
+        if errors:
+            errors_list = self.get_validation_errors_list(errors)
+            res['errors'] = errors_list
+
+        return res
+
+    def generate_deregister_object(self):
+
+        validation_values = self.validate_deregister_invoice()
+        if not validation_values['successful']:
+            raise Exception(
+                'Errors were found while trying to validate the data:',
+                validation_values['errors']
+            )
+
+        res = self.invoice_deregister_model.dump(
+            self.invoice_deregister_dict
+        )
         if res.errors:
             raise Exception(
                 'Errors were found while trying to generate the dump:',
