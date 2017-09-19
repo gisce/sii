@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-from sii.resource import SII
+from sii.resource import SII, SIIDeregister
 from zeep import Client
 from requests import Session
 from zeep.exceptions import Fault
@@ -197,3 +197,55 @@ class SiiService(Service):
         'type_address': '/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP',
         'service_name': 'siiService'
     }
+
+
+class SiiDeregisterService(SiiService):
+
+    def get_deregister_msg(self):
+        dict_from_marsh = (
+            SIIDeregister(self.invoice).generate_deregister_object()
+        )
+        res_header = res_invoice = None
+        if self.invoice.type.startswith('out_'):
+            res_header = (
+                dict_from_marsh['BajaLRFacturasEmitidas']['Cabecera']
+            )
+            res_invoice = (
+                dict_from_marsh['BajaLRFacturasEmitidas']
+                ['RegistroLRBajaExpedidas']
+            )
+        elif self.invoice.type.startswith('in_'):
+            res_header = (
+                dict_from_marsh['BajaLRFacturasRecibidas']['Cabecera']
+            )
+            res_invoice = (
+                dict_from_marsh['BajaLRFacturasRecibidas']
+                ['RegistroLRBajaRecibidas']
+            )
+
+        return res_header, res_invoice
+
+    def deregister_invoice(self):
+        msg_header, msg_invoice = self.get_deregister_msg()
+        try:
+            if self.invoice.type.startswith('out_'):
+                res = self.service.BajaLRFacturasEmitidas(
+                    msg_header, msg_invoice)
+            elif self.invoice.type.startswith('in_'):
+                res = self.service.BajaLRFacturasRecibidas(
+                    msg_header, msg_invoice)
+            self.result = res
+            return serialize_object(self.result)
+        except Exception as fault:
+            self.result = fault
+            raise fault
+
+    def deregister(self, invoice):
+        self.invoice = invoice
+        if self.invoice.type.startswith('out_'):
+            if self.emitted_service is None:
+                self.emitted_service = self.create_service()
+        else:
+            if self.received_service is None:
+                self.received_service = self.create_service()
+        return self.deregister_invoice()
