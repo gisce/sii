@@ -1,9 +1,9 @@
 # coding=utf-8
+from __future__ import absolute_import
 
 from marshmallow import fields, ValidationError
 from sii import __SII_VERSION__
-
-from invoices_record import (
+from .invoices_record import (
     MySchema, DateString, CustomStringField, Titular, NIF, PERIODO_VALUES
 )
 
