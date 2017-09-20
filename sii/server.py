@@ -229,10 +229,10 @@ class SiiDeregisterService(SiiService):
         msg_header, msg_invoice = self.get_deregister_msg()
         try:
             if self.invoice.type.startswith('out_'):
-                res = self.emitted_service.BajaLRFacturasEmitidas(
+                res = self.emitted_service.AnulacionLRFacturasEmitidas(
                     msg_header, msg_invoice)
             elif self.invoice.type.startswith('in_'):
-                res = self.received_service.BajaLRFacturasRecibidas(
+                res = self.received_service.AnulacionLRFacturasRecibidas(
                     msg_header, msg_invoice)
             self.result = res
             return serialize_object(self.result)
