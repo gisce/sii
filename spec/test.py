@@ -1,19 +1,42 @@
 # -*- coding: UTF-8 -*-
+
+from sii.server import SiiService, SiiDeregisterService
+from sii.resource import SII, SIIDeregister
+from spec.testing_data import DataGenerator
+from datetime import date
+import random
+import os
+from pprintpp import pprint, pformat
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-from sii.server import *
-from spec.testing_data import DataGenerator
+certificate_path = os.environ['CERTIFICATE_PATH']
+key_path = os.environ['KEY_PATH']
+current_date = date.strftime(date.today(), '%Y-%m-%d')
 
-data_gen = DataGenerator()
-in_invoice = data_gen.get_in_invoice()
+data_gen = DataGenerator(contraparte_registered=False)
+data_gen.invoice_number = '-{}'.format(current_date)
 out_invoice = data_gen.get_out_invoice()
-in_refund = data_gen.get_in_refund_invoice()
-out_refund = data_gen.get_out_refund_invoice()
-s = Service('/home/miquel/Documents/SII/client_ssl/client.crt',
-            '/home/miquel/Documents/SII/client_ssl/client.key')
-invoice = out_refund
-s.send(invoice)
+in_invoice = data_gen.get_in_invoice()
 
-print s.result
+# CONFIGURATION VARIABLES
+invoice = in_invoice
+register_invoice = True
+deregister_invoice = True
+
+if register_invoice:
+    validate_register = SII(invoice).validate_invoice()
+    s_reg = SiiService(
+        certificate=certificate_path, key=key_path, test_mode=True
+    )
+    res_register = s_reg.send(invoice)
+
+if deregister_invoice:
+    validate_deregister = SIIDeregister(invoice).validate_deregister_invoice()
+    s_desreg = SiiDeregisterService(
+        certificate=certificate_path, key=key_path, test_mode=True
+    )
+    res_deregister = s_desreg.deregister(invoice)
+
+print 'Done!'
