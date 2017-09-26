@@ -57,14 +57,21 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     # }
     iva_values = {}
 
+    sign = get_invoice_sign(invoice)
+
     for inv_tax in invoice.tax_line:
         if 'iva' in inv_tax.name.lower():
             vals['sujeta_a_iva'] = True
 
-            invoice_total -= (inv_tax.tax_amount + inv_tax.base)
+            base_imponible = sign * inv_tax.base
+            cuota = inv_tax.tax_amount
+            tipo_impositivo_unitario = inv_tax.tax_id.amount
 
+            invoice_total -= (base_imponible + cuota)
+
+            tax_type = inv_tax.tax_id.type
             is_iva_exento = (
-                inv_tax.tax_id.amount == 0 and inv_tax.tax_id.type == 'percent'
+                tipo_impositivo_unitario == 0 and tax_type == 'percent'
             )
             # IVA 0% Exportaciones y IVA 0% Importaciones tienen amount 0 y se
             # detectan como IVA exento
@@ -72,14 +79,13 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
             else:
-                sign = get_invoice_sign(invoice)
-                tipo_impositivo = inv_tax.tax_id.amount * 100
-                base_imponible = sign * inv_tax.base
+                tipo_impositivo = tipo_impositivo_unitario * 100
+
                 if in_invoice:
                     cuota_key = 'CuotaSoportada'
                 else:
                     cuota_key = 'CuotaRepercutida'
-                cuota = inv_tax.tax_amount
+
                 if tipo_impositivo in iva_values:
                     aux = iva_values[tipo_impositivo]
                     aux['BaseImponible'] += base_imponible
