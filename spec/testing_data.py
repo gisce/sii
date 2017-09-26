@@ -293,7 +293,7 @@ class DataGenerator:
         )
 
         rect_invoice = Invoice(
-            type='out_invoice',
+            type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
