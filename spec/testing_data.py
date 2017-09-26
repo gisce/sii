@@ -297,7 +297,7 @@ class DataGenerator:
             invoice_tax.tax_amount = -1 * abs(invoice_tax.tax_amount)
 
         rect_invoice = Invoice(
-            type='out_invoice',
+            type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
