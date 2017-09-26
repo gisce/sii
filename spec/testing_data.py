@@ -292,8 +292,12 @@ class DataGenerator:
             name=u'Factura de Energía Rectificativa Recibida'
         )
 
+        tax_line = self.tax_line
+        for invoice_tax in tax_line:
+            invoice_tax.tax_amount = -1 * abs(invoice_tax.tax_amount)
+
         rect_invoice = Invoice(
-            type='out_invoice',
+            type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -333,7 +337,7 @@ class DataGenerator:
             period_id=self.period,
             origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
-            tax_line=self.tax_line,
+            tax_line=tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
@@ -347,6 +351,10 @@ class DataGenerator:
         journal = Journal(
             name=u'Factura de Energía Rectificativa Emitida'
         )
+
+        tax_line = self.tax_line
+        for invoice_tax in tax_line:
+            invoice_tax.tax_amount = -1 * abs(invoice_tax.tax_amount)
 
         rect_invoice = Invoice(
             type='out_invoice',
@@ -387,7 +395,7 @@ class DataGenerator:
             period_id=self.period,
             origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
-            tax_line=self.tax_line,
+            tax_line=tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,

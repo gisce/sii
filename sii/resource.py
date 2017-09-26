@@ -79,7 +79,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                     cuota_key = 'CuotaSoportada'
                 else:
                     cuota_key = 'CuotaRepercutida'
-                cuota = sign * inv_tax.tax_amount
+                cuota = inv_tax.tax_amount
                 if tipo_impositivo in iva_values:
                     aux = iva_values[tipo_impositivo]
                     aux['BaseImponible'] += base_imponible
