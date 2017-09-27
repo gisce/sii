@@ -39,7 +39,6 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
         'importe_no_sujeto': 0
     }
 
-    invoice_total = invoice.amount_total
     # iva_values es un diccionario que agrupa los valores del IVA por el tipo
     # impositivo. ejemplo:
     #
@@ -58,12 +57,14 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     iva_values = {}
 
     sign = get_invoice_sign(invoice)
+    invoice_total = sign * invoice.amount_total
 
     for inv_tax in invoice.tax_line:
         if 'iva' in inv_tax.name.lower():
             vals['sujeta_a_iva'] = True
 
-            base_imponible = sign * inv_tax.base
+            base_iva = inv_tax.base
+            base_imponible = sign * base_iva
             cuota = inv_tax.tax_amount
             tipo_impositivo_unitario = inv_tax.tax_id.amount
 
