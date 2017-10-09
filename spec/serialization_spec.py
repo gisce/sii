@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from sii.resource import SII
+from sii.resource import SII, SIIDeregister
 from sii.models.invoices_record import CRE_FACTURAS_EMITIDAS
 from expects import *
 from datetime import datetime
@@ -590,4 +590,177 @@ with description('El XML Generado'):
                     ['ImporteRectificacion']['CuotaRectificada']
                 ).to(equal(
                     self.out_invoice_RA.rectifying_id.amount_tax
+                ))
+
+with description('El XML Generado en una baja de una factura emitida'):
+    with before.all:
+        self.data_gen = DataGenerator()
+
+    with description('en la cabecera'):
+        with before.all:
+            self.invoice = self.data_gen.get_out_invoice()
+            self.invoice_obj = (
+                SIIDeregister(self.invoice).generate_deregister_object()
+            )
+            self.cabecera = (
+                self.invoice_obj['BajaLRFacturasEmitidas']['Cabecera']
+            )
+
+        with it('la versión es la "1.0"'):
+            expect(self.cabecera['IDVersionSii']).to(equal('1.0'))
+
+        with it('no debe contener el campo "TipoComunicacion"'):
+            expect(self.cabecera).not_to(have_key('TipoComunicacion'))
+
+        with context('en el titular'):
+            with it('el nif deben ser los del titular'):
+                expect(
+                    self.cabecera['Titular']['NIF']
+                ).to(equal(self.invoice.company_id.partner_id.vat))
+
+            with it('el nombre y apellidos deben ser los del titular'):
+                expect(
+                    self.cabecera['Titular']['NombreRazon']
+                ).to(equal(self.invoice.company_id.partner_id.name))
+
+    with description('en la baja de una factura'):
+        with before.all:
+            self.invoice = self.data_gen.get_out_invoice()
+            self.invoice_obj = (
+                SIIDeregister(self.invoice).generate_deregister_object()
+            )
+            self.factura_emitida = (
+                self.invoice_obj['BajaLRFacturasEmitidas']
+                ['RegistroLRBajaExpedidas']
+            )
+
+        with context('en los datos del período'):
+            with before.all:
+                self.periodo = self.factura_emitida['PeriodoImpositivo']
+
+            with it('el ejercicio es el correspondiente al año de la factura'):
+                expect(
+                    self.periodo['Ejercicio']
+                ).to(equal(self.invoice.period_id.name[3:7]))
+
+            with it('el período es el correspondiente al mes de la factura'):
+                expect(
+                    self.periodo['Periodo']
+                ).to(equal(self.invoice.period_id.name[0:2]))
+
+        with context('en los datos de la factura'):
+            with before.all:
+                self.factura = self.factura_emitida['IDFactura']
+
+            with it('el NIF del emisor de la factura es correcto'):
+                expect(
+                    self.factura['IDEmisorFactura']['NIF']
+                ).to(equal(
+                    self.invoice.company_id.partner_id.vat
+                ))
+
+            with it('el número de factura es correcto'):
+                expect(
+                    self.factura['NumSerieFacturaEmisor']
+                ).to(equal(
+                    self.invoice.number
+                ))
+
+            with it('la fecha de factura es correcto'):
+                expect(
+                    datetime.strptime(
+                        self.factura['FechaExpedicionFacturaEmisor'], '%d-%m-%Y'
+                    ).strftime('%Y-%m-%d')
+                ).to(equal(
+                    self.invoice.date_invoice
+                ))
+
+with description('El XML Generado en una baja de una factura recibida'):
+    with before.all:
+        self.data_gen = DataGenerator()
+
+    with description('en la cabecera'):
+        with before.all:
+            self.invoice = self.data_gen.get_in_invoice()
+            self.invoice_obj = (
+                SIIDeregister(self.invoice).generate_deregister_object()
+            )
+            self.cabecera = (
+                self.invoice_obj['BajaLRFacturasRecibidas']['Cabecera']
+            )
+
+        with it('la versión es la "1.0"'):
+            expect(self.cabecera['IDVersionSii']).to(equal('1.0'))
+
+        with it('no debe contener el campo "TipoComunicacion"'):
+            expect(self.cabecera).not_to(have_key('TipoComunicacion'))
+
+        with context('en el titular'):
+            with it('el nif deben ser los del titular'):
+                expect(
+                    self.cabecera['Titular']['NIF']
+                ).to(equal(self.invoice.company_id.partner_id.vat))
+
+            with it('el nombre y apellidos deben ser los del titular'):
+                expect(
+                    self.cabecera['Titular']['NombreRazon']
+                ).to(equal(self.invoice.company_id.partner_id.name))
+
+    with description('en la baja de una factura'):
+        with before.all:
+            self.invoice = self.data_gen.get_in_invoice()
+            self.invoice_obj = (
+                SIIDeregister(self.invoice).generate_deregister_object()
+            )
+            self.factura_recibida = (
+                self.invoice_obj['BajaLRFacturasRecibidas']
+                ['RegistroLRBajaRecibidas']
+            )
+
+        with context('en los datos del período'):
+            with before.all:
+                self.periodo = self.factura_recibida['PeriodoImpositivo']
+
+            with it('el ejercicio es el correspondiente al año de la factura'):
+                expect(
+                    self.periodo['Ejercicio']
+                ).to(equal(self.invoice.period_id.name[3:7]))
+
+            with it('el período es el correspondiente al mes de la factura'):
+                expect(
+                    self.periodo['Periodo']
+                ).to(equal(self.invoice.period_id.name[0:2]))
+
+        with context('en los datos de la factura'):
+            with before.all:
+                self.factura = self.factura_recibida['IDFactura']
+
+            with it('el nombre del emisor de la factura es correcto'):
+                expect(
+                    self.factura['IDEmisorFactura']['NombreRazon']
+                ).to(equal(
+                    self.invoice.partner_id.name
+                ))
+
+            with it('el NIF del emisor de la factura es correcto'):
+                expect(
+                    self.factura['IDEmisorFactura']['NIF']
+                ).to(equal(
+                    self.invoice.partner_id.vat
+                ))
+
+            with it('el número de factura es correcto'):
+                expect(
+                    self.factura['NumSerieFacturaEmisor']
+                ).to(equal(
+                    self.invoice.origin
+                ))
+
+            with it('la fecha de factura es correcto'):
+                expect(
+                    datetime.strptime(
+                        self.factura['FechaExpedicionFacturaEmisor'], '%d-%m-%Y'
+                    ).strftime('%Y-%m-%d')
+                ).to(equal(
+                    self.invoice.origin_date_invoice
                 ))
