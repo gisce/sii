@@ -198,12 +198,12 @@ class DataGenerator:
         spain = Country(code='ES')
         self.partner_invoice = Partner(
             name=os.environ.get('NOMBRE_CONTRAPARTE', u'Francisco García'),
-            nif=os.environ.get('NIF_CONTRAPARTE', u'ES12345678T'),
+            nif=os.environ.get('NIF_CONTRAPARTE', u'ES12345678Z'),
             country=spain, aeat_registered=contraparte_registered
         )
         partner_company = Partner(
             name=os.environ.get('NOMBRE_TITULAR', u'Compañía Eléctrica S.A.'),
-            nif=os.environ.get('NIF_TITULAR', 'ES55555555T'), country=spain
+            nif=os.environ.get('NIF_TITULAR', 'ES55555555K'), country=spain
         )
         self.company = Company(partner_id=partner_company)
 
