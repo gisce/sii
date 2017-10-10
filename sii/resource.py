@@ -110,9 +110,20 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     return vals
 
 
+def unidecode_str(s):
+    if type(s) is unicode:
+        res = unidecode(s)
+    elif type(s) is str:
+        res = unidecode(s.decode('utf-8'))
+    else:
+        res = unidecode(s)
+
+    return res
+
+
 def get_contraparte(partner, in_invoice):
     vat_type = partner.sii_get_vat_type()
-    contraparte = {'NombreRazon': unidecode(partner.name)}
+    contraparte = {'NombreRazon': unidecode_str(partner.name)}
 
     partner_country = partner.country_id or partner.country
 
@@ -191,7 +202,7 @@ def get_factura_emitida_tipo_desglose(invoice):
                 }
         if iva_values['no_sujeta_a_iva']:
             fp = invoice.fiscal_position
-            if fp and 'islas canarias' in unidecode(fp.name.lower()):
+            if fp and 'islas canarias' in unidecode_str(fp.name.lower()):
                 desglose['NoSujeta'] = {
                     'ImporteTAIReglasLocalizacion': importe_no_sujeto
                 }
@@ -435,7 +446,7 @@ def get_header(invoice):
     cabecera = {
         'IDVersionSii': __SII_VERSION__,
         'Titular': {
-            'NombreRazon': invoice.company_id.partner_id.name,
+            'NombreRazon': unidecode_str(invoice.company_id.partner_id.name),
             'NIF': invoice.company_id.partner_id.vat
         },
         'TipoComunicacion': 'A0' if not invoice.sii_registered else 'A1'
@@ -622,7 +633,7 @@ def get_baja_factura_recibida_dict(invoice):
                 },
                 'IDFactura': {
                     'IDEmisorFactura': {
-                        'NombreRazon': invoice.partner_id.name,
+                        'NombreRazon': unidecode_str(invoice.partner_id.name),
                         'NIF': invoice.partner_id.vat
                     },
                     'NumSerieFacturaEmisor': invoice.origin,
