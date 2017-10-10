@@ -61,7 +61,7 @@ class IDService(Service):
         invalid_ids = []
         if isinstance(partners, list):
             for partner in res:
-                if partner['Resultado'] == 'NO IDENTIFICADO':
+                if 'NO IDENTIFICADO' in partner['Resultado']:
                     invalid_ids.append(partner)
         else:
             if isinstance(res, Exception) and res.message == 'Codigo[-1].No identificado':
