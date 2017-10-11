@@ -2,6 +2,7 @@
 
 from sii.resource import SII, SIIDeregister
 from sii.models.invoices_record import CRE_FACTURAS_EMITIDAS
+from sii.utils import unidecode_str
 from expects import *
 from datetime import datetime
 from spec.testing_data import DataGenerator
@@ -68,7 +69,9 @@ with description('El XML Generado'):
             with it('el nombre y apellidos deben ser los del titular'):
                 expect(
                     self.cabecera['Titular']['NombreRazon']
-                ).to(equal(self.invoice.company_id.partner_id.name))
+                ).to(equal(
+                    unidecode_str(self.invoice.company_id.partner_id.name))
+                )
 
     with description('en los datos comunes de una factura'):
         with before.all:
@@ -621,7 +624,9 @@ with description('El XML Generado en una baja de una factura emitida'):
             with it('el nombre y apellidos deben ser los del titular'):
                 expect(
                     self.cabecera['Titular']['NombreRazon']
-                ).to(equal(self.invoice.company_id.partner_id.name))
+                ).to(equal(
+                    unidecode_str(self.invoice.company_id.partner_id.name))
+                )
 
     with description('en la baja de una factura'):
         with before.all:
@@ -704,7 +709,9 @@ with description('El XML Generado en una baja de una factura recibida'):
             with it('el nombre y apellidos deben ser los del titular'):
                 expect(
                     self.cabecera['Titular']['NombreRazon']
-                ).to(equal(self.invoice.company_id.partner_id.name))
+                ).to(equal(
+                    unidecode_str(self.invoice.company_id.partner_id.name))
+                )
 
     with description('en la baja de una factura'):
         with before.all:
@@ -739,7 +746,7 @@ with description('El XML Generado en una baja de una factura recibida'):
                 expect(
                     self.factura['IDEmisorFactura']['NombreRazon']
                 ).to(equal(
-                    self.invoice.partner_id.name
+                    unidecode_str(self.invoice.partner_id.name)
                 ))
 
             with it('el NIF del emisor de la factura es correcto'):
