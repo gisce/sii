@@ -4,9 +4,7 @@ from unidecode import unidecode
 
 
 def unidecode_str(s):
-    if type(s) is unicode:
-        res = unidecode(s)
-    elif type(s) is str:
+    if isinstance(s, bytes):
         res = unidecode(s.decode('utf-8'))
     else:
         res = unidecode(s)
