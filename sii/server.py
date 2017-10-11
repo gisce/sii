@@ -6,6 +6,7 @@ from requests import Session
 from zeep.exceptions import Fault
 from zeep.transports import Transport
 from zeep.helpers import serialize_object
+import certifi
 
 MAX_ID_CHECKS = 9999
 
@@ -61,7 +62,7 @@ class IDService(Service):
         invalid_ids = []
         if isinstance(partners, list):
             for partner in res:
-                if partner['Resultado'] == 'NO IDENTIFICADO':
+                if 'NO IDENTIFICADO' in partner['Resultado']:
                     invalid_ids.append(partner)
         else:
             if isinstance(res, Exception) and res.message == 'Codigo[-1].No identificado':
@@ -81,7 +82,7 @@ class IDService(Service):
             wsdl = self.wsdl_files['ids_validator_v2']
         session = Session()
         session.cert = (self.certificate, self.key)
-        session.verify = False
+        session.verify = certifi.where()
         transport = Transport(session=session)
 
         client = Client(wsdl=wsdl, port_name=port_name, transport=transport,
@@ -120,7 +121,7 @@ class SiiService(Service):
     def create_service(self):
         session = Session()
         session.cert = (self.certificate, self.key)
-        session.verify = False
+        session.verify = certifi.where()
         transport = Transport(session=session)
         if self.invoice.type.startswith('out_'):
             config = self.out_inv_config.copy()

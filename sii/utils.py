@@ -1,5 +1,17 @@
 # -*- coding: UTF-8 -*-
 
+from unidecode import unidecode
+
+
+def unidecode_str(s):
+    if isinstance(s, bytes):
+        res = unidecode(s.decode('utf-8'))
+    else:
+        res = unidecode(s)
+
+    return res
+
+
 COUNTRY_CODES = {
     'AF': 'AFGANISTÁN',
     'AL': 'ALBANIA',
