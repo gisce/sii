@@ -1,7 +1,7 @@
 # coding=utf-8
 import re
 from copy import deepcopy
-from unidecode import unidecode
+from utils import unidecode_str
 from decimal import Decimal, localcontext
 
 from sii import __SII_VERSION__
@@ -108,17 +108,6 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
         vals['importe_no_sujeto'] = invoice_total
 
     return vals
-
-
-def unidecode_str(s):
-    if type(s) is unicode:
-        res = unidecode(s)
-    elif type(s) is str:
-        res = unidecode(s.decode('utf-8'))
-    else:
-        res = unidecode(s)
-
-    return res
 
 
 def get_contraparte(partner, in_invoice):
