@@ -11,6 +11,11 @@ with open('requirements-dev.txt', 'r') as f:
 
 PACKAGES_DATA = {'sii': ['data/*.xsd']}
 
+PACKAGE_CLASSIFIERS = [
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3.6',
+]
+
 setup(
     name='sii',
     description='Librería de Suministro Inmediato de Información',
@@ -24,5 +29,6 @@ setup(
     install_requires=INSTALL_REQUIRES,
     tests_require=TESTS_REQUIRE,
     packages=find_packages(exclude=['spec']),
-    package_data=PACKAGES_DATA
+    package_data=PACKAGES_DATA,
+    classifiers=PACKAGE_CLASSIFIERS,
 )
