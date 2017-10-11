@@ -1,12 +1,11 @@
 # coding=utf-8
 import re
 from copy import deepcopy
-from utils import unidecode_str
 from decimal import Decimal, localcontext
 
 from sii import __SII_VERSION__
 from sii.models import invoices_record, invoices_deregister
-from sii.utils import COUNTRY_CODES
+from sii.utils import COUNTRY_CODES, unidecode_str
 
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
 
