@@ -82,7 +82,7 @@ class IDService(Service):
             wsdl = self.wsdl_files['ids_validator_v2']
         session = Session()
         session.cert = (self.certificate, self.key)
-        session.verify = certifi.where()
+        session.verify = False if self.url else certifi.where()
         transport = Transport(session=session)
 
         client = Client(wsdl=wsdl, port_name=port_name, transport=transport,
@@ -121,7 +121,7 @@ class SiiService(Service):
     def create_service(self):
         session = Session()
         session.cert = (self.certificate, self.key)
-        session.verify = certifi.where()
+        session.verify = False if self.url else certifi.where()
         transport = Transport(session=session)
         if self.invoice.type.startswith('out_'):
             config = self.out_inv_config.copy()
