@@ -359,6 +359,34 @@ with description('El XML Generado'):
                 ['RegistroLRFacturasRecibidas']
             )
 
+        with context('en los datos del emisor de la factura'):
+
+            with context('si no está registrado en la AEAT'):
+                with before.all:
+                    new_data_gen = DataGenerator(contraparte_registered=False)
+                    self.in_invoice = new_data_gen.get_in_invoice()
+                    self.nif_emisor = self.in_invoice.partner_id.vat[2:]
+
+                    in_invoice_obj = SII(self.in_invoice).generate_object()
+                    self.contraparte = (
+                        in_invoice_obj['SuministroLRFacturasRecibidas']
+                        ['RegistroLRFacturasRecibidas']['IDFactura']
+                        ['IDEmisorFactura']
+                    )
+
+                with it('el ID debe ser el NIF del emisor'):
+                    expect(
+                        self.contraparte['IDOtro']['ID']
+                    ).to(equal(self.nif_emisor))
+
+                with it('el IDType debe ser "07"'):
+                    expect(self.contraparte['IDOtro']['IDType']).to(equal('07'))
+
+                with it('el CodigoPais debe ser "ES"'):
+                    expect(
+                        self.contraparte['IDOtro']['CodigoPais']
+                    ).to(equal('ES'))
+
         with context('en los detalles del IVA'):
             with it('el detalle de DesgloseIVA debe ser la original'):
                 detalle_iva_desglose_iva = (
