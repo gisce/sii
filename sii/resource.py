@@ -109,9 +109,12 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     return vals
 
 
-def get_contraparte(partner, in_invoice):
+def get_partner_info(partner, in_invoice, nombre_razon=False):
     vat_type = partner.sii_get_vat_type()
-    contraparte = {'NombreRazon': unidecode_str(partner.name)}
+    contraparte = {}
+
+    if nombre_razon:
+        contraparte['NombreRazon'] = unidecode_str(partner.name)
 
     partner_country = partner.country_id or partner.country
 
@@ -293,7 +296,8 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             invoice.sii_out_clave_regimen_especial,
         'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
         'DescripcionOperacion': invoice.sii_description,
-        'Contraparte': get_contraparte(invoice.partner_id, in_invoice=False),
+        'Contraparte': get_partner_info(
+            invoice.partner_id, in_invoice=False, nombre_razon=True),
         'TipoDesglose': get_factura_emitida_tipo_desglose(invoice)
     }
 
@@ -398,8 +402,8 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             invoice.sii_in_clave_regimen_especial,
         'ImporteTotal': importe_total,
         'DescripcionOperacion': invoice.sii_description,
-        'Contraparte': get_contraparte(
-            invoice.partner_id, in_invoice=in_invoice),
+        'Contraparte': get_partner_info(
+            invoice.partner_id, in_invoice=in_invoice, nombre_razon=True),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
         'FechaRegContable': invoice.date_invoice
