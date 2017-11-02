@@ -485,9 +485,9 @@ def get_factura_recibida_dict(invoice,
                     'Periodo': invoice.period_id.name[0:2]
                 },
                 'IDFactura': {
-                    'IDEmisorFactura': {
-                        'NIF': invoice.partner_id.vat
-                    },
+                    'IDEmisorFactura': get_partner_info(
+                        invoice.partner_id, in_invoice=False
+                    ),
                     'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
                 },
@@ -624,10 +624,9 @@ def get_baja_factura_recibida_dict(invoice):
                     'Periodo': invoice.period_id.name[0:2]
                 },
                 'IDFactura': {
-                    'IDEmisorFactura': {
-                        'NombreRazon': unidecode_str(invoice.partner_id.name),
-                        'NIF': invoice.partner_id.vat
-                    },
+                    'IDEmisorFactura': get_partner_info(
+                        invoice.partner_id, in_invoice=True, nombre_razon=True
+                    ),
                     'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
                 }
