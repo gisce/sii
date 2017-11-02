@@ -368,7 +368,7 @@ with description('El XML Generado'):
                     self.nif_emisor = self.in_invoice.partner_id.vat[2:]
 
                     in_invoice_obj = SII(self.in_invoice).generate_object()
-                    self.contraparte = (
+                    self.emisor_factura = (
                         in_invoice_obj['SuministroLRFacturasRecibidas']
                         ['RegistroLRFacturasRecibidas']['IDFactura']
                         ['IDEmisorFactura']
@@ -376,15 +376,15 @@ with description('El XML Generado'):
 
                 with it('el ID debe ser el NIF del emisor'):
                     expect(
-                        self.contraparte['IDOtro']['ID']
+                        self.emisor_factura['IDOtro']['ID']
                     ).to(equal(self.nif_emisor))
 
                 with it('el IDType debe ser "07"'):
-                    expect(self.contraparte['IDOtro']['IDType']).to(equal('07'))
+                    expect(self.emisor_factura['IDOtro']['IDType']).to(equal('07'))
 
                 with it('el CodigoPais debe ser "ES"'):
                     expect(
-                        self.contraparte['IDOtro']['CodigoPais']
+                        self.emisor_factura['IDOtro']['CodigoPais']
                     ).to(equal('ES'))
 
         with context('en los detalles del IVA'):
