@@ -450,11 +450,11 @@ class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos pero sólo pued
     DesgloseTipoOperacion = fields.Nested(DesgloseTipoOperacion)
 
 
-class IDOtro(NIF):
+class Partner(NIF):
     IDOtro = fields.Nested(IDOtro)
 
 
-class Contraparte(Titular, IDOtro):
+class Contraparte(Titular, Partner):
 
     @staticmethod
     def get_nif_field_name():
