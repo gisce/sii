@@ -353,8 +353,6 @@ class EmisorFactura(NIF):
     def get_nif_field_name():
         return 'NIF del Emisor de la factura'
 
-    pass
-
 
 class IdentificacionFactura(MySchema):
     IDEmisorFactura = fields.Nested(EmisorFactura, required=True)
@@ -452,14 +450,15 @@ class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos pero sólo pued
     DesgloseTipoOperacion = fields.Nested(DesgloseTipoOperacion)
 
 
-class Contraparte(Titular):
+class Partner(NIF):
+    IDOtro = fields.Nested(IDOtro)
+
+
+class Contraparte(Titular, Partner):
 
     @staticmethod
     def get_nif_field_name():
-        return 'NIF del Receptor de la factura'
-
-    IDOtro = fields.Nested(IDOtro)
-    pass
+        return 'NIF de la Contraparte de la factura'
 
 
 class ImporteRectificacion(MySchema):
@@ -557,6 +556,17 @@ class DetalleFacturaEmitida(DetalleFactura):
         )
 
 
+class EmisorFacturaRecibida(EmisorFactura, Partner):
+
+    @staticmethod
+    def get_atleast_one_of():
+        return ['NIF', 'IDOtro']
+
+
+class IdentificacionFacturaRecibida(IdentificacionFactura):
+    IDEmisorFactura = fields.Nested(EmisorFacturaRecibida, required=True)
+
+
 class FacturaEmitida(Factura):
     # Campos específicos para facturas emitidas
     FacturaExpedida = fields.Nested(DetalleFacturaEmitida, required=True)
@@ -643,6 +653,7 @@ class DetalleFacturaRecibida(DetalleFactura):
 
 class FacturaRecibida(Factura):
     # Campos específicos para facturas recibidas
+    IDFactura = fields.Nested(IdentificacionFacturaRecibida, required=True)
     FacturaRecibida = fields.Nested(DetalleFacturaRecibida, required=True)
 
 
