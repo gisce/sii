@@ -9,19 +9,23 @@ import os
 from pprintpp import pprint, pformat
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 certificate_path = os.environ['CERTIFICATE_PATH']
 key_path = os.environ['KEY_PATH']
 current_date = date.strftime(date.today(), '%Y-%m-%d')
 
-data_gen = DataGenerator(contraparte_registered=False)
+data_gen = DataGenerator(
+    contraparte_registered=False,
+    invoice_registered=True
+)
 data_gen.invoice_number = '-{}'.format(current_date)
 out_invoice = data_gen.get_out_invoice()
 in_invoice = data_gen.get_in_invoice()
 
 # CONFIGURATION VARIABLES
 invoice = in_invoice
+invoice.partner_id.country_id.code = os.environ['COUNTRY_CODE']
 register_invoice = True
 deregister_invoice = True
 
