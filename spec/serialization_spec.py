@@ -367,7 +367,9 @@ with description('El XML Generado'):
                 with before.all:
                     new_data_gen = DataGenerator(contraparte_registered=False)
                     self.in_invoice = new_data_gen.get_in_invoice()
-                    self.nif_emisor = self.in_invoice.partner_id.vat[2:]
+                    # Valid French TVA FR23334175221
+                    self.in_invoice.partner_id.country_id.code = 'FR'
+                    self.in_invoice.partner_id.vat = 'FR23334175221'
 
                     in_invoice_obj = SII(self.in_invoice).generate_object()
                     self.emisor_factura = (
@@ -377,17 +379,20 @@ with description('El XML Generado'):
                     )
 
                 with it('el ID debe ser el NIF del emisor'):
+                    nif_emisor = self.in_invoice.partner_id.vat[2:]
                     expect(
                         self.emisor_factura['IDOtro']['ID']
-                    ).to(equal(self.nif_emisor))
+                    ).to(equal(nif_emisor))
 
-                with it('el IDType debe ser "07"'):
-                    expect(self.emisor_factura['IDOtro']['IDType']).to(equal('07'))
+                with it('el IDType debe ser "04"'):
+                    expect(
+                        self.emisor_factura['IDOtro']['IDType']
+                    ).to(equal('04'))
 
-                with it('el CodigoPais debe ser "ES"'):
+                with it('el CodigoPais debe ser "FR"'):
                     expect(
                         self.emisor_factura['IDOtro']['CodigoPais']
-                    ).to(equal('ES'))
+                    ).to(equal('FR'))
 
         with context('en los detalles del IVA'):
             with it('el detalle de DesgloseIVA debe ser la original'):
