@@ -501,16 +501,6 @@ def get_factura_recibida_dict(invoice,
     return obj
 
 
-def refactor_nifs(invoice):
-    for partner in (invoice.partner_id, invoice.company_id.partner_id):
-        partner_vat = partner.vat
-        if partner_vat and len(partner_vat) >= 2:
-            country_code = partner_vat[:2].upper()
-            if country_code in COUNTRY_CODES or country_code == 'PS':
-                # partner.vat = re.sub('^ES', '', partner.vat.upper())
-                partner.vat = partner_vat[2:]
-
-
 def refactor_decimals(invoice):
     def transform(f):
         return Decimal(str(f))
@@ -540,7 +530,6 @@ def refactor_decimals(invoice):
 class SII(object):
     def __init__(self, invoice):
         self.invoice = invoice
-        refactor_nifs(self.invoice)
         refactor_decimals(self.invoice)
         tipo_rectificativa = invoice.rectificative_type
         rectificativa_sustitucion_opcion_1 = tipo_rectificativa == 'RA'
