@@ -556,8 +556,11 @@ class DetalleFacturaEmitida(DetalleFactura):
         )
 
 
-class EmisorFacturaRecibida(EmisorFactura, IDOtro):
-    pass
+class EmisorFacturaRecibida(EmisorFactura, Partner):
+
+    @staticmethod
+    def get_atleast_one_of():
+        return ['NIF', 'IDOtro']
 
 
 class IdentificacionFacturaRecibida(IdentificacionFactura):
