@@ -2,7 +2,7 @@
 
 from sii.resource import SII, SIIDeregister
 from sii.models.invoices_record import CRE_FACTURAS_EMITIDAS
-from sii.utils import unidecode_str
+from sii.utils import unidecode_str, VAT
 from expects import *
 from datetime import datetime
 from spec.testing_data import DataGenerator
@@ -66,7 +66,9 @@ with description('El XML Generado'):
             with it('el nif deben ser los del titular'):
                 expect(
                     self.cabecera['Titular']['NIF']
-                ).to(equal(self.invoice.company_id.partner_id.vat))
+                ).to(equal(
+                    VAT.clean_vat(self.invoice.company_id.partner_id.vat)
+                ))
 
             with it('el nombre y apellidos deben ser los del titular'):
                 expect(
@@ -359,6 +361,39 @@ with description('El XML Generado'):
                 ['RegistroLRFacturasRecibidas']
             )
 
+        with context('en los datos del emisor de la factura'):
+
+            with context('si no está registrado en la AEAT'):
+                with before.all:
+                    new_data_gen = DataGenerator(contraparte_registered=False)
+                    self.in_invoice = new_data_gen.get_in_invoice()
+                    # Valid French TVA FR23334175221
+                    self.in_invoice.partner_id.country_id.code = 'FR'
+                    self.in_invoice.partner_id.vat = 'FR23334175221'
+
+                    in_invoice_obj = SII(self.in_invoice).generate_object()
+                    self.emisor_factura = (
+                        in_invoice_obj['SuministroLRFacturasRecibidas']
+                        ['RegistroLRFacturasRecibidas']['IDFactura']
+                        ['IDEmisorFactura']
+                    )
+
+                with it('el ID debe ser el NIF del emisor'):
+                    nif_emisor = self.in_invoice.partner_id.vat[2:]
+                    expect(
+                        self.emisor_factura['IDOtro']['ID']
+                    ).to(equal(nif_emisor))
+
+                with it('el IDType debe ser "04"'):
+                    expect(
+                        self.emisor_factura['IDOtro']['IDType']
+                    ).to(equal('04'))
+
+                with it('el CodigoPais debe ser "FR"'):
+                    expect(
+                        self.emisor_factura['IDOtro']['CodigoPais']
+                    ).to(equal('FR'))
+
         with context('en los detalles del IVA'):
             with it('el detalle de DesgloseIVA debe ser la original'):
                 detalle_iva_desglose_iva = (
@@ -621,7 +656,9 @@ with description('El XML Generado en una baja de una factura emitida'):
             with it('el nif deben ser los del titular'):
                 expect(
                     self.cabecera['Titular']['NIF']
-                ).to(equal(self.invoice.company_id.partner_id.vat))
+                ).to(equal(
+                    VAT.clean_vat(self.invoice.company_id.partner_id.vat)
+                ))
 
             with it('el nombre y apellidos deben ser los del titular'):
                 expect(
@@ -663,7 +700,7 @@ with description('El XML Generado en una baja de una factura emitida'):
                 expect(
                     self.factura['IDEmisorFactura']['NIF']
                 ).to(equal(
-                    self.invoice.company_id.partner_id.vat
+                    VAT.clean_vat(self.invoice.company_id.partner_id.vat)
                 ))
 
             with it('el número de factura es correcto'):
@@ -706,7 +743,9 @@ with description('El XML Generado en una baja de una factura recibida'):
             with it('el nif deben ser los del titular'):
                 expect(
                     self.cabecera['Titular']['NIF']
-                ).to(equal(self.invoice.company_id.partner_id.vat))
+                ).to(equal(
+                    VAT.clean_vat(self.invoice.company_id.partner_id.vat)
+                ))
 
             with it('el nombre y apellidos deben ser los del titular'):
                 expect(
@@ -755,7 +794,7 @@ with description('El XML Generado en una baja de una factura recibida'):
                 expect(
                     self.factura['IDEmisorFactura']['NIF']
                 ).to(equal(
-                    self.invoice.partner_id.vat
+                    VAT.clean_vat(self.invoice.partner_id.vat)
                 ))
 
             with it('el número de factura es correcto'):

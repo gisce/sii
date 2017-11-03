@@ -2,6 +2,7 @@
 
 import os
 import random
+from sii.utils import VAT
 
 
 class Period:
@@ -44,7 +45,7 @@ class Partner:
         self.aeat_registered = aeat_registered
 
     def sii_get_vat_type(self):
-        return '02'
+        return VAT.sii_get_vat_type(self.vat)
 
 
 class Journal:

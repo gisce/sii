@@ -5,7 +5,7 @@ from decimal import Decimal, localcontext
 
 from sii import __SII_VERSION__
 from sii.models import invoices_record, invoices_deregister
-from sii.utils import COUNTRY_CODES, unidecode_str
+from sii.utils import COUNTRY_CODES, unidecode_str, VAT
 
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
 
@@ -109,9 +109,12 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     return vals
 
 
-def get_contraparte(partner, in_invoice):
+def get_partner_info(partner, in_invoice, nombre_razon=False):
     vat_type = partner.sii_get_vat_type()
-    contraparte = {'NombreRazon': unidecode_str(partner.name)}
+    contraparte = {}
+
+    if nombre_razon:
+        contraparte['NombreRazon'] = unidecode_str(partner.name)
 
     partner_country = partner.country_id or partner.country
 
@@ -120,15 +123,15 @@ def get_contraparte(partner, in_invoice):
             contraparte['IDOtro'] = {
                 'CodigoPais': partner_country.code,
                 'IDType': '07',
-                'ID': partner.vat
+                'ID': VAT.clean_vat(partner.vat)
             }
         else:
-            contraparte['NIF'] = partner.vat
+            contraparte['NIF'] = VAT.clean_vat(partner.vat)
     else:
         contraparte['IDOtro'] = {
             'CodigoPais': partner_country.code,
             'IDType': vat_type,
-            'ID': partner.vat
+            'ID': VAT.clean_vat(partner.vat)
         }
 
     return contraparte
@@ -199,7 +202,7 @@ def get_factura_emitida_tipo_desglose(invoice):
                     'ImportePorArticulos7_14_Otros': importe_no_sujeto
                 }
 
-        partner_vat = invoice.partner_id.vat
+        partner_vat = VAT.clean_vat(invoice.partner_id.vat)
         partner_vat_starts_with_n = (
             partner_vat and partner_vat.upper().startswith('N')
         )
@@ -293,7 +296,8 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             invoice.sii_out_clave_regimen_especial,
         'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
         'DescripcionOperacion': invoice.sii_description,
-        'Contraparte': get_contraparte(invoice.partner_id, in_invoice=False),
+        'Contraparte': get_partner_info(
+            invoice.partner_id, in_invoice=False, nombre_razon=True),
         'TipoDesglose': get_factura_emitida_tipo_desglose(invoice)
     }
 
@@ -398,8 +402,8 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             invoice.sii_in_clave_regimen_especial,
         'ImporteTotal': importe_total,
         'DescripcionOperacion': invoice.sii_description,
-        'Contraparte': get_contraparte(
-            invoice.partner_id, in_invoice=in_invoice),
+        'Contraparte': get_partner_info(
+            invoice.partner_id, in_invoice=in_invoice, nombre_razon=True),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
         'FechaRegContable': invoice.date_invoice
@@ -435,7 +439,7 @@ def get_header(invoice):
         'IDVersionSii': __SII_VERSION__,
         'Titular': {
             'NombreRazon': unidecode_str(invoice.company_id.partner_id.name),
-            'NIF': invoice.company_id.partner_id.vat
+            'NIF': VAT.clean_vat(invoice.company_id.partner_id.vat)
         },
         'TipoComunicacion': 'A0' if not invoice.sii_registered else 'A1'
     }
@@ -455,7 +459,7 @@ def get_factura_emitida_dict(invoice,
                 },
                 'IDFactura': {
                     'IDEmisorFactura': {
-                        'NIF': invoice.company_id.partner_id.vat
+                        'NIF': VAT.clean_vat(invoice.company_id.partner_id.vat)
                     },
                     'NumSerieFacturaEmisor': invoice.number,
                     'FechaExpedicionFacturaEmisor': invoice.date_invoice
@@ -481,9 +485,9 @@ def get_factura_recibida_dict(invoice,
                     'Periodo': invoice.period_id.name[0:2]
                 },
                 'IDFactura': {
-                    'IDEmisorFactura': {
-                        'NIF': invoice.partner_id.vat
-                    },
+                    'IDEmisorFactura': get_partner_info(
+                        invoice.partner_id, in_invoice=True
+                    ),
                     'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
                 },
@@ -495,16 +499,6 @@ def get_factura_recibida_dict(invoice,
     }
 
     return obj
-
-
-def refactor_nifs(invoice):
-    for partner in (invoice.partner_id, invoice.company_id.partner_id):
-        partner_vat = partner.vat
-        if partner_vat and len(partner_vat) >= 2:
-            country_code = partner_vat[:2].upper()
-            if country_code in COUNTRY_CODES or country_code == 'PS':
-                # partner.vat = re.sub('^ES', '', partner.vat.upper())
-                partner.vat = partner_vat[2:]
 
 
 def refactor_decimals(invoice):
@@ -536,7 +530,6 @@ def refactor_decimals(invoice):
 class SII(object):
     def __init__(self, invoice):
         self.invoice = invoice
-        refactor_nifs(self.invoice)
         refactor_decimals(self.invoice)
         tipo_rectificativa = invoice.rectificative_type
         rectificativa_sustitucion_opcion_1 = tipo_rectificativa == 'RA'
@@ -620,10 +613,9 @@ def get_baja_factura_recibida_dict(invoice):
                     'Periodo': invoice.period_id.name[0:2]
                 },
                 'IDFactura': {
-                    'IDEmisorFactura': {
-                        'NombreRazon': unidecode_str(invoice.partner_id.name),
-                        'NIF': invoice.partner_id.vat
-                    },
+                    'IDEmisorFactura': get_partner_info(
+                        invoice.partner_id, in_invoice=True, nombre_razon=True
+                    ),
                     'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
                 }
@@ -649,7 +641,7 @@ def get_baja_factura_emitida_dict(invoice):
                 },
                 'IDFactura': {
                     'IDEmisorFactura': {
-                        'NIF': invoice.company_id.partner_id.vat
+                        'NIF': VAT.clean_vat(invoice.company_id.partner_id.vat)
                     },
                     'NumSerieFacturaEmisor': invoice.number,
                     'FechaExpedicionFacturaEmisor': invoice.date_invoice

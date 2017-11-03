@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 from unidecode import unidecode
+from stdnum import es
 
 
 def unidecode_str(s):
@@ -10,6 +11,82 @@ def unidecode_str(s):
         res = unidecode(s)
 
     return res
+
+
+class VAT:
+    def __init__(self, vat):
+        self.vat = vat
+
+    @staticmethod
+    def clean_vat(vat):
+        """
+        Returns the vat without the country code in the first two characters or
+        without the "PS" that indicates it is a passport
+        """
+        country_code = len(vat) >= 2 and vat[:2].upper()
+        if country_code in COUNTRY_CODES or country_code == 'PS':
+            return vat[2:]
+        return vat
+
+    @staticmethod
+    def is_dni_vat(vat):
+        """ Returns True if vat is DNI (Spanish VAT)"""
+        country_code = len(vat) >= 2 and vat[:2]
+        if country_code in COUNTRY_CODES or country_code == 'PS':
+            vat = vat[2:]
+        if country_code == 'ES':
+            return es.dni.is_valid(vat)
+        return False
+
+    @staticmethod
+    def is_enterprise_vat(vat):
+        """ Returns True if vat is enterprise"""
+        country_code = len(vat) >= 2 and vat[:2]
+        if country_code in COUNTRY_CODES or country_code == 'PS':
+            vat = vat[2:]
+        if country_code == 'ES':
+            return es.cif.is_valid(vat)
+        return False
+
+    @staticmethod
+    def is_nie_vat(vat):
+        """ Returns True if vat is NIE (foreigner's document)"""
+        country_code = len(vat) >= 2 and vat[:2]
+        if country_code in COUNTRY_CODES or country_code == 'PS':
+            vat = vat[2:]
+        if country_code == 'ES':
+            return es.nie.is_valid(vat)
+        return False
+
+    @staticmethod
+    def is_official_identification_document(vat):
+        """ Returns True if vat is a foreign official identification document"""
+        country_code = len(vat) >= 2 and vat[:2]
+        if country_code != 'ES':
+            return country_code in COUNTRY_CODES
+        return False
+
+    @staticmethod
+    def is_passport(vat):
+        """ Returns True if vat is passport"""
+        if len(vat) >= 2:
+            return vat[:2] == 'PS'
+        return False
+
+    @staticmethod
+    def sii_get_vat_type(vat):
+        partner_vat = vat
+        is_nif = VAT.is_dni_vat(partner_vat)
+        is_nie = VAT.is_nie_vat(partner_vat)
+        is_enterprise = VAT.is_enterprise_vat(partner_vat)
+        if is_nif or is_nie or is_enterprise:
+            return '02'
+        elif VAT.is_passport(partner_vat):
+            return '03'
+        elif VAT.is_official_identification_document(partner_vat):
+            return '04'
+        else:
+            return '02'
 
 
 COUNTRY_CODES = {
