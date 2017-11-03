@@ -4,7 +4,8 @@ from __future__ import absolute_import
 from marshmallow import fields, ValidationError
 from sii import __SII_VERSION__
 from .invoices_record import (
-    MySchema, DateString, CustomStringField, Titular, NIF, PERIODO_VALUES
+    MySchema, DateString, CustomStringField, Titular, Partner, NIF,
+    PERIODO_VALUES
 )
 
 
@@ -46,8 +47,15 @@ class IdentificacionFacturaEmitida(IdentificacionFactura):
     IDEmisorFactura = fields.Nested(NIF, required=True)
 
 
+class EmisorBajaFacturaRecibida(Titular, Partner):
+
+    @staticmethod
+    def get_atleast_one_of():
+        return ['NIF', 'IDOtro']
+
+
 class IdentificacionFacturaRecibida(IdentificacionFactura):
-    IDEmisorFactura = fields.Nested(Titular, required=True)
+    IDEmisorFactura = fields.Nested(EmisorBajaFacturaRecibida, required=True)
 
 
 class PeriodoImpositivo(MySchema):
