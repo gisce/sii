@@ -486,7 +486,7 @@ def get_factura_recibida_dict(invoice,
                 },
                 'IDFactura': {
                     'IDEmisorFactura': get_partner_info(
-                        invoice.partner_id, in_invoice=False
+                        invoice.partner_id, in_invoice=True
                     ),
                     'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
