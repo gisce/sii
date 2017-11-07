@@ -79,7 +79,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
             else:
-                tipo_impositivo = tipo_impositivo_unitario * 100
+                tipo_impositivo = abs(tipo_impositivo_unitario * 100)
 
                 if in_invoice:
                     cuota_key = 'CuotaSoportada'
