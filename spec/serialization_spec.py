@@ -461,6 +461,35 @@ with description('El XML Generado'):
                         self.in_invoice.tax_line[0].tax_id.amount * 100
                     ))
 
+        with context('si es una factura del primer semestre 2017'):
+            with before.all:
+                # Clave Régimen Especial para
+                # Facturas Recibidas Primer Semestre 2017: '14'
+                self.cre_primer_semestre = '14'
+                self.in_invoice.sii_in_clave_regimen_especial = (
+                    self.cre_primer_semestre
+                )
+
+                self.first_semester_in_inv_obj = (
+                    SII(self.in_invoice).generate_object()
+                )
+                self.factura_recibida = (
+                    self.first_semester_in_inv_obj
+                    ['SuministroLRFacturasRecibidas']
+                    ['RegistroLRFacturasRecibidas']
+                )
+
+            with it('debe tener Clave de Régimen Especial "14"'):
+                expect(
+                    self.factura_recibida['FacturaRecibida']
+                    ['ClaveRegimenEspecialOTrascendencia']
+                ).to(equal(self.cre_primer_semestre))
+
+            with it('la cuota deducible debe ser 0'):
+                expect(
+                    self.factura_recibida['FacturaRecibida']['CuotaDeducible']
+                ).to(equal(0))
+
     with description('en los datos de una factura rectificativa emitida'):
         with before.all:
             self.out_refund = self.data_gen.get_out_refund_invoice()
