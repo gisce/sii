@@ -490,6 +490,13 @@ with description('El XML Generado'):
                     self.factura_recibida['FacturaRecibida']['CuotaDeducible']
                 ).to(equal(0))
 
+            with it('la fecha de registro contable debe ser la fecha del '
+                    'envío'):
+                expect(
+                    self.factura_recibida['FacturaRecibida']
+                    ['FechaRegContable']
+                ).to(equal(datetime.today().strftime('%d-%m-%Y')))
+
     with description('en los datos de una factura rectificativa emitida'):
         with before.all:
             self.out_refund = self.data_gen.get_out_refund_invoice()
