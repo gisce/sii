@@ -111,7 +111,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            type='in_invoice',
+            invoice_type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -142,7 +142,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            type='out_invoice',
+            invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -176,7 +176,7 @@ class DataGenerator:
             invoice_tax.tax_amount = -1 * abs(invoice_tax.tax_amount)
 
         rect_invoice = Invoice(
-            type='in_invoice',
+            invoice_type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -201,7 +201,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            type='in_refund',
+            invoice_type='in_refund',
             journal_id=journal,
             rectificative_type='R',
             rectifying_id=rect_invoice,
@@ -236,7 +236,7 @@ class DataGenerator:
             invoice_tax.tax_amount = -1 * abs(invoice_tax.tax_amount)
 
         rect_invoice = Invoice(
-            type='out_invoice',
+            invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -260,7 +260,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            type='out_refund',
+            invoice_type='out_refund',
             journal_id=journal,
             rectificative_type='R',
             rectifying_id=rect_invoice,
@@ -290,7 +290,7 @@ class DataGenerator:
         )
 
         rect_invoice = Invoice(
-            type='out_invoice',
+            invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -314,7 +314,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            type='out_invoice',
+            invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='RA',
             rectifying_id=rect_invoice,
