@@ -80,7 +80,7 @@ class Invoice:
     def __init__(self,
                  journal_id,
                  number,
-                 type,
+                 invoice_type,
                  partner_id,
                  address_contact_id,
                  company_id,
@@ -102,7 +102,7 @@ class Invoice:
                  origin=None):
         self.journal_id = journal_id
         self.number = number
-        self.type = type
+        self.type = invoice_type
         self.partner_id = partner_id
         self.address_contact_id = address_contact_id
         self.company_id = company_id
