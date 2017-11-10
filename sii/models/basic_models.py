@@ -92,13 +92,13 @@ class Invoice:
                  tax_line,
                  sii_registered,
                  rectificative_type,
-                 rectifying_id,
                  fiscal_position,
                  invoice_line,
                  sii_description,
-                 sii_in_clave_regimen_especial,
-                 sii_out_clave_regimen_especial,
-                 origin_date_invoice,
+                 rectifying_id=False,
+                 sii_in_clave_regimen_especial=None,
+                 sii_out_clave_regimen_especial=None,
+                 origin_date_invoice=None,
                  origin=None):
         self.journal_id = journal_id
         self.number = number
