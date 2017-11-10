@@ -111,7 +111,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            type='in_invoice',
+            invoice_type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -132,7 +132,6 @@ class DataGenerator:
             fiscal_position=self.fiscal_position,
             sii_description=self.sii_description,
             sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
-            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
         return invoice
 
@@ -142,7 +141,7 @@ class DataGenerator:
         )
 
         invoice = Invoice(
-            type='out_invoice',
+            invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -154,15 +153,13 @@ class DataGenerator:
             amount_untaxed=self.amount_untaxed,
             amount_tax=self.amount_tax,
             period_id=self.period,
-            origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
             sii_description=self.sii_description,
-            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
-            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
         )
         return invoice
 
@@ -176,7 +173,7 @@ class DataGenerator:
             invoice_tax.tax_amount = -1 * abs(invoice_tax.tax_amount)
 
         rect_invoice = Invoice(
-            type='in_invoice',
+            invoice_type='in_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -197,11 +194,10 @@ class DataGenerator:
             fiscal_position=self.fiscal_position,
             sii_description=self.sii_description,
             sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
-            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
 
         invoice = Invoice(
-            type='in_refund',
+            invoice_type='in_refund',
             journal_id=journal,
             rectificative_type='R',
             rectifying_id=rect_invoice,
@@ -222,7 +218,6 @@ class DataGenerator:
             fiscal_position=self.fiscal_position,
             sii_description=self.sii_description,
             sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
-            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
         )
         return invoice
 
@@ -236,7 +231,7 @@ class DataGenerator:
             invoice_tax.tax_amount = -1 * abs(invoice_tax.tax_amount)
 
         rect_invoice = Invoice(
-            type='out_invoice',
+            invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -248,19 +243,17 @@ class DataGenerator:
             amount_untaxed=self.amount_untaxed,
             amount_tax=self.amount_tax,
             period_id=self.period,
-            origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
             sii_description=self.sii_description,
-            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
-            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
         )
 
         invoice = Invoice(
-            type='out_refund',
+            invoice_type='out_refund',
             journal_id=journal,
             rectificative_type='R',
             rectifying_id=rect_invoice,
@@ -272,15 +265,13 @@ class DataGenerator:
             amount_untaxed=self.amount_untaxed,
             amount_tax=self.amount_tax,
             period_id=self.period,
-            origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
             tax_line=tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
             sii_description=self.sii_description,
-            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
-            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
         )
         return invoice
 
@@ -290,7 +281,7 @@ class DataGenerator:
         )
 
         rect_invoice = Invoice(
-            type='out_invoice',
+            invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='N',
             rectifying_id=False,
@@ -302,19 +293,17 @@ class DataGenerator:
             amount_untaxed=self.amount_untaxed,
             amount_tax=self.amount_tax,
             period_id=self.period,
-            origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
             sii_description=self.sii_description,
-            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
-            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
         )
 
         invoice = Invoice(
-            type='out_invoice',
+            invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='RA',
             rectifying_id=rect_invoice,
@@ -326,15 +315,13 @@ class DataGenerator:
             amount_untaxed=self.amount_untaxed,
             amount_tax=self.amount_tax,
             period_id=self.period,
-            origin_date_invoice=self.origin_date_invoice,
             date_invoice=self.date_invoice,
             tax_line=self.tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
             sii_description=self.sii_description,
-            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
-            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
         )
 
         return invoice
