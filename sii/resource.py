@@ -6,6 +6,7 @@ from decimal import Decimal, localcontext
 from sii import __SII_VERSION__
 from sii.models import invoices_record, invoices_deregister
 from sii.utils import COUNTRY_CODES, unidecode_str, VAT
+from datetime import date
 
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
 
@@ -394,6 +395,16 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             }
         }
 
+    fecha_reg_contable = invoice.date_invoice
+
+    # 2.39. ¿Cómo debe suministrarse la información correspondiente al primer
+    # semestre?
+    is_first_semester_2017 = invoice.sii_in_clave_regimen_especial == '14'
+    if is_first_semester_2017:
+        # Fecha registro contable: Fecha del envío.
+        fecha_reg_contable = date.today().strftime('%Y-%m-%d')
+        cuota_deducible = 0  # Cuota deducible: Etiqueta con 0
+
     rectificativa = rect_sust_opc1 or rect_sust_opc2
 
     factura_recibida = {
@@ -406,7 +417,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             invoice.partner_id, in_invoice=in_invoice, nombre_razon=True),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
-        'FechaRegContable': invoice.date_invoice
+        'FechaRegContable': fecha_reg_contable
     }
 
     if rectificativa:
