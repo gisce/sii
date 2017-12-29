@@ -6,11 +6,8 @@ from stdnum import es
 
 def unidecode_str(s):
     if isinstance(s, bytes):
-        res = unidecode(s.decode('utf-8'))
-    else:
-        res = unidecode(s)
-
-    return res
+        s = s.decode('utf-8')
+    return unidecode(s)
 
 
 class VAT:
@@ -23,6 +20,8 @@ class VAT:
         Returns the vat without the country code in the first two characters or
         without the "PS" that indicates it is a passport
         """
+        if not vat:
+            return ''
         country_code = len(vat) >= 2 and vat[:2].upper()
         if country_code in COUNTRY_CODES or country_code == 'PS':
             return vat[2:]
@@ -31,6 +30,8 @@ class VAT:
     @staticmethod
     def is_dni_vat(vat):
         """ Returns True if vat is DNI (Spanish VAT)"""
+        if not vat:
+            return False
         country_code = len(vat) >= 2 and vat[:2]
         if country_code in COUNTRY_CODES or country_code == 'PS':
             vat = vat[2:]
@@ -41,6 +42,8 @@ class VAT:
     @staticmethod
     def is_enterprise_vat(vat):
         """ Returns True if vat is enterprise"""
+        if not vat:
+            return False
         country_code = len(vat) >= 2 and vat[:2]
         if country_code in COUNTRY_CODES or country_code == 'PS':
             vat = vat[2:]
@@ -51,6 +54,8 @@ class VAT:
     @staticmethod
     def is_nie_vat(vat):
         """ Returns True if vat is NIE (foreigner's document)"""
+        if not vat:
+            return False
         country_code = len(vat) >= 2 and vat[:2]
         if country_code in COUNTRY_CODES or country_code == 'PS':
             vat = vat[2:]
@@ -61,6 +66,8 @@ class VAT:
     @staticmethod
     def is_official_identification_document(vat):
         """ Returns True if vat is a foreign official identification document"""
+        if not vat:
+            return False
         country_code = len(vat) >= 2 and vat[:2]
         if country_code != 'ES':
             return country_code in COUNTRY_CODES
@@ -69,6 +76,8 @@ class VAT:
     @staticmethod
     def is_passport(vat):
         """ Returns True if vat is passport"""
+        if not vat:
+            return False
         if len(vat) >= 2:
             return vat[:2] == 'PS'
         return False
