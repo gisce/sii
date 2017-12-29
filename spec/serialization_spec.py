@@ -197,19 +197,19 @@ with description('El XML Generado'):
                 expect(
                     self.grouped_detalle_iva[21.0]['BaseImponible']
                 ).to(equal(
-                    self.invoice.tax_line[0].base
+                    self.out_invoice.tax_line[0].base
                 ))
             with it('la CuotaRepercutida debe ser la original'):
                 expect(
                     self.grouped_detalle_iva[21.0]['CuotaRepercutida']
                 ).to(equal(
-                    self.invoice.tax_line[0].tax_amount
+                    self.out_invoice.tax_line[0].tax_amount
                 ))
             with it('el TipoImpositivo debe ser la original'):
                 expect(
                     self.grouped_detalle_iva[21.0]['TipoImpositivo']
                 ).to(equal(
-                    self.invoice.tax_line[0].tax_id.amount * 100
+                    self.out_invoice.tax_line[0].tax_id.amount * 100
                 ))
 
         with context('si es una exportación'):
@@ -270,11 +270,21 @@ with description('El XML Generado'):
                     self.out_invoice.address_contact_id.ref_catastral = \
                         ref_catastral
                     out_invoice_obj = SII(self.out_invoice).generate_object()
-                    detalle_inmueble = (
+                    factura_expedida = (
                         out_invoice_obj['SuministroLRFacturasEmitidas']
                         ['RegistroLRFacturasEmitidas']['FacturaExpedida']
-                        ['DatosInmueble']['DetalleInmueble']
                     )
+                    detalle_inmueble = (
+                        factura_expedida['DatosInmueble']['DetalleInmueble']
+                    )
+
+                    expect(
+                        dict(CRE_FACTURAS_EMITIDAS).keys()
+                    ).to(contain(
+                        (factura_expedida[
+                             'ClaveRegimenEspecialOTrascendencia'
+                         ])
+                    ))
 
                     expect(detalle_inmueble['ReferenciaCatastral']).to(equal(
                         ref_catastral
@@ -287,17 +297,20 @@ with description('El XML Generado'):
                             False
                         out_invoice_obj = \
                             SII(self.out_invoice).generate_object()
-                        detalle_inmueble = (
+                        factura_expedida = (
                             out_invoice_obj['SuministroLRFacturasEmitidas']
                             ['RegistroLRFacturasEmitidas']['FacturaExpedida']
-                            ['DatosInmueble']['DetalleInmueble']
+                        )
+                        detalle_inmueble = (
+                            factura_expedida['DatosInmueble']['DetalleInmueble']
                         )
 
                         expect(
                             dict(CRE_FACTURAS_EMITIDAS).keys()
                         ).to(contain(
-                            (self.factura['FacturaExpedida']
-                             ['ClaveRegimenEspecialOTrascendencia'])
+                            (factura_expedida[
+                                 'ClaveRegimenEspecialOTrascendencia'
+                             ])
                         ))
 
                         expect(detalle_inmueble.keys()).not_to(
@@ -541,19 +554,19 @@ with description('El XML Generado'):
                 expect(
                     self.grouped_detalle_iva[21.0]['BaseImponible']
                 ).to(equal(
-                    -1 * abs(self.invoice.tax_line[0].base)
+                    -1 * abs(self.out_refund.tax_line[0].base)
                 ))
             with it('la CuotaRepercutida debe ser la original'):
                 expect(
                     self.grouped_detalle_iva[21.0]['CuotaRepercutida']
                 ).to(equal(
-                    -1 * abs(self.invoice.tax_line[0].tax_amount)
+                    -1 * abs(self.out_refund.tax_line[0].tax_amount)
                 ))
             with it('el TipoImpositivo debe ser la original'):
                 expect(
                     self.grouped_detalle_iva[21.0]['TipoImpositivo']
                 ).to(equal(
-                    self.invoice.tax_line[0].tax_id.amount * 100
+                    self.out_refund.tax_line[0].tax_id.amount * 100
                 ))
 
     with description('en los datos de una factura rectificativa recibida'):
@@ -599,19 +612,19 @@ with description('El XML Generado'):
                 expect(
                     self.grouped_detalle_iva[21.0]['BaseImponible']
                 ).to(equal(
-                    -1 * abs(self.invoice.tax_line[0].base)
+                    -1 * abs(self.in_refund.tax_line[0].base)
                 ))
             with it('la CuotaRepercutida debe ser la original'):
                 expect(
                     self.grouped_detalle_iva[21.0]['CuotaSoportada']
                 ).to(equal(
-                    -1 * abs(self.invoice.tax_line[0].tax_amount)
+                    -1 * abs(self.in_refund.tax_line[0].tax_amount)
                 ))
             with it('el TipoImpositivo debe ser la original'):
                 expect(
                     self.grouped_detalle_iva[21.0]['TipoImpositivo']
                 ).to(equal(
-                    self.invoice.tax_line[0].tax_id.amount * 100
+                    self.in_refund.tax_line[0].tax_id.amount * 100
                 ))
 
     with description('en los datos de una factura emitida rectificativa '
