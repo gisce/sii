@@ -192,16 +192,6 @@ def get_factura_emitida_tipo_desglose(invoice):
                         'DetalleIVA': detalle_iva
                     }
                 }
-        if iva_values['no_sujeta_a_iva']:
-            fp = invoice.fiscal_position
-            if fp and 'islas canarias' in unidecode_str(fp.name.lower()):
-                desglose['NoSujeta'] = {
-                    'ImporteTAIReglasLocalizacion': importe_no_sujeto
-                }
-            else:
-                desglose['NoSujeta'] = {
-                    'ImportePorArticulos7_14_Otros': importe_no_sujeto
-                }
 
         partner_vat = VAT.clean_vat(invoice.partner_id.vat)
         partner_vat_starts_with_n = (
