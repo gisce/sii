@@ -170,6 +170,24 @@ class MySchema(Schema):
 
         return res
 
+    @staticmethod
+    def have_only_one_of_error_message(choices):
+        """
+
+        :param choices:
+        :type choices: list of str
+        :return:
+        """
+        choices_str = ', '.join(['"{}"'.format(choice) for choice in choices])
+
+        res = (
+            'Solo puede haber uno de los siguientes campos: {}'.format(
+                choices_str
+            )
+        )
+
+        return res
+
     def validate_field_max_length(self, value, field_name, max_chars):
         """
         Validates maximum length for the field
@@ -252,6 +270,22 @@ class MySchema(Schema):
                 raise ValidationError(
                     self.get_atleast_one_of_error_message(choices)
                 )
+
+    @validates_schema
+    def validate_have_only_one_of(self, data):
+        choices_method = getattr(self, 'have_only_one_of', None)
+        if choices_method:
+            choices = choices_method()
+            if choices:
+                found_one = False
+                for elem in choices:
+                    if elem in data:
+                        if found_one:
+                            raise ValidationError(
+                                self.have_only_one_of_error_message(choices)
+                            )
+                        else:
+                            found_one = True
 
     @validates_schema(pass_original=True)
     def check_unknown_fields(self, data, original_data):
@@ -448,6 +482,10 @@ class DesgloseTipoOperacion(MySchema):
 class TipoDesglose(MySchema):  # TODO obligatorio uno de los dos pero sólo puede haber uno
     DesgloseFactura = fields.Nested(DesgloseFacturaEmitida)
     DesgloseTipoOperacion = fields.Nested(DesgloseTipoOperacion)
+
+    @staticmethod
+    def have_only_one_of():
+        return ['DesgloseFactura', 'DesgloseTipoOperacion']
 
 
 class Partner(NIF):
