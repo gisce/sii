@@ -5,7 +5,8 @@ from sii.models.invoices_record import CRE_FACTURAS_EMITIDAS
 from sii.utils import unidecode_str, VAT
 from expects import *
 from datetime import datetime
-from spec.testing_data import DataGenerator
+from spec.testing_data import DataGenerator, Tax, InvoiceLine, InvoiceTax
+from mamba import *
 import os
 
 
@@ -210,6 +211,58 @@ with description('El XML Generado'):
                     self.grouped_detalle_iva[21.0]['TipoImpositivo']
                 ).to(equal(
                     self.out_invoice.tax_line[0].tax_id.amount * 100
+                ))
+
+        with context('en los detalles del IVA inversion sujeto pasivo'):
+            with before.all:
+                name_iva_isp = 'IVA 21% Inv. Sujeto pasivo'
+                tax_iva_isp = Tax(name=name_iva_isp, amount=0, type='percent')
+                self.out_invoice.invoice_line.append(InvoiceLine(
+                    price_subtotal=3200, invoice_line_tax_id=[tax_iva_isp]
+                ))
+                base_iva_isp = sum(
+                    [line.price_subtotal
+                     for line in self.out_invoice.invoice_line
+                     if tax_iva_isp in line.invoice_line_tax_id]
+                )
+                invoice_tax_isp = InvoiceTax(
+                    name=name_iva_isp, base=base_iva_isp,
+                    tax_amount=base_iva_isp * tax_iva_isp.amount,
+                    tax_id=tax_iva_isp
+                )
+                self.out_invoice.tax_line.append(invoice_tax_isp)
+                self.out_invoice_obj = SII(self.out_invoice).generate_object()
+                self.factura_emitida = (
+                    self.out_invoice_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']
+                )
+
+                detalle_iva_isp = (
+                    self.factura_emitida['FacturaExpedida']['TipoDesglose']
+                    ['DesgloseTipoOperacion']['Entrega']['Sujeta']['NoExenta']
+                    ['DesgloseIVA']['DetalleIVA']
+                )
+                self.grouped_detalle_iva_isp = group_by_tax_rate(
+                    detalle_iva_isp
+                )
+
+            with it('la BaseImponible debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva_isp[0.0]['BaseImponible']
+                ).to(equal(
+                    self.out_invoice.tax_line[4].base
+                ))
+            with it('la CuotaRepercutida debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva_isp[0.0]['CuotaRepercutida']
+                ).to(equal(
+                    self.out_invoice.tax_line[4].tax_amount
+                ))
+            with it('el TipoImpositivo debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva_isp[0.0]['TipoImpositivo']
+                ).to(equal(
+                    self.out_invoice.tax_line[4].tax_id.amount * 100
                 ))
 
         with context('si es una exportación'):
