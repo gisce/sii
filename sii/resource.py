@@ -1,14 +1,18 @@
 # coding=utf-8
 import re
-from copy import deepcopy
 from decimal import Decimal, localcontext
 
 from sii import __SII_VERSION__
 from sii.models import invoices_record, invoices_deregister
-from sii.utils import COUNTRY_CODES, unidecode_str, VAT
+from sii.utils import unidecode_str, VAT
 from datetime import date
 
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
+
+
+def is_inversion_sujeto_pasivo(tax_name):
+    regex_isp = r'.*inv.*sujeto pasivo'
+    return bool(re.match(regex_isp, unidecode_str(tax_name).lower()))
 
 
 def get_invoice_sign(invoice):
@@ -36,7 +40,8 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
         'iva_exento': False,
         'iva_no_exento': False,
         'detalle_iva_exento': {'BaseImponible': 0},
-        'importe_no_sujeto': 0
+        'importe_no_sujeto': 0,
+        'inversion_sujeto_pasivo': {}
     }
 
     # iva_values es un diccionario que agrupa los valores del IVA por el tipo
@@ -67,6 +72,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
             base_imponible = sign * base_iva
             cuota = inv_tax.tax_amount
             tipo_impositivo_unitario = inv_tax.tax_id.amount
+            tipo_impositivo = tipo_impositivo_unitario * 100
 
             invoice_total -= (base_imponible + cuota)
 
@@ -74,14 +80,22 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
             is_iva_exento = (
                 tipo_impositivo_unitario == 0 and tax_type == 'percent'
             )
+            if is_inversion_sujeto_pasivo(inv_tax.name):
+                new_value = {
+                    'BaseImponible': base_imponible,
+                    'TipoImpositivo': tipo_impositivo,
+                    'CuotaRepercutida': cuota
+                }
+                if vals['inversion_sujeto_pasivo']:
+                    vals['inversion_sujeto_pasivo'].append(new_value)
+                else:
+                    vals['inversion_sujeto_pasivo'] = [new_value]
             # IVA 0% Exportaciones y IVA 0% Importaciones tienen amount 0 y se
             # detectan como IVA exento
-            if not is_export and not is_import and is_iva_exento:
+            elif not is_export and not is_import and is_iva_exento:
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
             else:
-                tipo_impositivo = tipo_impositivo_unitario * 100
-
                 if in_invoice:
                     cuota_key = 'CuotaSoportada'
                 else:
@@ -152,6 +166,7 @@ def get_factura_emitida_tipo_desglose(invoice):
             entrega = {
                 'Sujeta': {
                     'NoExenta': {
+                        # No exenta - Sin inversion sujeto pasivo
                         'TipoNoExenta': 'S1',
                         'DesgloseIVA': {
                             'DetalleIVA': detalle_iva
@@ -175,6 +190,24 @@ def get_factura_emitida_tipo_desglose(invoice):
                 'Entrega': entrega
             }
         }
+    elif iva_values['inversion_sujeto_pasivo']:
+        tipo_desglose = {
+            'DesgloseTipoOperacion': {
+                'Entrega': {
+                    'Sujeta': {
+                        'NoExenta': {
+                            # No exenta - Con Inversion sujeto pasivo
+                            'TipoNoExenta': 'S2',
+                            'DesgloseIVA': {
+                                'DetalleIVA': (
+                                    iva_values['inversion_sujeto_pasivo']
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     else:
         desglose = {}
         detalle_iva_exento = iva_values['detalle_iva_exento']
@@ -187,6 +220,7 @@ def get_factura_emitida_tipo_desglose(invoice):
                 desglose['Sujeta']['Exenta'] = detalle_iva_exento
             if iva_values['iva_no_exento']:
                 desglose['Sujeta']['NoExenta'] = {
+                    # No exenta - Sin inversion sujeto pasivo
                     'TipoNoExenta': 'S1',
                     'DesgloseIVA': {
                         'DetalleIVA': detalle_iva
