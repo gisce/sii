@@ -32,26 +32,22 @@ class DataGenerator:
         base_iva_21 = sum(
             [line.price_subtotal
              for line in self.invoice_line
-             if tax_iva_21.amount
-             in [tax.amount for tax in line.invoice_line_tax_id]]
+             if tax_iva_21 in line.invoice_line_tax_id]
         )
         base_iva_4 = sum(
             [line.price_subtotal
              for line in self.invoice_line
-             if tax_iva_4.amount
-             in [tax.amount for tax in line.invoice_line_tax_id]]
+             if tax_iva_4 in line.invoice_line_tax_id]
         )
         base_ibi = sum(
             [line.price_subtotal
              for line in self.invoice_line
-             if tax_ibi.amount
-             in [tax.amount for tax in line.invoice_line_tax_id]]
+             if tax_ibi in line.invoice_line_tax_id]
         )
         base_iva_exento = sum(
             [line.price_subtotal
              for line in self.invoice_line
-             if tax_iva_exento.amount
-             in [tax.amount for tax in line.invoice_line_tax_id]]
+             if tax_iva_exento in line.invoice_line_tax_id]
         )
         invoice_tax_iva_21 = InvoiceTax(
             name=name_iva_21, base=base_iva_21,
