@@ -16,15 +16,16 @@ def group_by_tax_rate(iva_values):
     for iva in iva_values:
         tipo_impositivo = iva['TipoImpositivo']
         base_imponible = iva['BaseImponible']
-        cuota = (
-            iva['CuotaSoportada']
+        cuota_key = (
+            'CuotaSoportada'
             if 'CuotaSoportada' in iva.keys()
-            else iva['CuotaRepercutida']
+            else 'CuotaRepercutida'
         )
+        cuota = iva[cuota_key]
         if tipo_impositivo in aux_iva_values:
             aux = aux_iva_values[tipo_impositivo]
             aux['BaseImponible'] += base_imponible
-            aux['CuotaSoportada'] += cuota
+            aux[cuota_key] += cuota
         else:
             aux_iva_values[tipo_impositivo] = iva.copy()
 
