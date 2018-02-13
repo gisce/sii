@@ -11,8 +11,8 @@ SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
 
 
 def is_inversion_sujeto_pasivo(tax_name):
-    regex_isp = r'.*inv.*sujeto pasivo'
-    return bool(re.match(regex_isp, unidecode_str(tax_name).lower()))
+    regex_isp = r'inv.*sujeto pasivo'
+    return bool(re.search(regex_isp, unidecode_str(tax_name).lower()))
 
 
 def get_invoice_sign(invoice):
