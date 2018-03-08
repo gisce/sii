@@ -11,8 +11,8 @@ SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
 
 
 def is_inversion_sujeto_pasivo(tax_name):
-    regex_isp = r'.*inv.*sujeto pasivo'
-    return bool(re.match(regex_isp, unidecode_str(tax_name).lower()))
+    regex_isp = r'inv.*sujeto pasivo'
+    return bool(re.search(regex_isp, unidecode_str(tax_name).lower()))
 
 
 def get_invoice_sign(invoice):
@@ -41,7 +41,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
         'iva_no_exento': False,
         'detalle_iva_exento': {'BaseImponible': 0},
         'importe_no_sujeto': 0,
-        'inversion_sujeto_pasivo': {}
+        'inversion_sujeto_pasivo': []
     }
 
     # iva_values es un diccionario que agrupa los valores del IVA por el tipo
@@ -92,7 +92,8 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                     vals['inversion_sujeto_pasivo'] = [new_value]
             # IVA 0% Exportaciones y IVA 0% Importaciones tienen amount 0 y se
             # detectan como IVA exento
-            elif not is_export and not is_import and is_iva_exento:
+            elif (not is_export and not is_import
+                  and is_iva_exento and not in_invoice):
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
             else:
