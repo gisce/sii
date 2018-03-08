@@ -487,6 +487,22 @@ with description('El XML Generado'):
                     self.in_invoice.tax_line[0].tax_id.amount * 100
                 ))
 
+                expect(
+                    self.grouped_detalle_iva[0.0]['BaseImponible']
+                ).to(equal(
+                    self.in_invoice.tax_line[3].base
+                ))
+                expect(
+                    self.grouped_detalle_iva[0.0]['CuotaSoportada']
+                ).to(equal(
+                    self.in_invoice.tax_line[3].tax_amount
+                ))
+                expect(
+                    self.grouped_detalle_iva[0.0]['TipoImpositivo']
+                ).to(equal(
+                    self.in_invoice.tax_line[3].tax_id.amount * 100
+                ))
+
         with context('si es una importación'):
             with before.all:
                 # Clave Régimen Especial importación: '13'
