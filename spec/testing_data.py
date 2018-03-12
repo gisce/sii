@@ -26,7 +26,8 @@ class DataGenerator:
             InvoiceLine(price_subtotal=800, invoice_line_tax_id=[tax_ibi]),
             InvoiceLine(
                 price_subtotal=1600, invoice_line_tax_id=[tax_iva_exento]
-            )
+            ),
+            InvoiceLine(price_subtotal=3200, invoice_line_tax_id=[])
         ]
 
         base_iva_21 = sum(

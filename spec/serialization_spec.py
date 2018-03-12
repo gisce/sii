@@ -462,7 +462,7 @@ with description('El XML Generado'):
                     ).to(equal('FR'))
 
         with context('en los detalles del IVA'):
-            with it('el detalle de DesgloseIVA debe ser la original'):
+            with before.all:
                 detalle_iva_desglose_iva = (
                     self.factura_recibida['FacturaRecibida']['DesgloseFactura']
                     ['DesgloseIVA']['DetalleIVA']
@@ -471,6 +471,7 @@ with description('El XML Generado'):
                     detalle_iva_desglose_iva
                 )
 
+            with it('el detalle de DesgloseIVA debe ser la original'):
                 expect(
                     self.grouped_detalle_iva[21.0]['BaseImponible']
                 ).to(equal(
@@ -487,21 +488,19 @@ with description('El XML Generado'):
                     self.in_invoice.tax_line[0].tax_id.amount * 100
                 ))
 
+            with _it('el detalle de DesgloseIVA para importe no sujeto a '
+                     'impuesto debe ser correcto'):
                 expect(
                     self.grouped_detalle_iva[0.0]['BaseImponible']
                 ).to(equal(
-                    self.in_invoice.tax_line[3].base
+                    self.in_invoice.invoice_line[5].price_subtotal
                 ))
                 expect(
                     self.grouped_detalle_iva[0.0]['CuotaSoportada']
-                ).to(equal(
-                    self.in_invoice.tax_line[3].tax_amount
-                ))
+                ).to(equal(0))
                 expect(
                     self.grouped_detalle_iva[0.0]['TipoImpositivo']
-                ).to(equal(
-                    self.in_invoice.tax_line[3].tax_id.amount * 100
-                ))
+                ).to(equal(0))
 
         with context('si es una importación'):
             with before.all:
