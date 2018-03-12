@@ -111,7 +111,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                     iva_values[tipo_impositivo] = iva
                 vals['iva_no_exento'] = True
 
-    vals['detalle_iva'] = iva_values.values()
+    vals['detalle_iva'] = list(iva_values.values())
 
     invoice_total = round(invoice_total, 2)
     if invoice_total != 0:
