@@ -86,14 +86,10 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                     'TipoImpositivo': tipo_impositivo,
                     'CuotaRepercutida': cuota
                 }
-                if vals['inversion_sujeto_pasivo']:
-                    vals['inversion_sujeto_pasivo'].append(new_value)
-                else:
-                    vals['inversion_sujeto_pasivo'] = [new_value]
+                vals['inversion_sujeto_pasivo'].append(new_value)
             # IVA 0% Exportaciones y IVA 0% Importaciones tienen amount 0 y se
             # detectan como IVA exento
-            elif (not is_export and not is_import
-                  and is_iva_exento and not in_invoice):
+            elif not is_export and not is_import and is_iva_exento:
                 vals['iva_exento'] = True
                 vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
             else:
@@ -121,6 +117,13 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     if invoice_total != 0:
         vals['no_sujeta_a_iva'] = True
         vals['importe_no_sujeto'] = invoice_total
+        if in_invoice:
+            new_value = {
+                'BaseImponible': vals['importe_no_sujeto'],
+                'TipoImpositivo': 0,
+                'CuotaSoportada': 0
+            }
+            vals['detalle_iva'].append(new_value)
 
     return vals
 
