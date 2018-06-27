@@ -45,8 +45,8 @@ with description('El XML Generado'):
                 self.invoice_obj['SuministroLRFacturasEmitidas']['Cabecera']
             )
 
-        with it('la versión es la "1.0"'):
-            expect(self.cabecera['IDVersionSii']).to(equal('1.0'))
+        with it('la versión es la "1.1"'):
+            expect(self.cabecera['IDVersionSii']).to(equal('1.1'))
 
         with context('cuando es de tipo alta'):
             with it('el tipo de comunicación debe ser "A0"'):
@@ -141,7 +141,7 @@ with description('El XML Generado'):
 
         with context('en los datos del período'):
             with before.all:
-                self.periodo = self.factura['PeriodoImpositivo']
+                self.periodo = self.factura['PeriodoLiquidacion']
 
             with it('el ejercicio es el correspondiente al año de la factura'):
                 expect(
@@ -764,8 +764,8 @@ with description('El XML Generado en una baja de una factura emitida'):
                 self.invoice_obj['BajaLRFacturasEmitidas']['Cabecera']
             )
 
-        with it('la versión es la "1.0"'):
-            expect(self.cabecera['IDVersionSii']).to(equal('1.0'))
+        with it('la versión es la "1.1"'):
+            expect(self.cabecera['IDVersionSii']).to(equal('1.1'))
 
         with it('no debe contener el campo "TipoComunicacion"'):
             expect(self.cabecera).not_to(have_key('TipoComunicacion'))
@@ -798,7 +798,7 @@ with description('El XML Generado en una baja de una factura emitida'):
 
         with context('en los datos del período'):
             with before.all:
-                self.periodo = self.factura_emitida['PeriodoImpositivo']
+                self.periodo = self.factura_emitida['PeriodoLiquidacion']
 
             with it('el ejercicio es el correspondiente al año de la factura'):
                 expect(
@@ -851,8 +851,8 @@ with description('El XML Generado en una baja de una factura recibida'):
                 self.invoice_obj['BajaLRFacturasRecibidas']['Cabecera']
             )
 
-        with it('la versión es la "1.0"'):
-            expect(self.cabecera['IDVersionSii']).to(equal('1.0'))
+        with it('la versión es la "1.1"'):
+            expect(self.cabecera['IDVersionSii']).to(equal('1.1'))
 
         with it('no debe contener el campo "TipoComunicacion"'):
             expect(self.cabecera).not_to(have_key('TipoComunicacion'))
@@ -885,7 +885,7 @@ with description('El XML Generado en una baja de una factura recibida'):
 
         with context('en los datos del período'):
             with before.all:
-                self.periodo = self.factura_recibida['PeriodoImpositivo']
+                self.periodo = self.factura_recibida['PeriodoLiquidacion']
 
             with it('el ejercicio es el correspondiente al año de la factura'):
                 expect(

@@ -1,0 +1,1358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- editado con XMLSpy v2015 rel. 4 sp1 (x64) (http://www.altova.com) por AEAT (Agencia Estatal de Administración Tributaria) -->
+<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by PC Corporativo (AGENCIA TRIBUTARIA) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:siiR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" elementFormDefault="qualified">
+	<import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
+	<import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" schemaLocation="SuministroLR.xsd"/>
+	<element name="RespuestaLRFacturasEmitidas" type="siiR:RespuestaLRFEmitidasType"/>
+	<element name="RespuestaLRBajaFacturasEmitidas" type="siiR:RespuestaLRBajaFEmitidasType"/>
+	<element name="RespuestaLRFacturasRecibidas" type="siiR:RespuestaLRFRecibidasType"/>
+	<element name="RespuestaLRBajaFacturasRecibidas" type="siiR:RespuestaLRBajaFRecibidasType"/>
+	<element name="RespuestaLRBienesInversion" type="siiR:RespuestaLRBienesInversionType"/>
+	<element name="RespuestaLRBajaBienesInversion" type="siiR:RespuestaLRBajaBienesInversionType"/>
+	<element name="RespuestaLRDetOperacionesIntracomunitarias" type="siiR:RespuestaLROComunitariasType"/>
+	<element name="RespuestaLRBajaDetOperacionesIntracomunitarias" type="siiR:RespuestaLRBajaOComunitariasType"/>
+	<element name="RespuestaLRAgenciasViajes" type="siiR:RespuestaLRAgenciasViajesType"/>
+	<element name="RespuestaLRCobrosMetalico" type="siiR:RespuestaLRIMetalicoType"/>
+	<element name="RespuestaLROperacionesSeguros" type="siiR:RespuestaLROperacionesSegurosType"/>
+	<element name="RespuestaLRBajaCobrosMetalico" type="siiR:RespuestaLRBajaIMetalicoType"/>
+	<element name="RespuestaLRBajaAgenciasViajes" type="siiR:RespuestaLRBajaAgenciasViajesType"/>
+	<element name="RespuestaLRBajaOperacionesSeguros" type="siiR:RespuestaLRBajaOperacionesSegurosType"/>
+	<element name="RespuestaLRCobrosEmitidas" type="siiR:RespuestaLRCobrosEmitidasType"/>
+	<element name="RespuestaLRPagosRecibidas" type="siiR:RespuestaLRPagosRecibidasType"/>
+	<element name="RespuestaLRInmueblesAdicionales" type="siiR:RespuestaLRInmueblesType"/>
+	<complexType name="RespuestaComunAltaType">
+		<sequence>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> CSV asociado al envío generado por AEAT. Solo se genera si no hay rechazo del envio</documentation>
+				</annotation>
+			</element>
+			<element name="DatosPresentacion" type="sii:DatosPresentacionType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Se devuelven datos de la presentacion realizada. Solo se genera si no hay rechazo del envio </documentation>
+				</annotation>
+			</element>
+			<element name="Cabecera" type="sii:CabeceraSii">
+				<annotation>
+					<documentation xml:lang="es"> Se devuelve la cabecera que se incluó en el envío. </documentation>
+				</annotation>
+			</element>
+			<element name="EstadoEnvio" type="siiR:EstadoEnvioType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del envío en conjunto. 
+						Si los datos de cabecera y todos los registros son correctos,el estado es correcto. 
+						En caso de estructura y cabecera correctos donde todos los registros son incorrectos, el estado es incorrecto
+						En caso de estructura y cabecera correctos con al menos un registro incorrecto o aceptado con errores, el estado global es parcialmente correcto.						
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaLRFEmitidasType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii para suministro de Facturas emitidas</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunAltaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaExpedidaType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+						Estado detallado de cada línea del suministro.
+					</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRFRecibidasType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii para suministro de Facturas emitidas</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunAltaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaRecibidaType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+						Estado detallado de cada línea del suministro.
+					</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRBajaFRecibidasPagosType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii para suministro de Facturas Recibidas</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunBajaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaRecibidaPagoType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+						Estado detallado de cada línea del suministro.
+					</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRBienesInversionType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii para suministro de Facturas emitidas</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunAltaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaBienType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+						Estado detallado de cada línea del suministro.
+					</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLROComunitariasType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii para suministro de Facturas emitidas</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunAltaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaComunitariaType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+						Estado detallado de cada línea del suministro.
+					</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRIMetalicoType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunAltaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaMetalicoType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+							Estado detallado de cada línea del suministro.
+						</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRAgenciasViajesType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunAltaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaAgenciasViajesType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+							Estado detallado de cada línea del suministro.
+						</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLROperacionesSegurosType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunAltaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaOperacionesSegurosType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+							Estado detallado de cada línea del suministro.
+						</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaComunBajaType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii de baja</documentation>
+		</annotation>
+		<sequence>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> CSV asociado al envío generado por AEAT. Solo se genera si no hay rechazo del envio</documentation>
+				</annotation>
+			</element>
+			<element name="DatosPresentacion" type="sii:DatosPresentacionType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Se devuelven datos de la presentacion realizada. Solo se genera si no hay rechazo del envio </documentation>
+				</annotation>
+			</element>
+			<element name="Cabecera" type="sii:CabeceraSiiBaja">
+				<annotation>
+					<documentation xml:lang="es"> Se devuelve la cabecera que se incluó en el envío. </documentation>
+				</annotation>
+			</element>
+			<element name="EstadoEnvio" type="siiR:EstadoEnvioType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del envío en conjunto. 
+						Si los datos de cabecera y todos los registros son correctos,el estado es correcto. 
+						En caso de estructura y cabecera correctos donde todos los registros son incorrectos, el estado es incorrecto
+						En caso de estructura y cabecera correctos con al menos un registro incorrecto o aceptado con errores, el estado global es parcialmente correcto.										
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaCobrosPagosType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii de baja</documentation>
+		</annotation>
+		<sequence>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> CSV asociado al envío generado por AEAT. Solo se genera si no hay rechazo del envio</documentation>
+				</annotation>
+			</element>
+			<element name="DatosPresentacion" type="sii:DatosPresentacionType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Se devuelven datos de la presentacion realizada. Solo se genera si no hay rechazo del envio </documentation>
+				</annotation>
+			</element>
+			<element name="Cabecera" type="sii:CabeceraSiiCobrosPagos">
+				<annotation>
+					<documentation xml:lang="es"> Se devuelve la cabecera que se incluó en el envío. </documentation>
+				</annotation>
+			</element>
+			<element name="EstadoEnvio" type="siiR:EstadoEnvioType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del envío en conjunto. 
+						Si los datos de cabecera y todos los registros son correctos,el estado es correcto. 
+						En caso de estructura y cabecera correctos donde todos los registros son incorrectos, el estado es incorrecto
+						En caso de estructura y cabecera correctos con al menos un registro incorrecto o aceptado con errores, el estado global es parcialmente correcto.										
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaInmueblesType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii de baja</documentation>
+		</annotation>
+		<sequence>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> CSV asociado al envío generado por AEAT. Solo se genera si no hay rechazo del envio</documentation>
+				</annotation>
+			</element>
+			<element name="DatosPresentacion" type="sii:DatosPresentacionType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Se devuelven datos de la presentacion realizada. Solo se genera si no hay rechazo del envio </documentation>
+				</annotation>
+			</element>
+			<element name="Cabecera" type="sii:CabeceraSiiCobrosPagos">
+				<annotation>
+					<documentation xml:lang="es"> Se devuelve la cabecera que se incluó en el envío. </documentation>
+				</annotation>
+			</element>
+			<element name="EstadoEnvio" type="siiR:EstadoEnvioType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del envío en conjunto. 
+						Si los datos de cabecera y todos los registros son correctos,el estado es correcto. 
+						En caso de estructura y cabecera correctos donde todos los registros son incorrectos, el estado es incorrecto
+						En caso de estructura y cabecera correctos con al menos un registro incorrecto o aceptado con errores, el estado global es parcialmente correcto.										
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaLRBajaFEmitidasType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunBajaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaExpedidaBajaType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+								Estado detallado de cada línea del suministro.
+							</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRBajaFRecibidasType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunBajaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaRecibidaBajaType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+									Estado detallado de cada línea del suministro.
+								</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRBajaBienesInversionType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunBajaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaBienBajaType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+									Estado detallado de cada línea del suministro.
+								</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRBajaOComunitariasType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunBajaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaComunitariaBajaType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+									Estado detallado de cada línea del suministro.
+								</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRBajaIMetalicoType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunBajaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaMetalicoBajaType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+									Estado detallado de cada línea del suministro.
+								</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRBajaAgenciasViajesType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunBajaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaAgenciasViajesBajaType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+									Estado detallado de cada línea del suministro.
+								</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRBajaOperacionesSegurosType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaComunBajaType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaOperacionesSegurosBajaType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+									Estado detallado de cada línea del suministro.
+								</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRCobrosEmitidasType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaCobrosPagosType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaExpedidaCobroType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+								Estado detallado de cada línea del suministro.
+							</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRInmueblesType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaInmueblesType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaExpedidaInmueblesType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+								Estado detallado de cada línea del suministro.
+							</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaLRPagosRecibidasType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii para suministro de Facturas Recibidas</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="siiR:RespuestaCobrosPagosType">
+				<sequence>
+					<element name="RespuestaLinea" type="siiR:RespuestaRecibidaPagoType" minOccurs="0" maxOccurs="10000">
+						<annotation>
+							<documentation xml:lang="es"> 
+						Estado detallado de cada línea del suministro.
+					</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RespuestaExpedidaType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDFactura" type="sii:IDFacturaExpedidaType">
+				<annotation>
+					<documentation xml:lang="es"> Factura Expedida </documentation>
+				</annotation>
+			</element>
+			<element name="RefExterna" type="sii:TextMax60Type" minOccurs="0"/>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, Incorrecto o Aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado a la factura registrada previamente en el sistema. Solo se suministra si la factura enviada es rechazada por estar duplicada
+					</documentation>
+				</annotation>
+			</element>
+			<element name="RegistroDuplicado" type="sii:RegistroDuplicadoType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Solo en el caso de que se rechace el registro por duplicado se devuelve este nodo con la informacion regisrada en el SII para este registro
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaExpedidaBajaType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDFactura" type="sii:IDFacturaExpedidaType">
+				<annotation>
+					<documentation xml:lang="es"> Factura Expedida </documentation>
+				</annotation>
+			</element>
+			<element name="RefExterna" type="sii:TextMax60Type" minOccurs="0"/>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, Incorrecto o Aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado a la factura registrada previamente en el sistema. Solo se suministra si la factura es rechazada porque ya está dada de baja
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaExpedidaCobroType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDFactura" type="sii:IDFacturaExpedidaBCType">
+				<annotation>
+					<documentation xml:lang="es"> Factura Expedida </documentation>
+				</annotation>
+			</element>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, Incorrecto o Aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaExpedidaInmueblesType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDFactura" type="sii:IDFacturaExpedidaBCType">
+				<annotation>
+					<documentation xml:lang="es"> Factura Expedida </documentation>
+				</annotation>
+			</element>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, Incorrecto o Aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaRecibidaType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDFactura" type="sii:IDFacturaRecibidaType">
+				<annotation>
+					<documentation xml:lang="es"> Factura Recibida </documentation>
+				</annotation>
+			</element>
+			<element name="RefExterna" type="sii:TextMax60Type" minOccurs="0"/>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado a la factura registrada previamente en el sistema. Solo se suministra si la factura es rechazada por estar duplicada
+					</documentation>
+				</annotation>
+			</element>
+			<element name="RegistroDuplicado" type="sii:RegistroDuplicadoType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Solo en el caso de que se rechace el registro por duplicado se devuelve este nodo con la informacion regisrada en el SII para este registro
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaRecibidaBajaType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDFactura" type="sii:IDFacturaRecibidaNombreBCType">
+				<annotation>
+					<documentation xml:lang="es"> Contraparte </documentation>
+				</annotation>
+			</element>
+			<element name="RefExterna" type="sii:TextMax60Type" minOccurs="0"/>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado a la factura registrada previamente en el sistema. Solo se suministra si la factura es rechazada porque ya está dada de baja
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaRecibidaPagoType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDFactura" type="sii:IDFacturaRecibidaNombreBCType">
+				<annotation>
+					<documentation xml:lang="es"> Contraparte </documentation>
+				</annotation>
+			</element>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaBienType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="PeriodoLiquidacion">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es"> Período al que corresponden los apuntes. todos los apuntes deben corresponder al mismo período impositivo </documentation>
+					</annotation>
+					<sequence>
+						<element name="Ejercicio" type="sii:YearType"/>
+						<element name="Periodo" type="sii:TipoPeriodoType"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="IDFactura" type="sii:IDFacturaComunitariaType">
+				<annotation>
+					<documentation xml:lang="es"> Contraparte </documentation>
+				</annotation>
+			</element>
+			<element name="IdentificacionBien" type="sii:TextMax40Type"/>
+			<element name="RefExterna" type="sii:TextMax60Type" minOccurs="0"/>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado a la factura registrada previamente en el sistema. Solo se suministra si la factura es rechazada por estar duplicada
+					</documentation>
+				</annotation>
+			</element>
+			<element name="RegistroDuplicado" type="sii:RegistroDuplicadoType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Solo en el caso de que se rechace el registro por duplicado se devuelve este nodo con la informacion regisrada en el SII para este registro
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaBienBajaType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="PeriodoLiquidacion">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es"> Período al que corresponden los apuntes. todos los apuntes deben corresponder al mismo período impositivo </documentation>
+					</annotation>
+					<sequence>
+						<element name="Ejercicio" type="sii:YearType"/>
+						<element name="Periodo" type="sii:TipoPeriodoType"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="IDFactura" type="sii:IDFacturaComunitariaType">
+				<annotation>
+					<documentation xml:lang="es"> Contraparte </documentation>
+				</annotation>
+			</element>
+			<element name="IdentificacionBien" type="sii:TextMax40Type"/>
+			<element name="RefExterna" type="sii:TextMax60Type" minOccurs="0"/>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado a la factura registrada previamente en el sistema. Solo se suministra si la factura es rechazada porque ya está dada de baja
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaComunitariaType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDFactura" type="sii:IDFacturaComunitariaType">
+				<annotation>
+					<documentation xml:lang="es"> Contraparte </documentation>
+				</annotation>
+			</element>
+			<element name="RefExterna" type="sii:TextMax60Type" minOccurs="0"/>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado a la factura registrada previamente en el sistema. Solo se suministra si la factura es rechazada por estar duplicada
+					</documentation>
+				</annotation>
+			</element>
+			<element name="RegistroDuplicado" type="sii:RegistroDuplicadoType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Solo en el caso de que se rechace el registro por duplicado se devuelve este nodo con la informacion regisrada en el SII para este registro
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaComunitariaBajaType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDFactura" type="sii:IDFacturaComunitariaType">
+				<annotation>
+					<documentation xml:lang="es"> Contraparte </documentation>
+				</annotation>
+			</element>
+			<element name="RefExterna" type="sii:TextMax60Type" minOccurs="0"/>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado a la factura registrada previamente en el sistema. Solo se suministra si la factura es rechazada porque ya está dada de baja
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaMetalicoType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="PeriodoLiquidacion">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es"> Período al que corresponden los apuntes. todos los apuntes deben corresponder al mismo período impositivo </documentation>
+					</annotation>
+					<sequence>
+						<element name="Ejercicio" type="sii:YearType"/>
+						<element name="Periodo" type="sii:TipoPeriodoType"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="Contraparte" type="sii:PersonaFisicaJuridicaType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Permite identificar la factura línea del suministro a la que se refiere la respuesta.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado a la operacion registrada previamente en el sistema. Solo se suministra si la operacion es rechazada por estar duplicada
+					</documentation>
+				</annotation>
+			</element>
+			<element name="RegistroDuplicado" type="sii:RegistroDuplicadoType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Solo en el caso de que se rechace el registro por duplicado se devuelve este nodo con la informacion regisrada en el SII para este registro
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaAgenciasViajesType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="PeriodoLiquidacion">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es"> Período al que corresponden los apuntes. todos los apuntes deben corresponder al mismo período impositivo </documentation>
+					</annotation>
+					<sequence>
+						<element name="Ejercicio" type="sii:YearType"/>
+						<element name="Periodo" type="sii:TipoPeriodoType"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="Contraparte" type="sii:PersonaFisicaJuridicaType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Permite identificar la factura línea del suministro a la que se refiere la respuesta.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado a la operacion registrada previamente en el sistema. Solo se suministra si la operacion es rechazada por estar duplicada
+					</documentation>
+				</annotation>
+			</element>
+			<element name="RegistroDuplicado" type="sii:RegistroDuplicadoType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Solo en el caso de que se rechace el registro por duplicado se devuelve este nodo con la informacion regisrada en el SII para este registro
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaMetalicoBajaType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="PeriodoLiquidacion">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es"> Período al que corresponden los apuntes. todos los apuntes deben corresponder al mismo período impositivo </documentation>
+					</annotation>
+					<sequence>
+						<element name="Ejercicio" type="sii:YearType"/>
+						<element name="Periodo" type="sii:TipoPeriodoType"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="Contraparte" type="sii:PersonaFisicaJuridicaType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Permite identificar la factura línea del suministro a la que se refiere la respuesta.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado al registro. Solo se suministra si el registro es rechazado porque ya está dado de baja
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaAgenciasViajesBajaType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="PeriodoLiquidacion">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es"> Período al que corresponden los apuntes. todos los apuntes deben corresponder al mismo período impositivo </documentation>
+					</annotation>
+					<sequence>
+						<element name="Ejercicio" type="sii:YearType"/>
+						<element name="Periodo" type="sii:TipoPeriodoType"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="Contraparte" type="sii:PersonaFisicaJuridicaType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Permite identificar la factura línea del suministro a la que se refiere la respuesta.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado a la factura registrada previamente en el sistema. Solo se suministra si la factura es rechazada porque ya está dada de baja
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaOperacionesSegurosType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="PeriodoLiquidacion">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es"> Período al que corresponden los apuntes. todos los apuntes deben corresponder al mismo período impositivo </documentation>
+					</annotation>
+					<sequence>
+						<element name="Ejercicio" type="sii:YearType"/>
+						<element name="Periodo" type="sii:TipoPeriodoType"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="Contraparte" type="sii:PersonaFisicaJuridicaType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Permite identificar la factura línea del suministro a la que se refiere la respuesta.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="ClaveOperacion" type="sii:ClaveOperacionType"/>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado a la operacion registrada previamente en el sistema. Solo se suministra si la operacion es rechazada por estar duplicada
+					</documentation>
+				</annotation>
+			</element>
+			<element name="RegistroDuplicado" type="sii:RegistroDuplicadoType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Solo en el caso de que se rechace el registro por duplicado se devuelve este nodo con la informacion regisrada en el SII para este registro
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaOperacionesSegurosBajaType">
+		<annotation>
+			<documentation xml:lang="es"> Respuesta a un envío Sii </documentation>
+		</annotation>
+		<sequence>
+			<element name="PeriodoLiquidacion">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es"> Período al que corresponden los apuntes. todos los apuntes deben corresponder al mismo período impositivo </documentation>
+					</annotation>
+					<sequence>
+						<element name="Ejercicio" type="sii:YearType"/>
+						<element name="Periodo" type="sii:TipoPeriodoType"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="Contraparte" type="sii:PersonaFisicaJuridicaType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Permite identificar la factura línea del suministro a la que se refiere la respuesta.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="ClaveOperacion" type="sii:ClaveOperacionType"/>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado al registro. Solo se suministra si el registro es rechazado porque ya está dada de baja
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<simpleType name="EstadoEnvioType">
+		<restriction base="string">
+			<enumeration value="Correcto">
+				<annotation>
+					<documentation xml:lang="es">Correcto</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ParcialmenteCorrecto">
+				<annotation>
+					<documentation xml:lang="es">Parcialmente correcto. Ver detalle de errores</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Incorrecto">
+				<annotation>
+					<documentation xml:lang="es">Incorrecto</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="EstadoRegistroType">
+		<restriction base="string">
+			<enumeration value="Correcto">
+				<annotation>
+					<documentation xml:lang="es">Correcto</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="AceptadoConErrores">
+				<annotation>
+					<documentation xml:lang="es">Aceptado con Errores. Ver detalle del error</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Incorrecto">
+				<annotation>
+					<documentation xml:lang="es">Incorrecto</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="ErrorEnvioType">
+		<restriction base="string">
+			<enumeration value="ERR01">
+				<annotation>
+					<documentation xml:lang="es">Error de validación contra esquema</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ERR03">
+				<annotation>
+					<documentation xml:lang="es">Declarante desconocido</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ERR04">
+				<annotation>
+					<documentation xml:lang="es">El declarante debe identificarse mediante un NIF español.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ERR05">
+				<annotation>
+					<documentation xml:lang="es">El NIF del representante es incorrecto.</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="ErrorDetalleType">
+		<restriction base="integer"/>
+	</simpleType>
+</schema>

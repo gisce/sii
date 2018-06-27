@@ -1,4 +1,4 @@
-marshmallow>=2.13.5
+marshmallow>=2.13.5,<3.0.0
 zeep
 unidecode
 python-stdnum

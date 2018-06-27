@@ -6,14 +6,15 @@ from sii import __SII_VERSION__
 from datetime import datetime
 import re
 
-TIPO_COMUNICACION_VALUES = ['A0', 'A1', 'A4']
+TIPO_COMUNICACION_VALUES = ['A0', 'A1', 'A4', 'A5', 'A6']
 
 TIPO_FACTURA_VALUES = [
-    'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'R1', 'R2', 'R3', 'R4', 'R5'
+    'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'R1', 'R2', 'R3', 'R4', 'R5', 'LC'
 ]
 
 PERIODO_VALUES = [
-    '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '0A'
+    '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12',
+    '0A', '1T', '2T', '3T', '4T'
 ]
 
 TIPO_IMPOSITIVO_VALUES = [0.0, 4.0, 10.0, 21.0,  # Tipos impositivos actuales
@@ -88,7 +89,8 @@ CRE_FACTURAS_EMITIDAS = [
            u'cuyo destinatario sea una Administración Pública'),
     ('15', u'Factura con IVA pendiente de devengo en operaciones de tracto '
            u'sucesivo'),
-    ('16', u'Primer semestre 2017')
+    ('16', u'Primer semestre 2017 y otras facturas anteriores a la inclusión '
+           u'en el SII')
 ]
 
 CRE_FACTURAS_RECIBIDAS = [
@@ -110,7 +112,8 @@ CRE_FACTURAS_RECIBIDAS = [
     ('12', u'Operaciones de arrendamiento de local de negocio'),
     ('13', u'Factura correspondiente a una importación (informada sin asociar '
            u'a un DUA)'),
-    ('14', u'Primer semestre 2017')
+    ('14', u'Primer semestre 2017 y otras facturas anteriores a la inclusión '
+           u'en el SII')
 ]
 
 SITUACION_INMUEBLE_VALUES = ['1', '2', '3', '4']
@@ -364,7 +367,7 @@ class Cabecera(MySchema):
         )
 
 
-class PeriodoImpositivo(MySchema):
+class PeriodoLiquidacion(MySchema):
     Ejercicio = CustomStringField(required=True)
     Periodo = CustomStringField(required=True)
 
@@ -408,7 +411,7 @@ class IdentificacionFactura(MySchema):
 
 class Factura(MySchema):
     # Campos comunes de una factura
-    PeriodoImpositivo = fields.Nested(PeriodoImpositivo, required=True)
+    PeriodoLiquidacion = fields.Nested(PeriodoLiquidacion, required=True)
     IDFactura = fields.Nested(IdentificacionFactura, required=True)
 
 
@@ -417,8 +420,8 @@ class DetalleIVA(MySchema):
     CausaExencion = CustomStringField()
 
 
-class Exenta(DetalleIVA):
-    pass
+class Exenta(MySchema):
+    DetalleExenta = fields.Nested(DetalleIVA)
 
 
 class DetalleIVAEmitida(DetalleIVA):
@@ -538,6 +541,7 @@ class DetalleFactura(MySchema):
     # 1.Obligatorio si Baseimponible=0 y TipoFactura=”F2” o “R5”
     # 2.Obligatorio si Baseimponible=0 y ClaveRegimenEspecialOTranscedencia = “05”o “03”
     ImporteTotal = fields.Float()
+    RefExterna = CustomStringField()
 
     def validate_tipo_factura(self, value):
         self.validate_field_is_one_of(
@@ -555,6 +559,12 @@ class DetalleFactura(MySchema):
         self.validate_field_is_one_of(
             value=value, field_name='Tipo de Rectificativa',
             choices=TIPO_RECTIFICATIVA_VALUES
+        )
+
+    def validate_ref_externa(self, value):
+        self.validate_field_max_length(
+            value=value, field_name='Referencia Externa',
+            max_chars=60
         )
 
 
