@@ -183,11 +183,13 @@ def get_factura_emitida_tipo_desglose(invoice):
 
             entrega = {
                 'Sujeta': {
-                    'Exenta': detalle_iva_exento
+                    'Exenta': {
+                        'DetalleExenta': detalle_iva_exento,
+                    }
                 }
             }
             # Exenta por el artículo 21
-            entrega['Sujeta']['Exenta']['CausaExencion'] = 'E2'
+            entrega['Sujeta']['Exenta']['DetalleExenta']['CausaExencion'] = 'E2'
 
         tipo_desglose = {
             'DesgloseTipoOperacion': {
@@ -221,7 +223,9 @@ def get_factura_emitida_tipo_desglose(invoice):
         if iva_values['sujeta_a_iva']:
             desglose['Sujeta'] = {}
             if iva_values['iva_exento']:
-                desglose['Sujeta']['Exenta'] = detalle_iva_exento
+                desglose['Sujeta']['Exenta'] = {
+                    'DetalleExenta': detalle_iva_exento
+                }
             if iva_values['iva_no_exento']:
                 desglose['Sujeta']['NoExenta'] = {
                     # No exenta - Sin inversion sujeto pasivo

@@ -420,8 +420,8 @@ class DetalleIVA(MySchema):
     CausaExencion = CustomStringField()
 
 
-class Exenta(DetalleIVA):
-    pass
+class Exenta(MySchema):
+    DetalleExenta = fields.Nested(DetalleIVA)
 
 
 class DetalleIVAEmitida(DetalleIVA):
@@ -541,6 +541,7 @@ class DetalleFactura(MySchema):
     # 1.Obligatorio si Baseimponible=0 y TipoFactura=”F2” o “R5”
     # 2.Obligatorio si Baseimponible=0 y ClaveRegimenEspecialOTranscedencia = “05”o “03”
     ImporteTotal = fields.Float()
+    RefExterna = CustomStringField()
 
     def validate_tipo_factura(self, value):
         self.validate_field_is_one_of(
@@ -558,6 +559,12 @@ class DetalleFactura(MySchema):
         self.validate_field_is_one_of(
             value=value, field_name='Tipo de Rectificativa',
             choices=TIPO_RECTIFICATIVA_VALUES
+        )
+
+    def validate_ref_externa(self, value):
+        self.validate_field_max_length(
+            value=value, field_name='Referencia Externa',
+            max_chars=60
         )
 
 
