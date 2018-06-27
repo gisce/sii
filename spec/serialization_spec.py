@@ -45,8 +45,8 @@ with description('El XML Generado'):
                 self.invoice_obj['SuministroLRFacturasEmitidas']['Cabecera']
             )
 
-        with it('la versión es la "1.0"'):
-            expect(self.cabecera['IDVersionSii']).to(equal('1.0'))
+        with it('la versión es la "1.1"'):
+            expect(self.cabecera['IDVersionSii']).to(equal('1.1'))
 
         with context('cuando es de tipo alta'):
             with it('el tipo de comunicación debe ser "A0"'):
@@ -764,8 +764,8 @@ with description('El XML Generado en una baja de una factura emitida'):
                 self.invoice_obj['BajaLRFacturasEmitidas']['Cabecera']
             )
 
-        with it('la versión es la "1.0"'):
-            expect(self.cabecera['IDVersionSii']).to(equal('1.0'))
+        with it('la versión es la "1.1"'):
+            expect(self.cabecera['IDVersionSii']).to(equal('1.1'))
 
         with it('no debe contener el campo "TipoComunicacion"'):
             expect(self.cabecera).not_to(have_key('TipoComunicacion'))
@@ -851,8 +851,8 @@ with description('El XML Generado en una baja de una factura recibida'):
                 self.invoice_obj['BajaLRFacturasRecibidas']['Cabecera']
             )
 
-        with it('la versión es la "1.0"'):
-            expect(self.cabecera['IDVersionSii']).to(equal('1.0'))
+        with it('la versión es la "1.1"'):
+            expect(self.cabecera['IDVersionSii']).to(equal('1.1'))
 
         with it('no debe contener el campo "TipoComunicacion"'):
             expect(self.cabecera).not_to(have_key('TipoComunicacion'))
