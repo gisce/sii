@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactRecibidas.wsdl" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactRecibidas.wsdl">
+	<wsdl:types>
+		<xs:schema targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactRecibidas.wsdl" elementFormDefault="qualified" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactRecibidas.wsdl" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd">
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" schemaLocation="SuministroLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" schemaLocation="ConsultaLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" schemaLocation="RespuestaConsultaLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" schemaLocation="RespuestaSuministro.xsd"/>
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="EntradaSuministroLRFacturasRecibidas">
+		<wsdl:part name="SuministroLRFacturasRecibidas" element="siiLR:SuministroLRFacturasRecibidas"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaAnulacionLRFacturasRecibidas">
+		<wsdl:part name="AnulacionLRFacturasRecibidas" element="siiLR:BajaLRFacturasRecibidas"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaConsultaLRFacturasRecibidas">
+		<wsdl:part name="ConsultaLRFacturasRecibidas" element="siiLRC:ConsultaLRFacturasRecibidas"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaConsultaLRFactInformadasProveedor">
+		<wsdl:part name="ConsultaLRFactInformadasProveedor" element="siiLRC:ConsultaLRFactInformadasProveedor"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaConsultaLRFactInformadasAgrupadasProveedor">
+		<wsdl:part name="ConsultaLRFactInformadasAgrupadasProveedor" element="siiLRC:ConsultaLRFactInformadasAgrupadasProveedor"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaSuministroLRFacturasRecibidas">
+		<wsdl:part name="RespuestaSuministroLRFacturasRecibidas" element="siiR:RespuestaLRFacturasRecibidas"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaAnulacionLRFacturasRecibidas">
+		<wsdl:part name="RespuestaLAnulacionRFacturasRecibidas" element="siiR:RespuestaLRBajaFacturasRecibidas"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaConsultaLRFacturasRecibidas">
+		<wsdl:part name="RespuestaConsultaLRFacturasRecibidas" element="siiLRRC:RespuestaConsultaLRFacturasRecibidas"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaConsultaLRFactInformadasProveedor">
+		<wsdl:part name="RespuestaConsultaLRFactInformadasProveedor" element="siiLRRC:RespuestaConsultaLRFactInformadasProveedor"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaConsultaLRFactInformadasAgrupadasProveedor">
+		<wsdl:part name="RespuestaConsultaLRFactInformadasAgrupadasProveedor" element="siiLRRC:RespuestaConsultaLRFactInformadasAgrupadasProveedor"/>
+	</wsdl:message>
+	<wsdl:portType name="siiSOAP">
+		<wsdl:operation name="SuministroLRFacturasRecibidas">
+			<wsdl:input message="siiWdsl:EntradaSuministroLRFacturasRecibidas"/>
+			<wsdl:output message="siiWdsl:RespuestaSuministroLRFacturasRecibidas"/>
+		</wsdl:operation>
+		<wsdl:operation name="AnulacionLRFacturasRecibidas">
+			<wsdl:input message="siiWdsl:EntradaAnulacionLRFacturasRecibidas"/>
+			<wsdl:output message="siiWdsl:RespuestaAnulacionLRFacturasRecibidas"/>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRFacturasRecibidas">
+			<wsdl:input message="siiWdsl:EntradaConsultaLRFacturasRecibidas"/>
+			<wsdl:output message="siiWdsl:RespuestaConsultaLRFacturasRecibidas"/>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRFactInformadasProveedor">
+			<wsdl:input message="siiWdsl:EntradaConsultaLRFactInformadasProveedor"/>
+			<wsdl:output message="siiWdsl:RespuestaConsultaLRFactInformadasProveedor"/>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRFactInformadasAgrupadasProveedor">
+			<wsdl:input message="siiWdsl:EntradaConsultaLRFactInformadasAgrupadasProveedor"/>
+			<wsdl:output message="siiWdsl:RespuestaConsultaLRFactInformadasAgrupadasProveedor"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="siiBinding" type="siiWdsl:siiSOAP">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="SuministroLRFacturasRecibidas">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="AnulacionLRFacturasRecibidas">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRFacturasRecibidas">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRFactInformadasProveedor">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRFactInformadasAgrupadasProveedor">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="siiService">
+		<!-- Entorno de PRODUCCION día 1 de julio 2018-->
+		<wsdl:port name="SuministroFactRecibidas" binding="siiWdsl:siiBinding">
+			<soap:address location="https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRODUCCION día 1 de julio 2018 para acceso con certificado de sello-->
+		<wsdl:port name="SuministroFactRecibidasSello" binding="siiWdsl:siiBinding">
+			<soap:address location="https://www10.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRUEBAS (tambien valido para acceso con certificados de sello)-->
+		<wsdl:port name="SuministroFactRecibidasPruebas" binding="siiWdsl:siiBinding">
+			<soap:address location="https://www7.aeat.es/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>
