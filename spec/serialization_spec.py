@@ -141,7 +141,7 @@ with description('El XML Generado'):
 
         with context('en los datos del período'):
             with before.all:
-                self.periodo = self.factura['PeriodoImpositivo']
+                self.periodo = self.factura['PeriodoLiquidacion']
 
             with it('el ejercicio es el correspondiente al año de la factura'):
                 expect(
@@ -798,7 +798,7 @@ with description('El XML Generado en una baja de una factura emitida'):
 
         with context('en los datos del período'):
             with before.all:
-                self.periodo = self.factura_emitida['PeriodoImpositivo']
+                self.periodo = self.factura_emitida['PeriodoLiquidacion']
 
             with it('el ejercicio es el correspondiente al año de la factura'):
                 expect(
@@ -885,7 +885,7 @@ with description('El XML Generado en una baja de una factura recibida'):
 
         with context('en los datos del período'):
             with before.all:
-                self.periodo = self.factura_recibida['PeriodoImpositivo']
+                self.periodo = self.factura_recibida['PeriodoLiquidacion']
 
             with it('el ejercicio es el correspondiente al año de la factura'):
                 expect(

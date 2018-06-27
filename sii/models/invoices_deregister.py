@@ -58,7 +58,7 @@ class IdentificacionFacturaRecibida(IdentificacionFactura):
     IDEmisorFactura = fields.Nested(EmisorBajaFacturaRecibida, required=True)
 
 
-class PeriodoImpositivo(MySchema):
+class PeriodoLiquidacion(MySchema):
     Ejercicio = CustomStringField(required=True)
     Periodo = CustomStringField(required=True)
 
@@ -76,7 +76,7 @@ class PeriodoImpositivo(MySchema):
 
 
 class Factura(MySchema):
-    PeriodoImpositivo = fields.Nested(PeriodoImpositivo, required=True)
+    PeriodoLiquidacion = fields.Nested(PeriodoLiquidacion, required=True)
 
 
 class FacturaEmitida(Factura):

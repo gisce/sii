@@ -364,7 +364,7 @@ class Cabecera(MySchema):
         )
 
 
-class PeriodoImpositivo(MySchema):
+class PeriodoLiquidacion(MySchema):
     Ejercicio = CustomStringField(required=True)
     Periodo = CustomStringField(required=True)
 
@@ -408,7 +408,7 @@ class IdentificacionFactura(MySchema):
 
 class Factura(MySchema):
     # Campos comunes de una factura
-    PeriodoImpositivo = fields.Nested(PeriodoImpositivo, required=True)
+    PeriodoLiquidacion = fields.Nested(PeriodoLiquidacion, required=True)
     IDFactura = fields.Nested(IdentificacionFactura, required=True)
 
 

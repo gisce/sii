@@ -502,7 +502,7 @@ def get_factura_emitida_dict(invoice,
         'SuministroLRFacturasEmitidas': {
             'Cabecera': get_header(invoice),
             'RegistroLRFacturasEmitidas': {
-                'PeriodoImpositivo': {
+                'PeriodoLiquidacion': {
                     'Ejercicio': invoice.period_id.name[3:7],
                     'Periodo': invoice.period_id.name[0:2]
                 },
@@ -529,7 +529,7 @@ def get_factura_recibida_dict(invoice,
         'SuministroLRFacturasRecibidas': {
             'Cabecera': get_header(invoice),
             'RegistroLRFacturasRecibidas': {
-                'PeriodoImpositivo': {
+                'PeriodoLiquidacion': {
                     'Ejercicio': invoice.period_id.name[3:7],
                     'Periodo': invoice.period_id.name[0:2]
                 },
@@ -657,7 +657,7 @@ def get_baja_factura_recibida_dict(invoice):
         'BajaLRFacturasRecibidas': {
             'Cabecera': cabecera,
             'RegistroLRBajaRecibidas': {
-                'PeriodoImpositivo': {
+                'PeriodoLiquidacion': {
                     'Ejercicio': invoice.period_id.name[3:7],
                     'Periodo': invoice.period_id.name[0:2]
                 },
@@ -684,7 +684,7 @@ def get_baja_factura_emitida_dict(invoice):
         'BajaLRFacturasEmitidas': {
             'Cabecera': cabecera,
             'RegistroLRBajaExpedidas': {
-                'PeriodoImpositivo': {
+                'PeriodoLiquidacion': {
                     'Ejercicio': invoice.period_id.name[3:7],
                     'Periodo': invoice.period_id.name[0:2]
                 },
