@@ -412,8 +412,16 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
     cuota_deducible = 0
     importe_total = get_invoice_sign(invoice) * invoice.amount_total
 
-    if iva_values['sujeta_a_iva'] and iva_values['iva_no_exento']:
-        detalle_iva = iva_values['detalle_iva']
+    if iva_values['sujeta_a_iva']:
+        detalle_iva = []
+
+        if iva_values['iva_no_exento']:
+            detalle_iva.extend(iva_values['detalle_iva'])
+            for iva in detalle_iva:
+                cuota_deducible += iva['CuotaSoportada']
+
+        if iva_values['iva_exento']:
+            detalle_iva.append(iva_values['detalle_iva_exento'])
 
         desglose_factura = {  # TODO to change
             # 'InversionSujetoPasivo': {
@@ -423,9 +431,6 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
                 'DetalleIVA': detalle_iva
             }
         }
-
-        for iva in detalle_iva:
-            cuota_deducible += iva['CuotaSoportada']
     else:
         base_imponible_factura = invoice.amount_untaxed
 
