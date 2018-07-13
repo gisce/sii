@@ -10,22 +10,23 @@ from mamba import *
 import os
 
 
-def group_by_tax_rate(iva_values):
+def group_by_tax_rate(iva_values, in_invoice):
     aux_iva_values = {}
 
+    if in_invoice:
+        cuota_key = 'CuotaSoportada'
+    else:
+        cuota_key = 'CuotaRepercutida'
+
     for iva in iva_values:
-        tipo_impositivo = iva['TipoImpositivo']
+        tipo_impositivo = iva.get('TipoImpositivo', 0.0)
         base_imponible = iva['BaseImponible']
-        cuota_key = (
-            'CuotaSoportada'
-            if 'CuotaSoportada' in iva.keys()
-            else 'CuotaRepercutida'
-        )
-        cuota = iva[cuota_key]
+        cuota = iva.get(cuota_key, 0.0)
         if tipo_impositivo in aux_iva_values:
             aux = aux_iva_values[tipo_impositivo]
             aux['BaseImponible'] += base_imponible
-            aux[cuota_key] += cuota
+            if aux.get(cuota_key, False):
+                aux[cuota_key] += cuota
         else:
             aux_iva_values[tipo_impositivo] = iva.copy()
 
@@ -193,7 +194,9 @@ with description('El XML Generado'):
                     ['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']
                     ['DetalleIVA']
                 )
-                self.grouped_detalle_iva = group_by_tax_rate(detalle_iva)
+                self.grouped_detalle_iva = group_by_tax_rate(
+                    detalle_iva, in_invoice=False
+                )
 
             with it('la BaseImponible debe ser la original'):
                 expect(
@@ -244,7 +247,7 @@ with description('El XML Generado'):
                     ['DesgloseIVA']['DetalleIVA']
                 )
                 self.grouped_detalle_iva_isp = group_by_tax_rate(
-                    detalle_iva_isp
+                    detalle_iva_isp, in_invoice=False
                 )
 
             with it('la BaseImponible debe ser la original'):
@@ -286,7 +289,10 @@ with description('El XML Generado'):
                         ['DesgloseTipoOperacion']['Entrega']['Sujeta']
                         ['NoExenta']['DesgloseIVA']['DetalleIVA']
                     )
-                    self.grouped_detalle_iva = group_by_tax_rate(detalle_iva)
+                    print detalle_iva
+                    self.grouped_detalle_iva = group_by_tax_rate(
+                        detalle_iva, in_invoice=False
+                    )
 
                 with it('la BaseImponible debe ser la original'):
                     expect(
@@ -468,7 +474,7 @@ with description('El XML Generado'):
                     ['DesgloseIVA']['DetalleIVA']
                 )
                 self.grouped_detalle_iva = group_by_tax_rate(
-                    detalle_iva_desglose_iva
+                    detalle_iva_desglose_iva, in_invoice=True
                 )
 
             with it('el detalle de DesgloseIVA debe ser la original'):
@@ -524,7 +530,7 @@ with description('El XML Generado'):
                         ['DesgloseFactura']['DesgloseIVA']['DetalleIVA']
                     )
                     self.grouped_detalle_iva = group_by_tax_rate(
-                        detalle_iva_desglose_iva
+                        detalle_iva_desglose_iva, in_invoice=True
                     )
 
                     expect(
@@ -617,7 +623,9 @@ with description('El XML Generado'):
                     ['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']
                     ['DetalleIVA']
                 )
-                self.grouped_detalle_iva = group_by_tax_rate(detalle_iva)
+                self.grouped_detalle_iva = group_by_tax_rate(
+                    detalle_iva, in_invoice=False
+                )
 
             with it('la BaseImponible debe ser la original'):
                 expect(
@@ -675,7 +683,9 @@ with description('El XML Generado'):
                     self.fact_rect_recib['FacturaRecibida']['DesgloseFactura']
                     ['DesgloseIVA']['DetalleIVA']
                 )
-                self.grouped_detalle_iva = group_by_tax_rate(detalle_iva)
+                self.grouped_detalle_iva = group_by_tax_rate(
+                    detalle_iva, in_invoice=True
+                )
 
             with it('la BaseImponible debe ser la original'):
                 expect(
