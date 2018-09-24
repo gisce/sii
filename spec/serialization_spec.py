@@ -289,7 +289,6 @@ with description('El XML Generado'):
                         ['DesgloseTipoOperacion']['Entrega']['Sujeta']
                         ['NoExenta']['DesgloseIVA']['DetalleIVA']
                     )
-                    print detalle_iva
                     self.grouped_detalle_iva = group_by_tax_rate(
                         detalle_iva, in_invoice=False
                     )
