@@ -120,8 +120,6 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
         if in_invoice:
             new_value = {
                 'BaseImponible': vals['importe_no_sujeto'],
-                'TipoImpositivo': 0,
-                'CuotaSoportada': 0
             }
             vals['detalle_iva'].append(new_value)
 
@@ -418,7 +416,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         if iva_values['iva_no_exento']:
             detalle_iva.extend(iva_values['detalle_iva'])
             for iva in detalle_iva:
-                cuota_deducible += iva['CuotaSoportada']
+                cuota_deducible += iva.get('CuotaSoportada', 0)
 
         if iva_values['iva_exento']:
             detalle_iva.append(iva_values['detalle_iva_exento'])
