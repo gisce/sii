@@ -430,12 +430,12 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             }
         }
     else:
-        base_imponible_factura = invoice.amount_untaxed
+        importe_no_sujeto = iva_values['importe_no_sujeto']
 
         desglose_factura = {
             'DesgloseIVA': {
                 'DetalleIVA': [{
-                    'BaseImponible': base_imponible_factura
+                    'BaseImponible': importe_no_sujeto
                 }]
             }
         }
