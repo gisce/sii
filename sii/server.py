@@ -184,7 +184,7 @@ class SiiService(Service):
         return res_header, res_invoices
 
     out_inv_config = {
-        'wsdl': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_1_1/SuministroFactEmitidas.wsdl',
+        'wsdl': 'https://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_1_1/SuministroFactEmitidas.wsdl',
         'port_name': 'SuministroFactEmitidas',
         'binding_name': '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactEmitidas.wsdl}siiBinding',
         'type_address': '/wlpl/SSII-FACT/ws/fe/SiiFactFEV1SOAP',
@@ -192,7 +192,7 @@ class SiiService(Service):
     }
 
     in_inv_config = {
-        'wsdl': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_1_1/SuministroFactRecibidas.wsdl',
+        'wsdl': 'https://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_1_1/SuministroFactRecibidas.wsdl',
         'port_name': 'SuministroFactRecibidas',
         'binding_name': '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactRecibidas.wsdl}siiBinding',
         'type_address': '/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP',

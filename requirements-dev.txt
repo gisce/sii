@@ -1,2 +1,2 @@
-mamba
+mamba==0.10
 expects
