@@ -711,6 +711,8 @@ with description('El XML Generado'):
             self.out_invoice_RA = self.data_gen.get_out_invoice_RA()
             self.out_invoice_RA.rectifying_id.sii_registered = True
             self.out_invoice_RA_obj = SII(self.out_invoice_RA).generate_object()
+            factura_rectificada = self.out_invoice_RA.rectifying_id
+            self.out_invoice_origin_obj = SII(factura_rectificada).generate_object()
             self.fact_RA_emitida = (
                 self.out_invoice_RA_obj['SuministroLRFacturasEmitidas']
                 ['RegistroLRFacturasEmitidas']
@@ -749,14 +751,14 @@ with description('El XML Generado'):
                     self.fact_RA_emitida['FacturaExpedida']
                     ['ImporteRectificacion']['BaseRectificada']
                 ).to(equal(
-                    self.out_invoice_RA.rectifying_id.amount_untaxed
+                    700
                 ))
 
                 expect(
                     self.fact_RA_emitida['FacturaExpedida']
                     ['ImporteRectificacion']['CuotaRectificada']
                 ).to(equal(
-                    self.out_invoice_RA.rectifying_id.amount_tax
+                    79
                 ))
 
 with description('El XML Generado en una baja de una factura emitida'):

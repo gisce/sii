@@ -314,9 +314,30 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
 
     if opcion == 1:
         factura_rectificada = invoice.rectifying_id
+        fact_rectificadora_dict = SII(factura_rectificada).generate_object()
+        base_rectificada = 0
+        cuota_rectificada = 0
+
+        in_invoice = factura_rectificada.type.startswith('in_')
+        if in_invoice:
+            factura_rect_dict = fact_rectificadora_dict['SuministroLRFacturasRecibidas'][
+                'RegistroLRFacturasRecibidas']['FacturaRecibida']
+            cuota_key = 'CuotaSoportada'
+        else:
+            factura_rect_dict = fact_rectificadora_dict['SuministroLRFacturasEmitidas'][
+                'RegistroLRFacturasEmitidas']['FacturaExpedida']
+            cuota_key = 'CuotaRepercutida'
+        detalle_iva = factura_rect_dict.get(
+                'TipoDesglose', {}).get('DesgloseFactura', {}).get(
+                'Sujeta', {}).get('NoExenta', {}).get(
+                'DesgloseIVA', {}).get('DetalleIVA', [])
+        for iva in detalle_iva:
+            base_rectificada += iva['BaseImponible']
+            cuota_rectificada += iva[cuota_key]
+
         rectificativa_fields['ImporteRectificacion'] = {
-            'BaseRectificada': abs(factura_rectificada.amount_untaxed),
-            'CuotaRectificada': abs(factura_rectificada.amount_tax)
+            'BaseRectificada': abs(base_rectificada),
+            'CuotaRectificada': abs(cuota_rectificada)
         }
     elif opcion == 2:
         rectificativa_fields['ImporteRectificacion'] = {
