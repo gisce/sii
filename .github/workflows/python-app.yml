@@ -33,7 +33,3 @@ jobs:
     - name: Run test
       run: |
         mamba --enable-coverage
-    - name: Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
