@@ -336,7 +336,7 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
                     'DesgloseIVA', {}).get('DetalleIVA', [])
         for iva in detalle_iva:
             base_rectificada += iva['BaseImponible']
-            cuota_rectificada += iva[cuota_key]
+            cuota_rectificada += iva.get(cuota_key, 0)
 
         rectificativa_fields['ImporteRectificacion'] = {
             'BaseRectificada': abs(base_rectificada),
