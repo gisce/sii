@@ -761,6 +761,62 @@ with description('El XML Generado'):
                     79
                 ))
 
+    with description('en los datos de una factura recibida rectificativa '
+                     'sin anuladora RA'):
+        with before.all:
+            self.in_invoice_RA = self.data_gen.get_in_invoice_RA()
+            self.in_invoice_RA.rectifying_id.sii_registered = True
+            self.in_invoice_RA_obj = SII(self.in_invoice_RA).generate_object()
+            factura_rectificada = self.in_invoice_RA.rectifying_id
+            self.in_invoice_origin_obj = SII(factura_rectificada).generate_object()
+            self.fact_RA_recibida = (
+                self.in_invoice_RA_obj['SuministroLRFacturasRecibidas']
+                ['RegistroLRFacturasRecibidas']
+            )
+
+        with context('en los datos de rectificación'):
+            with it('el TipoRectificativa debe ser por sustitución (S)'):
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']['TipoRectificativa']
+                ).to(equal('S'))
+
+            with it('debe contener las FacturasRectificadas'):
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['FacturasRectificadas']['IDFacturaRectificada'][0]
+                    ['NumSerieFacturaEmisor']
+                ).to(equal(
+                    self.in_invoice_RA.rectifying_id.origin
+                ))
+
+                fecha_expedicion = (
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['FacturasRectificadas']['IDFacturaRectificada'][0]
+                    ['FechaExpedicionFacturaEmisor']
+                )
+                expect(
+                    datetime.strptime(
+                        fecha_expedicion, '%d-%m-%Y'
+                    ).strftime('%Y-%m-%d')
+                ).to(equal(
+                    self.in_invoice_RA.rectifying_id.origin_date_invoice
+                ))
+
+            with it('debe contener el ImporteRectificacion'):
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['ImporteRectificacion']['BaseRectificada']
+                ).to(equal(
+                    6608.0
+                ))
+
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['ImporteRectificacion']['CuotaRectificada']
+                ).to(equal(
+                    79
+                ))
+
 with description('El XML Generado en una baja de una factura emitida'):
     with before.all:
         self.data_gen = DataGenerator()
