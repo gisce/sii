@@ -145,6 +145,8 @@ def get_partner_info(partner, in_invoice, nombre_razon=False):
         else:
             contraparte['NIF'] = VAT.clean_vat(partner.vat)
     else:
+        if vat_type == '04' and partner_country.is_eu_member:
+            vat_type = '02'
         contraparte['IDOtro'] = {
             'CodigoPais': partner_country.code,
             'IDType': vat_type,
