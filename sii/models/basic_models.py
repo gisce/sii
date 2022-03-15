@@ -13,8 +13,9 @@ class Company:
 
 
 class Country:
-    def __init__(self, code):
+    def __init__(self, code, is_eu_member):
         self.code = code
+        self.is_eu_member = is_eu_member
 
 
 class ComunidadAutonoma:

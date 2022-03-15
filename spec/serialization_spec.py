@@ -441,6 +441,7 @@ with description('El XML Generado'):
                     self.in_invoice = new_data_gen.get_in_invoice()
                     # Valid French TVA FR23334175221
                     self.in_invoice.partner_id.country_id.code = 'FR'
+                    self.in_invoice.partner_id.country_id.is_eu_member = True
                     self.in_invoice.partner_id.vat = 'FR23334175221'
 
                     in_invoice_obj = SII(self.in_invoice).generate_object()
@@ -456,10 +457,10 @@ with description('El XML Generado'):
                         self.emisor_factura['IDOtro']['ID']
                     ).to(equal(nif_emisor))
 
-                with it('el IDType debe ser "04"'):
+                with it('el IDType debe ser "02"'):
                     expect(
                         self.emisor_factura['IDOtro']['IDType']
-                    ).to(equal('04'))
+                    ).to(equal('02'))
 
                 with it('el CodigoPais debe ser "FR"'):
                     expect(

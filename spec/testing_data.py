@@ -71,7 +71,7 @@ class DataGenerator:
             invoice_tax_iva_21, invoice_tax_iva_4, invoice_tax_ibi,
             invoice_tax_iva_exento
         ]
-        spain = Country(code='ES')
+        spain = Country(code='ES', is_eu_member=False)
         self.partner_invoice = Partner(
             name=os.environ.get('NOMBRE_CONTRAPARTE', u'Francisco García'),
             nif=os.environ.get('NIF_CONTRAPARTE', u'ES12345678Z'),

@@ -26,6 +26,7 @@ in_invoice = data_gen.get_in_invoice()
 # CONFIGURATION VARIABLES
 invoice = in_invoice
 invoice.partner_id.country_id.code = os.environ['COUNTRY_CODE']
+invoice.partner_id.country_id.is_eu_member = False
 register_invoice = True
 deregister_invoice = True
 
