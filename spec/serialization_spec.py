@@ -457,10 +457,10 @@ with description('El XML Generado'):
                         self.emisor_factura['IDOtro']['ID']
                     ).to(equal(nif_emisor))
 
-                with it('el IDType debe ser "04"'):
+                with it('el IDType debe ser "02"'):
                     expect(
                         self.emisor_factura['IDOtro']['IDType']
-                    ).to(equal('04'))
+                    ).to(equal('02'))
 
                 with it('el CodigoPais debe ser "FR"'):
                     expect(
