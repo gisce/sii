@@ -17,7 +17,7 @@ PERIODO_VALUES = [
     '0A', '1T', '2T', '3T', '4T'
 ]
 
-TIPO_IMPOSITIVO_VALUES = [0.0, 4.0, 10.0, 21.0,  # Tipos impositivos actuales
+TIPO_IMPOSITIVO_VALUES = [0.0, 4.0, 5.0, 10.0, 21.0,  # Tipos impositivos actuales
                           7.0, 8.0, 16.0, 18.0]  # Tipos en fecha <= 2012
 
 TIPO_NO_EXENTA_VALUES = ['S1', 'S2', 'S3']
