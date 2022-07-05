@@ -114,7 +114,10 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     vals['detalle_iva'] = list(iva_values.values())
 
     invoice_total = round(invoice_total, 2)
-    if invoice_total != 0:
+    fp = invoice.fiscal_position
+    canarias = (fp and 'islas canarias' in unidecode_str(fp.name.lower()))
+
+    if invoice_total != 0 or (canarias and not vals['sujeta_a_iva'] and invoice.amount_total == 0):
         vals['no_sujeta_a_iva'] = True
         vals['importe_no_sujeto'] = invoice_total
         if in_invoice:
