@@ -479,6 +479,10 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         fecha_reg_contable = date.today().strftime('%Y-%m-%d')
         cuota_deducible = 0  # Cuota deducible: Etiqueta con 0
 
+    is_regimen_especial_13_dua_importacion = invoice.sii_in_clave_regimen_especial == '13'
+    if is_regimen_especial_13_dua_importacion:
+        cuota_deducible = 0
+
     rectificativa = rect_sust_opc1 or rect_sust_opc2
 
     factura_recibida = {
