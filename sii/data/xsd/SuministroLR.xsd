@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- editado con XMLSpy v2015 rel. 4 sp1 (x64) (http://www.altova.com) por AEAT (Agencia Estatal de Administración Tributaria) -->
+<!-- editado con XMLSpy v2019 sp1 (x64) (http://www.altova.com) por AEAT (Agencia Estatal de Administracion Tributaria ((AEAT))) -->
 <!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by PC Corporativo (AGENCIA TRIBUTARIA) -->
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" elementFormDefault="qualified">
 	<import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
@@ -488,8 +488,21 @@
 			<element name="Pagos" type="sii:PagosType"/>
 		</sequence>
 	</complexType>
-</schema>
-umentation xml:lang="es"> Apunte correspondiente al libro de venta de bienes en consigna. </documentation>
+	<element name="SuministroLRVentaBienesConsigna">
+		<complexType>
+			<complexContent>
+				<extension base="sii:SuministroInformacion">
+					<sequence>
+						<element name="RegistroLRDetOperacionIntracomunitariaVentasEnConsigna" type="siiLR:LRVentaBienesConsignaType" maxOccurs="10000"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<!-- Datos del libro de venta de bienes en consigna.  -->
+	<complexType name="LRVentaBienesConsignaType">
+		<annotation>
+			<documentation xml:lang="es"> Apunte correspondiente al libro de venta de bienes en consigna. </documentation>
 		</annotation>
 		<sequence>
 			<element name="ClaveDeclarante" type="sii:TipoClaveDeclaranteType"/>

@@ -324,7 +324,7 @@
 					<documentation xml:lang="es"> Número y serie de la Factura del Emisor.</documentation>
 				</annotation>
 			</element>
-				<element name="NumSerieFacturaEmisorResumenFin" type="sii:TextoIDFacturaType" minOccurs="0">
+			<element name="NumSerieFacturaEmisorResumenFin" type="sii:TextoIDFacturaType" minOccurs="0">
 				<annotation>
 					<documentation xml:lang="es"> Campo específico para asientos resumen. Se corresponde con el Nº Serie+Nº Factura de la última factura </documentation>
 				</annotation>
@@ -336,7 +336,6 @@
 			</element>
 		</sequence>
 	</complexType>
-	
 	<complexType name="ClavePaginacionProveedorType">
 		<annotation>
 			<documentation xml:lang="es"> Datos de identificación de factura </documentation>
@@ -362,7 +361,6 @@
 			</element>
 		</sequence>
 	</complexType>
-	
 	<complexType name="ClavePaginacionClienteType">
 		<annotation>
 			<documentation xml:lang="es"> Clave Paginacion de la consulta de facturas informadas por el cliente </documentation>
@@ -761,6 +759,9 @@
 					</element>
 					<element name="FechaRegContable" type="sii:fecha"/>
 					<element name="CuotaDeducible" type="sii:ImporteSgn12.2Type"/>
+					<element name="ADeducirEnPeriodoPosterior" type="sii:DeducirEnPeriodoPosteriorType" minOccurs="0"/>
+					<element name="EjercicioDeduccion" type="sii:YearType" minOccurs="0"/>
+					<element name="PeriodoDeduccion" type="sii:TipoPeriodoType" minOccurs="0"/>
 				</sequence>
 			</extension>
 		</complexContent>
@@ -800,6 +801,7 @@
 			<element name="CuotaSoportada" type="sii:ImporteSgn12.2Type"/>
 			<element name="TipoRecargoEquivalencia" type="sii:Tipo2.2Type" minOccurs="0"/>
 			<element name="CuotaRecargoEquivalencia" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
+			<element name="BienInversion" type="sii:BienInversionType" minOccurs="0"/>
 		</sequence>
 	</complexType>
 	<complexType name="DetalleIVAEmitidaPrestacionType">
@@ -818,6 +820,7 @@
 			<element name="CuotaRecargoEquivalencia" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
 			<element name="PorcentCompensacionREAGYP" type="sii:Tipo2.2Type" minOccurs="0"/>
 			<element name="ImporteCompensacionREAGYP" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
+			<element name="BienInversion" type="sii:BienInversionType" minOccurs="0"/>
 		</sequence>
 	</complexType>
 	<!-- Desglose de tipos, importes y cuotas de IVA -->
@@ -1017,6 +1020,62 @@
 			</element>
 		</sequence>
 	</complexType>
+	<complexType name="IdRegistroExpInicialType">
+		<sequence>
+			<element name="Ejercicio" type="sii:YearType"/>
+			<element name="Periodo" type="sii:TipoPeriodoType"/>
+			<element name="IdExpInicial" type="sii:TextMax60Type"/>
+		</sequence>
+	</complexType>
+	<complexType name="DepositoType">
+		<sequence>
+			<element name="Depositario" type="sii:PersonaFisicaJuridicaType" minOccurs="0"/>
+			<element name="DireccionAlmacen" type="sii:TextMax120Type"/>
+		</sequence>
+	</complexType>
+	<complexType name="VentaBienesConsignaType">
+		<annotation>
+			<documentation xml:lang="es"> Apunte correspondiente al libro de registro de ventas de bienes en consigna . </documentation>
+		</annotation>
+		<sequence>
+			<element name="InfoExpedicionRecepcion" type="sii:InfoExpedicionRecepcionType" minOccurs="0"/>
+			<element name="IdRegistroExpInicial" type="sii:IdRegistroExpInicialType" minOccurs="0"/>
+			<element name="DestinoFinalExpedRecep" type="sii:DestinoFinalExpedRecepType" minOccurs="0"/>
+			<element name="RefExterna" type="sii:TextMax60Type" minOccurs="0"/>
+			<element name="NumRegistroAcuerdoFacturacion" type="sii:TextMax15Type" minOccurs="0"/>
+			<element name="EntidadSucedida" type="sii:PersonaFisicaJuridicaUnicaESType" minOccurs="0"/>
+			<element name="RegPrevioGGEEoREDEMEoCompetencia" type="sii:RegPrevioGGEEoREDEMEoCompetenciaType" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="InfoExpedicionRecepcionType">
+		<sequence>
+			<element name="ValorBienes" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
+			<element name="EmPartida" type="sii:CountryMiembroType" minOccurs="0"/>
+			<element name="EmLlegada" type="sii:CountryMiembroType" minOccurs="0"/>
+			<element name="FechaExpedicion" type="sii:fecha" minOccurs="0"/>
+			<element name="FechaLlegada" type="sii:fecha" minOccurs="0"/>
+			<element name="Cantidad" type="sii:TextMax120Type"/>
+			<element name="DescripBienes" type="sii:TextMax120Type"/>
+			<element name="FechaSustitucion" type="sii:fecha" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="IdRegistroDeclaradoType">
+		<sequence>
+			<element name="Ejercicio" type="sii:YearType"/>
+			<element name="Periodo" type="sii:TipoPeriodoType"/>
+			<element name="IdRegistro" type="sii:TextMax60Type"/>
+		</sequence>
+	</complexType>
+	<complexType name="DestinoFinalExpedRecepType">
+		<sequence>
+			<element name="DescripBienes" type="sii:TextMax120Type"/>
+			<element name="Cantidad" type="sii:TextMax120Type"/>
+			<element name="FechaOpDeclarada" type="sii:fecha"/>
+			<element name="DestinatarioFinal" type="sii:PersonaFisicaJuridicaType" minOccurs="0"/>
+			<element name="BaseImponibleValor" type="sii:ImporteSgn12.2Type"/>
+			<element name="PrecioUnitario" type="sii:ImporteSgn12.2Type" minOccurs="0"/>
+		</sequence>
+	</complexType>
 	<complexType name="RangoFechaPresentacionType">
 		<annotation>
 			<documentation xml:lang="es">Rango de fechas de presentacion</documentation>
@@ -1200,6 +1259,12 @@
 	<simpleType name="ImporteSgn14.2Type">
 		<restriction base="string">
 			<pattern value="(\+|-)?\d{1,14}(\.\d{0,2})?"/>
+		</restriction>
+	</simpleType>
+	<!-- Importe de 19 dígitos (16+2) "." como separador decimal -->
+	<simpleType name="ImporteSgn16.2Type">
+		<restriction base="string">
+			<pattern value="(\+|-)?\d{1,16}(\.\d{0,2})?"/>
 		</restriction>
 	</simpleType>
 	<!-- Tipo de 6 dígitos (3+2) "." como separador decimal -->
@@ -1453,6 +1518,11 @@
 					<documentation xml:lang="es">ADUANAS - LIQUIDACION COMPLEMENTARIA</documentation>
 				</annotation>
 			</enumeration>
+			<enumeration value="AJ">
+				<annotation>
+					<documentation xml:lang="es">AJUSTE DEL MARGEN DE BENEFICIO</documentation>
+				</annotation>
+			</enumeration>
 		</restriction>
 	</simpleType>
 	<simpleType name="ClaveTipoRectificativaType">
@@ -1557,6 +1627,20 @@
 	</simpleType>
 	<!-- Permitira identificar aquellas facturas con importe de la factura superior a un umbral -->
 	<simpleType name="MacrodatoType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<!-- Permitira identificar si especifica bien de inversión. -->
+	<simpleType name="BienInversionType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<!-- Permitira identificar si la factura se deduce en un periodo posterior. -->
+	<simpleType name="DeducirEnPeriodoPosteriorType">
 		<restriction base="string">
 			<enumeration value="S"/>
 			<enumeration value="N"/>
@@ -1698,6 +1782,7 @@
 			<enumeration value="14"/>
 			<enumeration value="15"/>
 			<enumeration value="16"/>
+			<enumeration value="17"/>
 		</restriction>
 	</simpleType>
 	<!-- ISO 3166-1 alpha-2 codes -->
@@ -1962,6 +2047,7 @@
 			<enumeration value="DK"/>
 			<enumeration value="SK"/>
 			<enumeration value="SI"/>
+			<enumeration value="ES"/>
 			<enumeration value="EE"/>
 			<enumeration value="FI"/>
 			<enumeration value="FR"/>
@@ -2088,62 +2174,6 @@
 			<enumeration value="18">
 				<annotation>
 					<documentation xml:lang="en">Cash on delivery</documentation>
-					<documentation xml:lang="es">Pago contra reembolso</documentation>
-				</annotation>
-			</enumeration>
-			<enumeration value="19">
-				<annotation>
-					<documentation xml:lang="en">Payment by card</documentation>
-					<documentation xml:lang="es">Pago mediante tarjeta</documentation>
-				</annotation>
-			</enumeration>
-			<enumeration value="20">
-				<annotation>
-					<documentation xml:lang="es">No se cobra / paga (fecha límite de devengo / devengo forzoso en  concurso de acreedores)</documentation>
-				</annotation>
-			</enumeration>
-		</restriction>
-	</simpleType>
-	<!-- Códigos de clave operacion en operaciones de seguros-->
-	<simpleType name="ClaveOperacionType">
-		<restriction base="string">
-			<enumeration value="A">
-				<annotation>
-					<documentation xml:lang="es">Indemnizaciones o prestaciones satisfechas superiores a 3005,06</documentation>
-				</annotation>
-			</enumeration>
-			<enumeration value="B">
-				<annotation>
-					<documentation xml:lang="es">Primas o  contraprestaciones percibidas superiores a 3005,06</documentation>
-				</annotation>
-			</enumeration>
-		</restriction>
-	</simpleType>
-	<!-- Estado del registro duplicado almacenado en SII -->
-	<simpleType name="EstadoRegistroSIIType">
-		<restriction base="string">
-			<enumeration value="Correcta">
-				<annotation>
-					<documentation xml:lang="es">El registro se almacenado sin errores</documentation>
-				</annotation>
-			</enumeration>
-			<enumeration value="AceptadaConErrores">
-				<annotation>
-					<documentation xml:lang="es">El registro se almacenado tiene algunos errores. Ver detalle del error</documentation>
-				</annotation>
-			</enumeration>
-			<enumeration value="Anulada">
-				<annotation>
-					<documentation xml:lang="es">El registro almacenado ha sido anulado</documentation>
-				</annotation>
-			</enumeration>
-		</restriction>
-	</simpleType>
-	<simpleType name="ErrorDetalleType">
-		<restriction base="integer"/>
-	</simpleType>
-</schema>
-ation>
 					<documentation xml:lang="es">Pago contra reembolso</documentation>
 				</annotation>
 			</enumeration>
