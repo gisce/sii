@@ -1,203 +1,206 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpTrascendTribu.wsdl" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpTrascendTribu.wsdl">
-	<wsdl:types>
-		<xs:schema targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpTrascendTribu.wsdl" elementFormDefault="qualified" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpTrascendTribu.wsdl" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd">
-			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
-			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" schemaLocation="SuministroLR.xsd"/>
-			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" schemaLocation="ConsultaLR.xsd"/>
-			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" schemaLocation="RespuestaConsultaLR.xsd"/>
-			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" schemaLocation="RespuestaSuministro.xsd"/>
-		</xs:schema>
-	</wsdl:types>
-	<wsdl:message name="EntradaSuministroLRCobrosMetalico">
-		<wsdl:part name="SuministroLRCobrosMetalico" element="siiLR:SuministroLRCobrosMetalico"/>
-	</wsdl:message>
-	<wsdl:message name="EntradaAnulacionLRCobrosMetalico">
-		<wsdl:part name="AnulacionLRCobrosMetalico" element="siiLR:BajaLRCobrosMetalico"/>
-	</wsdl:message>
-	<wsdl:message name="EntradaConsultaLRCobrosMetalico">
-		<wsdl:part name="ConsultaLRCobrosMetalico" element="siiLRC:ConsultaLRCobrosMetalico"/>
-	</wsdl:message>
-	<wsdl:message name="EntradaSuministroLRAgenciasViajes">
-		<wsdl:part name="SuministroLRAgenciasViajes" element="siiLR:SuministroLRAgenciasViajes"/>
-	</wsdl:message>
-	<wsdl:message name="EntradaAnulacionLRAgenciasViajes">
-		<wsdl:part name="AnulacionLRAgenciasViajes" element="siiLR:BajaLRAgenciasViajes"/>
-	</wsdl:message>
-	<wsdl:message name="EntradaConsultaLRAgenciasViajes">
-		<wsdl:part name="ConsultaLRAgenciasViajes" element="siiLRC:ConsultaLRAgenciasViajes"/>
-	</wsdl:message>
-	<wsdl:message name="EntradaSuministroLROperacionesSeguros">
-		<wsdl:part name="SuministroLROperacionesSeguros" element="siiLR:SuministroLROperacionesSeguros"/>
-	</wsdl:message>
-	<wsdl:message name="EntradaAnulacionLROperacionesSeguros">
-		<wsdl:part name="AnulacionLROperacionesSeguros" element="siiLR:BajaLROperacionesSeguros"/>
-	</wsdl:message>
-	<wsdl:message name="EntradaConsultaLROperacionesSeguros">
-		<wsdl:part name="ConsultaLROperacionesSeguros" element="siiLRC:ConsultaLROperacionesSeguros"/>
-	</wsdl:message>
-	<wsdl:message name="RespuestaSuministroLRCobrosMetalico">
-		<wsdl:part name="RespuestaSuministroLRCobrosMetalico" element="siiR:RespuestaLRCobrosMetalico"/>
-	</wsdl:message>
-	<wsdl:message name="RespuestaAnulacionLRCobrosMetalico">
-		<wsdl:part name="RespuestaAnulacionLRCobrosMetalico" element="siiR:RespuestaLRBajaCobrosMetalico"/>
-	</wsdl:message>
-	<wsdl:message name="RespuestaConsultaLRCobrosMetalico">
-		<wsdl:part name="RespuestaConsultaLRCobrosMetalico" element="siiLRRC:RespuestaConsultaLRCobrosMetalico"/>
-	</wsdl:message>
-	<wsdl:message name="RespuestaSuministroLRAgenciasViajes">
-		<wsdl:part name="RespuestaSuministroLRAgenciasViajes" element="siiR:RespuestaLRAgenciasViajes"/>
-	</wsdl:message>
-	<wsdl:message name="RespuestaAnulacionLRAgenciasViajes">
-		<wsdl:part name="RespuestaAnulacionLRAgenciasViajes" element="siiR:RespuestaLRBajaAgenciasViajes"/>
-	</wsdl:message>
-	<wsdl:message name="RespuestaConsultaLRAgenciasViajes">
-		<wsdl:part name="RespuestaConsultaLRAgenciasViajes" element="siiLRRC:RespuestaConsultaLRAgenciasViajes"/>
-	</wsdl:message>
-	<wsdl:message name="RespuestaSuministroLROperacionesSeguros">
-		<wsdl:part name="RespuestaSuministroLROperacionesSeguros" element="siiR:RespuestaLROperacionesSeguros"/>
-	</wsdl:message>
-	<wsdl:message name="RespuestaAnulacionLROperacionesSeguros">
-		<wsdl:part name="RespuestaAnulacionLROperacionesSeguros" element="siiR:RespuestaLRBajaOperacionesSeguros"/>
-	</wsdl:message>
-	<wsdl:message name="RespuestaConsultaLROperacionesSeguros">
-		<wsdl:part name="RespuestaConsultaLROperacionesSeguros" element="siiLRRC:RespuestaConsultaLROperacionesSeguros"/>
-	</wsdl:message>
-	<wsdl:portType name="siiSOAP">
-		<wsdl:operation name="SuministroLRCobrosMetalico">
-			<wsdl:input message="siiWdsl:EntradaSuministroLRCobrosMetalico"/>
-			<wsdl:output message="siiWdsl:RespuestaSuministroLRCobrosMetalico"/>
-		</wsdl:operation>
-		<wsdl:operation name="AnulacionLRCobrosMetalico">
-			<wsdl:input message="siiWdsl:EntradaAnulacionLRCobrosMetalico"/>
-			<wsdl:output message="siiWdsl:RespuestaAnulacionLRCobrosMetalico"/>
-		</wsdl:operation>
-		<wsdl:operation name="ConsultaLRCobrosMetalico">
-			<wsdl:input message="siiWdsl:EntradaConsultaLRCobrosMetalico"/>
-			<wsdl:output message="siiWdsl:RespuestaConsultaLRCobrosMetalico"/>
-		</wsdl:operation>
-		<wsdl:operation name="SuministroLRAgenciasViajes">
-			<wsdl:input message="siiWdsl:EntradaSuministroLRAgenciasViajes"/>
-			<wsdl:output message="siiWdsl:RespuestaSuministroLRAgenciasViajes"/>
-		</wsdl:operation>
-		<wsdl:operation name="AnulacionLRAgenciasViajes">
-			<wsdl:input message="siiWdsl:EntradaAnulacionLRAgenciasViajes"/>
-			<wsdl:output message="siiWdsl:RespuestaAnulacionLRAgenciasViajes"/>
-		</wsdl:operation>
-		<wsdl:operation name="ConsultaLRAgenciasViajes">
-			<wsdl:input message="siiWdsl:EntradaConsultaLRAgenciasViajes"/>
-			<wsdl:output message="siiWdsl:RespuestaConsultaLRAgenciasViajes"/>
-		</wsdl:operation>
-		<wsdl:operation name="SuministroLROperacionesSeguros">
-			<wsdl:input message="siiWdsl:EntradaSuministroLROperacionesSeguros"/>
-			<wsdl:output message="siiWdsl:RespuestaSuministroLROperacionesSeguros"/>
-		</wsdl:operation>
-		<wsdl:operation name="AnulacionLROperacionesSeguros">
-			<wsdl:input message="siiWdsl:EntradaAnulacionLROperacionesSeguros"/>
-			<wsdl:output message="siiWdsl:RespuestaAnulacionLROperacionesSeguros"/>
-		</wsdl:operation>
-		<wsdl:operation name="ConsultaLROperacionesSeguros">
-			<wsdl:input message="siiWdsl:EntradaConsultaLROperacionesSeguros"/>
-			<wsdl:output message="siiWdsl:RespuestaConsultaLROperacionesSeguros"/>
-		</wsdl:operation>
-	</wsdl:portType>
-	<wsdl:binding name="siiBinding" type="siiWdsl:siiSOAP">
-		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
-		<wsdl:operation name="SuministroLRCobrosMetalico">
-			<soap:operation soapAction=""/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="AnulacionLRCobrosMetalico">
-			<soap:operation soapAction=""/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="ConsultaLRCobrosMetalico">
-			<soap:operation soapAction=""/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="SuministroLRAgenciasViajes">
-			<soap:operation soapAction=""/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="AnulacionLRAgenciasViajes">
-			<soap:operation soapAction=""/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="ConsultaLRAgenciasViajes">
-			<soap:operation soapAction=""/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="SuministroLROperacionesSeguros">
-			<soap:operation soapAction=""/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="AnulacionLROperacionesSeguros">
-			<soap:operation soapAction=""/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="ConsultaLROperacionesSeguros">
-			<soap:operation soapAction=""/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
-	</wsdl:binding>
-	<wsdl:service name="siiService">
-		<!-- Entorno de PRODUCCION día 1 de julio 2017-->
-		<wsdl:port name="SuministroOpTrascendTribu" binding="siiWdsl:siiBinding">
-			<soap:address location="https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/pm/SiiFactCMV1SOAP"/>
-		</wsdl:port>
-		<!-- Entorno de PRODUCCION día 1 de julio 2017 para acceso con certificado de sello-->
-		<wsdl:port name="SuministroOpTrascendTribuSello" binding="siiWdsl:siiBinding">
-			<soap:address location="https://www10.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/pm/SiiFactCMV1SOAP"/>
-		</wsdl:port>
-		<!-- Entorno de PRUEBAS (tambien valido para acceso con certificado de sello)-->
-		<wsdl:port name="SuministroOpTrascendTribuPruebas" binding="siiWdsl:siiBinding">
-			<soap:address location="https://www7.aeat.es/wlpl/SSII-FACT/ws/pm/SiiFactCMV1SOAP"/>
-		</wsdl:port>
-	</wsdl:service>
-</wsdl:definitions>
-definitions>
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpTrascendTribu.wsdl" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpTrascendTribu.wsdl">
+	<wsdl:types>
+		<xs:schema targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpTrascendTribu.wsdl" elementFormDefault="qualified" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpTrascendTribu.wsdl" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd">
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" schemaLocation="SuministroLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" schemaLocation="ConsultaLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" schemaLocation="RespuestaConsultaLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" schemaLocation="RespuestaSuministro.xsd"/>
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="EntradaSuministroLRCobrosMetalico">
+		<wsdl:part name="SuministroLRCobrosMetalico" element="siiLR:SuministroLRCobrosMetalico"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaAnulacionLRCobrosMetalico">
+		<wsdl:part name="AnulacionLRCobrosMetalico" element="siiLR:BajaLRCobrosMetalico"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaConsultaLRCobrosMetalico">
+		<wsdl:part name="ConsultaLRCobrosMetalico" element="siiLRC:ConsultaLRCobrosMetalico"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaSuministroLRAgenciasViajes">
+		<wsdl:part name="SuministroLRAgenciasViajes" element="siiLR:SuministroLRAgenciasViajes"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaAnulacionLRAgenciasViajes">
+		<wsdl:part name="AnulacionLRAgenciasViajes" element="siiLR:BajaLRAgenciasViajes"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaConsultaLRAgenciasViajes">
+		<wsdl:part name="ConsultaLRAgenciasViajes" element="siiLRC:ConsultaLRAgenciasViajes"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaSuministroLROperacionesSeguros">
+		<wsdl:part name="SuministroLROperacionesSeguros" element="siiLR:SuministroLROperacionesSeguros"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaAnulacionLROperacionesSeguros">
+		<wsdl:part name="AnulacionLROperacionesSeguros" element="siiLR:BajaLROperacionesSeguros"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaConsultaLROperacionesSeguros">
+		<wsdl:part name="ConsultaLROperacionesSeguros" element="siiLRC:ConsultaLROperacionesSeguros"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaSuministroLRCobrosMetalico">
+		<wsdl:part name="RespuestaSuministroLRCobrosMetalico" element="siiR:RespuestaLRCobrosMetalico"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaAnulacionLRCobrosMetalico">
+		<wsdl:part name="RespuestaAnulacionLRCobrosMetalico" element="siiR:RespuestaLRBajaCobrosMetalico"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaConsultaLRCobrosMetalico">
+		<wsdl:part name="RespuestaConsultaLRCobrosMetalico" element="siiLRRC:RespuestaConsultaLRCobrosMetalico"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaSuministroLRAgenciasViajes">
+		<wsdl:part name="RespuestaSuministroLRAgenciasViajes" element="siiR:RespuestaLRAgenciasViajes"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaAnulacionLRAgenciasViajes">
+		<wsdl:part name="RespuestaAnulacionLRAgenciasViajes" element="siiR:RespuestaLRBajaAgenciasViajes"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaConsultaLRAgenciasViajes">
+		<wsdl:part name="RespuestaConsultaLRAgenciasViajes" element="siiLRRC:RespuestaConsultaLRAgenciasViajes"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaSuministroLROperacionesSeguros">
+		<wsdl:part name="RespuestaSuministroLROperacionesSeguros" element="siiR:RespuestaLROperacionesSeguros"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaAnulacionLROperacionesSeguros">
+		<wsdl:part name="RespuestaAnulacionLROperacionesSeguros" element="siiR:RespuestaLRBajaOperacionesSeguros"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaConsultaLROperacionesSeguros">
+		<wsdl:part name="RespuestaConsultaLROperacionesSeguros" element="siiLRRC:RespuestaConsultaLROperacionesSeguros"/>
+	</wsdl:message>
+	<wsdl:portType name="siiSOAP">
+		<wsdl:operation name="SuministroLRCobrosMetalico">
+			<wsdl:input message="siiWdsl:EntradaSuministroLRCobrosMetalico"/>
+			<wsdl:output message="siiWdsl:RespuestaSuministroLRCobrosMetalico"/>
+		</wsdl:operation>
+		<wsdl:operation name="AnulacionLRCobrosMetalico">
+			<wsdl:input message="siiWdsl:EntradaAnulacionLRCobrosMetalico"/>
+			<wsdl:output message="siiWdsl:RespuestaAnulacionLRCobrosMetalico"/>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRCobrosMetalico">
+			<wsdl:input message="siiWdsl:EntradaConsultaLRCobrosMetalico"/>
+			<wsdl:output message="siiWdsl:RespuestaConsultaLRCobrosMetalico"/>
+		</wsdl:operation>
+		<wsdl:operation name="SuministroLRAgenciasViajes">
+			<wsdl:input message="siiWdsl:EntradaSuministroLRAgenciasViajes"/>
+			<wsdl:output message="siiWdsl:RespuestaSuministroLRAgenciasViajes"/>
+		</wsdl:operation>
+		<wsdl:operation name="AnulacionLRAgenciasViajes">
+			<wsdl:input message="siiWdsl:EntradaAnulacionLRAgenciasViajes"/>
+			<wsdl:output message="siiWdsl:RespuestaAnulacionLRAgenciasViajes"/>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRAgenciasViajes">
+			<wsdl:input message="siiWdsl:EntradaConsultaLRAgenciasViajes"/>
+			<wsdl:output message="siiWdsl:RespuestaConsultaLRAgenciasViajes"/>
+		</wsdl:operation>
+		<wsdl:operation name="SuministroLROperacionesSeguros">
+			<wsdl:input message="siiWdsl:EntradaSuministroLROperacionesSeguros"/>
+			<wsdl:output message="siiWdsl:RespuestaSuministroLROperacionesSeguros"/>
+		</wsdl:operation>
+		<wsdl:operation name="AnulacionLROperacionesSeguros">
+			<wsdl:input message="siiWdsl:EntradaAnulacionLROperacionesSeguros"/>
+			<wsdl:output message="siiWdsl:RespuestaAnulacionLROperacionesSeguros"/>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLROperacionesSeguros">
+			<wsdl:input message="siiWdsl:EntradaConsultaLROperacionesSeguros"/>
+			<wsdl:output message="siiWdsl:RespuestaConsultaLROperacionesSeguros"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="siiBinding" type="siiWdsl:siiSOAP">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="SuministroLRCobrosMetalico">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="AnulacionLRCobrosMetalico">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRCobrosMetalico">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="SuministroLRAgenciasViajes">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="AnulacionLRAgenciasViajes">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRAgenciasViajes">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="SuministroLROperacionesSeguros">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="AnulacionLROperacionesSeguros">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLROperacionesSeguros">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="siiService">
+		<!-- Entorno de PRODUCCION día 1 de julio 2017-->
+		<wsdl:port name="SuministroOpTrascendTribu" binding="siiWdsl:siiBinding">
+			<soap:address location="https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/pm/SiiFactCMV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRODUCCION día 1 de julio 2017 para acceso con certificado de sello-->
+		<wsdl:port name="SuministroOpTrascendTribuSello" binding="siiWdsl:siiBinding">
+			<soap:address location="https://www10.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/pm/SiiFactCMV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRUEBAS -->
+		<wsdl:port name="SuministroOpTrascendTribuPruebas" binding="siiWdsl:siiBinding">
+			<soap:address location="https://prewww1.aeat.es/wlpl/SSII-FACT/ws/pm/SiiFactCMV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRUEBAS para acceso con certificado de sello -->
+		<wsdl:port name="SuministroOpTrascendTribuPruebasSello" binding="siiWdsl:siiBinding">
+			<soap:address location="https://prewww10.aeat.es/wlpl/SSII-FACT/ws/pm/SiiFactCMV1SOAP"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>
