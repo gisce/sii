@@ -124,3 +124,7 @@
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>
+FACT/ws/fr/SiiFactFRV1SOAP"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

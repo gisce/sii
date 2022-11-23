@@ -86,3 +86,7 @@
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>
+ location="https://prewww10.aeat.es/wlpl/SSII-FACT/ws/oi/SiiFactOIV1SOAP"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>
