@@ -1,88 +1,92 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpIntracomunitarias.wsdl" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpIntracomunitarias.wsdl">
-	<wsdl:types>
-		<xs:schema targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpIntracomunitarias.wsdl" elementFormDefault="qualified" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpIntracomunitarias.wsdl" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd">
-			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
-			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" schemaLocation="SuministroLR.xsd"/>
-			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" schemaLocation="ConsultaLR.xsd"/>
-			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" schemaLocation="RespuestaConsultaLR.xsd"/>
-			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" schemaLocation="RespuestaSuministro.xsd"/>
-		</xs:schema>
-	</wsdl:types>
-	<wsdl:message name="EntradaSuministroLRDetOperacionIntracomunitaria">
-		<wsdl:part name="SuministroLRDetOperacionIntracomunitaria" element="siiLR:SuministroLRDetOperacionIntracomunitaria"/>
-	</wsdl:message>
-	<wsdl:message name="EntradaAnulacionLRDetOperacionIntracomunitaria">
-		<wsdl:part name="AnulacionLRDetOperacionIntracomunitaria" element="siiLR:BajaLRDetOperacionIntracomunitaria"/>
-	</wsdl:message>
-	<wsdl:message name="EntradaConsultaLRDetOperacionesIntracomunitarias">
-		<wsdl:part name="ConsultaLRDetOperIntracomunitarias" element="siiLRC:ConsultaLRDetOperIntracomunitarias"/>
-	</wsdl:message>
-	<wsdl:message name="RespuestaSuministroLRDetOperacionesIntracomunitarias">
-		<wsdl:part name="RespuestaSuministroLRDetOperacionesIntracomunitarias" element="siiR:RespuestaLRDetOperacionesIntracomunitarias"/>
-	</wsdl:message>
-	<wsdl:message name="RespuestaAnulacionLRDetOperacionesIntracomunitarias">
-		<wsdl:part name="RespuestaAnulacionLRDetOperacionesIntracomunitarias" element="siiR:RespuestaLRBajaDetOperacionesIntracomunitarias"/>
-	</wsdl:message>
-	<wsdl:message name="RespuestaConsultaLRDetOperacionesIntracomunitarias">
-		<wsdl:part name="RespuestaConsultaLRDetOperacionesIntracomunitarias" element="siiLRRC:RespuestaConsultaLRDetOperIntracomunitarias"/>
-	</wsdl:message>
-	<wsdl:portType name="siiSOAP">
-		<wsdl:operation name="SuministroLRDetOperacionIntracomunitaria">
-			<wsdl:input message="siiWdsl:EntradaSuministroLRDetOperacionIntracomunitaria"/>
-			<wsdl:output message="siiWdsl:RespuestaSuministroLRDetOperacionesIntracomunitarias"/>
-		</wsdl:operation>
-		<wsdl:operation name="AnulacionLRDetOperacionIntracomunitaria">
-			<wsdl:input message="siiWdsl:EntradaAnulacionLRDetOperacionIntracomunitaria"/>
-			<wsdl:output message="siiWdsl:RespuestaAnulacionLRDetOperacionesIntracomunitarias"/>
-		</wsdl:operation>
-		<wsdl:operation name="ConsultaLRDetOperacionIntracomunitaria">
-			<wsdl:input message="siiWdsl:EntradaConsultaLRDetOperacionesIntracomunitarias"/>
-			<wsdl:output message="siiWdsl:RespuestaConsultaLRDetOperacionesIntracomunitarias"/>
-		</wsdl:operation>
-	</wsdl:portType>
-	<wsdl:binding name="siiBinding" type="siiWdsl:siiSOAP">
-		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
-		<wsdl:operation name="SuministroLRDetOperacionIntracomunitaria">
-			<soap:operation soapAction=""/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="AnulacionLRDetOperacionIntracomunitaria">
-			<soap:operation soapAction=""/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="ConsultaLRDetOperacionIntracomunitaria">
-			<soap:operation soapAction=""/>
-			<wsdl:input>
-				<soap:body use="literal"/>
-			</wsdl:input>
-			<wsdl:output>
-				<soap:body use="literal"/>
-			</wsdl:output>
-		</wsdl:operation>
-	</wsdl:binding>
-	<wsdl:service name="siiService">
-		<!-- Entorno de PRODUCCION día 1 de julio 2018-->
-		<wsdl:port name="SuministroOpIntracomunitarias" binding="siiWdsl:siiBinding">
-			<soap:address location="https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/oi/SiiFactOIV1SOAP"/>
-		</wsdl:port>
-		<!-- Entorno de PRODUCCION día 1 de julio 2018 para acceso con certificado de sello-->
-		<wsdl:port name="SuministroOpIntracomunitariasSello" binding="siiWdsl:siiBinding">
-			<soap:address location="https://www10.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/oi/SiiFactOIV1SOAP"/>
-		</wsdl:port>
-		<!-- Entorno de PRUEBAS (tambien valido para acceso con certificado de sello)-->
-		<wsdl:port name="SuministroOpIntracomunitariasPruebas" binding="siiWdsl:siiBinding">
-			<soap:address location="https://www7.aeat.es/wlpl/SSII-FACT/ws/oi/SiiFactOIV1SOAP"/>
-		</wsdl:port>
-	</wsdl:service>
-</wsdl:definitions>
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpIntracomunitarias.wsdl" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpIntracomunitarias.wsdl">
+	<wsdl:types>
+		<xs:schema targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpIntracomunitarias.wsdl" elementFormDefault="qualified" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroOpIntracomunitarias.wsdl" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd">
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" schemaLocation="SuministroLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" schemaLocation="ConsultaLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" schemaLocation="RespuestaConsultaLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" schemaLocation="RespuestaSuministro.xsd"/>
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="EntradaSuministroLRDetOperacionIntracomunitaria">
+		<wsdl:part name="SuministroLRDetOperacionIntracomunitaria" element="siiLR:SuministroLRDetOperacionIntracomunitaria"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaAnulacionLRDetOperacionIntracomunitaria">
+		<wsdl:part name="AnulacionLRDetOperacionIntracomunitaria" element="siiLR:BajaLRDetOperacionIntracomunitaria"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaConsultaLRDetOperacionesIntracomunitarias">
+		<wsdl:part name="ConsultaLRDetOperIntracomunitarias" element="siiLRC:ConsultaLRDetOperIntracomunitarias"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaSuministroLRDetOperacionesIntracomunitarias">
+		<wsdl:part name="RespuestaSuministroLRDetOperacionesIntracomunitarias" element="siiR:RespuestaLRDetOperacionesIntracomunitarias"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaAnulacionLRDetOperacionesIntracomunitarias">
+		<wsdl:part name="RespuestaAnulacionLRDetOperacionesIntracomunitarias" element="siiR:RespuestaLRBajaDetOperacionesIntracomunitarias"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaConsultaLRDetOperacionesIntracomunitarias">
+		<wsdl:part name="RespuestaConsultaLRDetOperacionesIntracomunitarias" element="siiLRRC:RespuestaConsultaLRDetOperIntracomunitarias"/>
+	</wsdl:message>
+	<wsdl:portType name="siiSOAP">
+		<wsdl:operation name="SuministroLRDetOperacionIntracomunitaria">
+			<wsdl:input message="siiWdsl:EntradaSuministroLRDetOperacionIntracomunitaria"/>
+			<wsdl:output message="siiWdsl:RespuestaSuministroLRDetOperacionesIntracomunitarias"/>
+		</wsdl:operation>
+		<wsdl:operation name="AnulacionLRDetOperacionIntracomunitaria">
+			<wsdl:input message="siiWdsl:EntradaAnulacionLRDetOperacionIntracomunitaria"/>
+			<wsdl:output message="siiWdsl:RespuestaAnulacionLRDetOperacionesIntracomunitarias"/>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRDetOperacionIntracomunitaria">
+			<wsdl:input message="siiWdsl:EntradaConsultaLRDetOperacionesIntracomunitarias"/>
+			<wsdl:output message="siiWdsl:RespuestaConsultaLRDetOperacionesIntracomunitarias"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="siiBinding" type="siiWdsl:siiSOAP">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="SuministroLRDetOperacionIntracomunitaria">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="AnulacionLRDetOperacionIntracomunitaria">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRDetOperacionIntracomunitaria">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="siiService">
+		<!-- Entorno de PRODUCCION día 1 de julio 2018-->
+		<wsdl:port name="SuministroOpIntracomunitarias" binding="siiWdsl:siiBinding">
+			<soap:address location="https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/oi/SiiFactOIV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRODUCCION día 1 de julio 2018 para acceso con certificado de sello-->
+		<wsdl:port name="SuministroOpIntracomunitariasSello" binding="siiWdsl:siiBinding">
+			<soap:address location="https://www10.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/oi/SiiFactOIV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRUEBAS -->
+		<wsdl:port name="SuministroOpIntracomunitariasPruebas" binding="siiWdsl:siiBinding">
+			<soap:address location="https://prewww1.aeat.es/wlpl/SSII-FACT/ws/oi/SiiFactOIV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRUEBAS para acceso con certificado de sello -->
+		<wsdl:port name="SuministroOpIntracomunitariasPruebasSello" binding="siiWdsl:siiBinding">
+			<soap:address location="https://prewww10.aeat.es/wlpl/SSII-FACT/ws/oi/SiiFactOIV1SOAP"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>
