@@ -489,3 +489,37 @@
 		</sequence>
 	</complexType>
 </schema>
+umentation xml:lang="es"> Apunte correspondiente al libro de venta de bienes en consigna. </documentation>
+		</annotation>
+		<sequence>
+			<element name="ClaveDeclarante" type="sii:TipoClaveDeclaranteType"/>
+			<element name="IdRegistroDeclarado" type="sii:IdRegistroDeclaradoType"/>
+			<element name="TipoOperacion" type="sii:TipoOperacionType"/>
+			<element name="Contraparte" type="sii:PersonaFisicaJuridicaType" minOccurs="0"/>
+			<element name="SustitutoDestinatarioInicial" type="sii:PersonaFisicaJuridicaType" minOccurs="0"/>
+			<element name="Deposito" type="sii:DepositoType" minOccurs="0"/>
+			<element name="OperacionIntracomunitaria" type="sii:VentaBienesConsignaType"/>
+		</sequence>
+	</complexType>
+	<element name="BajaLRVentaBienesConsigna">
+		<complexType>
+			<complexContent>
+				<extension base="sii:SuministroInformacionBaja">
+					<sequence>
+						<element name="RegistroLRBajaVentaBienesConsigna" type="siiLR:LRBajaVentaBienesConsignaType" maxOccurs="10000"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<!-- Datos del libro de venta de bienes en consigna.  -->
+	<complexType name="LRBajaVentaBienesConsignaType">
+		<annotation>
+			<documentation xml:lang="es"> Apunte correspondiente al libro venta de bienes en consigna. </documentation>
+		</annotation>
+		<sequence>
+			<element name="IdRegistroDeclarado" type="sii:IdRegistroDeclaradoType"/>
+			<element name="RefExterna" type="sii:TextMax60Type" minOccurs="0"/>
+		</sequence>
+	</complexType>
+</schema>

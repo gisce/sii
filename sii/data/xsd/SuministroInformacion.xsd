@@ -2143,3 +2143,81 @@
 		<restriction base="integer"/>
 	</simpleType>
 </schema>
+ation>
+					<documentation xml:lang="es">Pago contra reembolso</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="19">
+				<annotation>
+					<documentation xml:lang="en">Payment by card</documentation>
+					<documentation xml:lang="es">Pago mediante tarjeta</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="20">
+				<annotation>
+					<documentation xml:lang="es">No se cobra / paga (fecha límite de devengo / devengo forzoso en  concurso de acreedores)</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- Códigos de clave operacion en operaciones de seguros-->
+	<simpleType name="ClaveOperacionType">
+		<restriction base="string">
+			<enumeration value="A">
+				<annotation>
+					<documentation xml:lang="es">Indemnizaciones o prestaciones satisfechas superiores a 3005,06</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="B">
+				<annotation>
+					<documentation xml:lang="es">Primas o  contraprestaciones percibidas superiores a 3005,06</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- Estado del registro duplicado almacenado en SII -->
+	<simpleType name="EstadoRegistroSIIType">
+		<restriction base="string">
+			<enumeration value="Correcta">
+				<annotation>
+					<documentation xml:lang="es">El registro se almacenado sin errores</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="AceptadaConErrores">
+				<annotation>
+					<documentation xml:lang="es">El registro se almacenado tiene algunos errores. Ver detalle del error</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Anulada">
+				<annotation>
+					<documentation xml:lang="es">El registro almacenado ha sido anulado</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="ErrorDetalleType">
+		<restriction base="integer"/>
+	</simpleType>
+	<simpleType name="TipoClaveDeclaranteType">
+		<restriction base="string">
+			<enumeration value="V"/>
+			<enumeration value="A"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="TipoOperacionType">
+		<restriction base="string">
+			<enumeration value="01"/>
+			<enumeration value="02"/>
+			<enumeration value="03"/>
+			<enumeration value="04"/>
+			<enumeration value="05"/>
+			<enumeration value="06"/>
+			<enumeration value="07"/>
+			<enumeration value="08"/>
+			<enumeration value="09"/>
+			<enumeration value="10"/>
+			<enumeration value="11"/>
+			<enumeration value="12"/>
+		</restriction>
+	</simpleType>
+</schema>

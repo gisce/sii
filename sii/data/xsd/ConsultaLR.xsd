@@ -376,3 +376,37 @@
 		</annotation>
 	</element>
 </schema>
+ta en el libro de registro de Cobros en Metálico</documentation>
+		</annotation>
+	</element>
+	<element name="ConsultaCobros" type="siiLRC:ConsultaCobrosType">
+		<annotation>
+			<documentation>Servicio de consulta de cobros en el libro de registro de facturas expedidas</documentation>
+		</annotation>
+	</element>
+	<element name="ConsultaInmueblesAdicionales" type="siiLRC:ConsultaInmueblesAdicionalesType">
+		<annotation>
+			<documentation>Servicio de consulta de Inmuebles adicionales</documentation>
+		</annotation>
+	</element>
+	<element name="ConsultaPagos" type="siiLRC:ConsultaPagosType">
+		<annotation>
+			<documentation>Servicio de consulta de pagos en el libro de registro de facturas recibidas</documentation>
+		</annotation>
+	</element>
+	<element name="ConsultaLROperacionesSeguros" type="siiLRC:LRConsultaLROperacionesSegurosType">
+		<annotation>
+			<documentation>Servicio de consulta de operaciones de seguros</documentation>
+		</annotation>
+	</element>
+	<element name="ConsultaLRConsultaVentaBienesConsigna" type="siiLRC:LRConsultaVentaBienesConsignaType">
+		<annotation>
+			<documentation>Servicio de consulta en el libro de registro de Venta de Bienes en Consigna</documentation>
+		</annotation>
+	</element>
+	<element name="ConsultaLLAA" type="siiLRC:ConsultaLLAAType">
+		<annotation>
+			<documentation>Servicio de Consulta agregada de los libros de IVA</documentation>
+		</annotation>
+	</element>
+</schema>

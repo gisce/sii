@@ -1356,3 +1356,103 @@
 		<restriction base="integer"/>
 	</simpleType>
 </schema>
+ntation>
+				</annotation>
+			</element>
+			<element name="ClaveOperacion" type="sii:ClaveOperacionType"/>
+			<element name="EstadoRegistro" type="siiR:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro. Correcto, erróneo o aceptado con errores
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="siiR:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sii:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="CSV" type="string" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						CSV asociado al registro. Solo se suministra si el registro es rechazado porque ya está dada de baja
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<simpleType name="EstadoEnvioType">
+		<restriction base="string">
+			<enumeration value="Correcto">
+				<annotation>
+					<documentation xml:lang="es">Correcto</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ParcialmenteCorrecto">
+				<annotation>
+					<documentation xml:lang="es">Parcialmente correcto. Ver detalle de errores</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Incorrecto">
+				<annotation>
+					<documentation xml:lang="es">Incorrecto</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="EstadoRegistroType">
+		<restriction base="string">
+			<enumeration value="Correcto">
+				<annotation>
+					<documentation xml:lang="es">Correcto</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="AceptadoConErrores">
+				<annotation>
+					<documentation xml:lang="es">Aceptado con Errores. Ver detalle del error</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Incorrecto">
+				<annotation>
+					<documentation xml:lang="es">Incorrecto</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="ErrorEnvioType">
+		<restriction base="string">
+			<enumeration value="ERR01">
+				<annotation>
+					<documentation xml:lang="es">Error de validación contra esquema</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ERR03">
+				<annotation>
+					<documentation xml:lang="es">Declarante desconocido</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ERR04">
+				<annotation>
+					<documentation xml:lang="es">El declarante debe identificarse mediante un NIF español.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ERR05">
+				<annotation>
+					<documentation xml:lang="es">El NIF del representante es incorrecto.</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="ErrorDetalleType">
+		<restriction base="integer"/>
+	</simpleType>
+</schema>
