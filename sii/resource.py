@@ -359,6 +359,8 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
 
     rectificativa = rect_sust_opc1 or rect_sust_opc2
 
+    fiscal_partner = FiscalPartner(invoice)
+
     factura_expedida = {
         'TipoFactura': 'R4' if rectificativa else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
@@ -366,7 +368,7 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
         'DescripcionOperacion': invoice.sii_description,
         'Contraparte': get_partner_info(
-            invoice.partner_id, in_invoice=False, nombre_razon=True),
+            fiscal_partner, in_invoice=False, nombre_razon=True),
         'TipoDesglose': get_factura_emitida_tipo_desglose(invoice)
     }
 
@@ -479,7 +481,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         cuota_deducible = 0  # Cuota deducible: Etiqueta con 0
 
     rectificativa = rect_sust_opc1 or rect_sust_opc2
-
+    fiscal_partner = FiscalPartner(invoice)
     factura_recibida = {
         'TipoFactura': 'R4' if rectificativa else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
@@ -487,7 +489,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         'ImporteTotal': importe_total,
         'DescripcionOperacion': invoice.sii_description,
         'Contraparte': get_partner_info(
-            invoice.partner_id, in_invoice=in_invoice, nombre_razon=True),
+            fiscal_partner, in_invoice=in_invoice, nombre_razon=True),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
         'FechaRegContable': fecha_reg_contable
@@ -560,6 +562,7 @@ def get_factura_emitida_dict(invoice,
 
 def get_factura_recibida_dict(invoice,
                               rect_sust_opc1=False, rect_sust_opc2=False):
+    fiscal_partner = FiscalPartner(invoice)
     obj = {
         'SuministroLRFacturasRecibidas': {
             'Cabecera': get_header(invoice),
@@ -570,7 +573,7 @@ def get_factura_recibida_dict(invoice,
                 },
                 'IDFactura': {
                     'IDEmisorFactura': get_partner_info(
-                        invoice.partner_id, in_invoice=True
+                        fiscal_partner, in_invoice=True
                     ),
                     'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
@@ -687,7 +690,7 @@ def get_baja_factura_recibida_dict(invoice):
 
     cabecera = get_header(invoice)
     cabecera.pop('TipoComunicacion')
-
+    fiscal_partner = FiscalPartner(invoice)
     obj = {
         'BajaLRFacturasRecibidas': {
             'Cabecera': cabecera,
@@ -698,7 +701,7 @@ def get_baja_factura_recibida_dict(invoice):
                 },
                 'IDFactura': {
                     'IDEmisorFactura': get_partner_info(
-                        invoice.partner_id, in_invoice=True, nombre_razon=True
+                        fiscal_partner, in_invoice=True, nombre_razon=True
                     ),
                     'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
