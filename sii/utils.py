@@ -9,6 +9,33 @@ def unidecode_str(s):
         s = s.decode('utf-8')
     return unidecode(s)
 
+class FiscalPartner(object):
+    def __init__(
+            self, invoice,
+            name=None, vat=None, aeat_registered=None,
+            partner_country=None
+    ):
+        """
+        :param invoice: Invoce from take info
+        :param name: Fiscal partner name
+        :param vat: Fiscal partner vat
+        :param aeat_registered: Fiscal partner is registered on aeat
+        :param partner_country: Fiscal partner country
+        """
+        if invoice:
+            self.name = invoice.partner_id.name
+            self.vat = invoice.partner_id.vat
+            self.aeat_registered = invoice.partner_id.aeat_registered
+            self.partner_country = invoice.partner_id.country_id or invoice.partner_id.country
+        else:
+            self.name = name
+            self.vat = vat
+            self.aeat_registered = aeat_registered
+            self.partner_country = partner_country
+
+    def sii_get_vat_type(self):
+        return VAT.sii_get_vat_type(self.vat)
+
 
 class VAT:
     def __init__(self, vat):
