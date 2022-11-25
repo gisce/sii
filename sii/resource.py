@@ -4,7 +4,7 @@ from decimal import Decimal, localcontext
 
 from sii import __SII_VERSION__
 from sii.models import invoices_record, invoices_deregister
-from sii.utils import unidecode_str, VAT
+from sii.utils import unidecode_str, VAT, FiscalPartner
 from datetime import date
 
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
@@ -129,31 +129,30 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     return vals
 
 
-def get_partner_info(partner, in_invoice, nombre_razon=False):
-    vat_type = partner.sii_get_vat_type()
+def get_partner_info(fiscal_partner, in_invoice, nombre_razon=False):
+    vat_type = fiscal_partner.sii_get_vat_type()
     contraparte = {}
 
+    partner_country = fiscal_partner.partner_country
     if nombre_razon:
-        contraparte['NombreRazon'] = unidecode_str(partner.name)
-
-    partner_country = partner.country_id or partner.country
+        contraparte['NombreRazon'] = unidecode_str(fiscal_partner.name)
 
     if vat_type == '02':
-        if not partner.aeat_registered and not in_invoice:
+        if not fiscal_partner.aeat_registered and not in_invoice:
             contraparte['IDOtro'] = {
                 'CodigoPais': partner_country.code,
                 'IDType': '07',
-                'ID': VAT.clean_vat(partner.vat)
+                'ID': VAT.clean_vat(fiscal_partner.vat)
             }
         else:
-            contraparte['NIF'] = VAT.clean_vat(partner.vat)
+            contraparte['NIF'] = VAT.clean_vat(fiscal_partner.vat)
     else:
         if vat_type == '04' and partner_country.is_eu_member:
             vat_type = '02'
         contraparte['IDOtro'] = {
             'CodigoPais': partner_country.code,
             'IDType': vat_type,
-            'ID': VAT.clean_vat(partner.vat)
+            'ID': VAT.clean_vat(fiscal_partner.vat)
         }
 
     return contraparte
