@@ -563,13 +563,18 @@ def get_factura_emitida_dict(invoice,
 def get_factura_recibida_dict(invoice,
                               rect_sust_opc1=False, rect_sust_opc2=False):
     fiscal_partner = FiscalPartner(invoice)
+    if invoice.period_id and invoice.period_id.name:
+        period_name = invoice.period_id.name
+    else:
+        year, month, date = invoice.date_invoice.split('-')
+        period_name = '{}/{}'.format(month, year)
     obj = {
         'SuministroLRFacturasRecibidas': {
             'Cabecera': get_header(invoice),
             'RegistroLRFacturasRecibidas': {
                 'PeriodoLiquidacion': {
-                    'Ejercicio': invoice.period_id.name[3:7],
-                    'Periodo': invoice.period_id.name[0:2]
+                    'Ejercicio': period_name[3:7],
+                    'Periodo': period_name[0:2]
                 },
                 'IDFactura': {
                     'IDEmisorFactura': get_partner_info(
