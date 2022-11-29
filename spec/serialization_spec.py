@@ -90,14 +90,17 @@ with description('El XML Generado'):
                 ['RegistroLRFacturasEmitidas']
             )
 
-        with context('en los NIFs involucrados'):
+        with context('en los NIFs involucrados sin fiscal info'):
             with before.all:
                 os.environ['NIF_TITULAR'] = 'ES12345678T'
                 os.environ['NIF_CONTRAPARTE'] = 'esES654321P'
+                os.environ['FISCAL_VAT_CONTRAPARTE'] = 'esES654321P'
 
                 new_data_gen = DataGenerator()
-                nifs_test_invoice = new_data_gen.get_out_invoice()
+                nifs_test_invoice = new_data_gen.get_out_invoice(with_fiscal_info=False)
                 self.nif_contraparte = nifs_test_invoice.partner_id.vat[2:]
+                self.nombre_contraparte = unidecode_str(nifs_test_invoice.partner_id.name)
+                self.nombre_partner = unidecode_str(nifs_test_invoice.partner_id.name)
                 self.nif_titular = (
                     nifs_test_invoice.company_id.partner_id.vat[2:]
                 )
@@ -116,6 +119,60 @@ with description('El XML Generado'):
                     ['RegistroLRFacturasEmitidas']['FacturaExpedida']
                     ['Contraparte']['NIF']
                 ).to(equal(self.nif_contraparte))
+            with it('el Nombre de la Contraparte debe ser igual al valor partner'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']['NombreRazon']
+                ).to(equal(self.nombre_contraparte))
+            with it('el Nombre de la Contraparte debe ser distinto al del partner'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']['NombreRazon']
+                ).not_to(equal(self.nombre_partner))
+
+        with context('en los NIFs involucrados con fiscal info'):
+            with before.all:
+                os.environ['NIF_TITULAR'] = 'ES12345678T'
+                os.environ['NIF_CONTRAPARTE'] = 'esES654321P'
+                os.environ['FISCAL_VAT_CONTRAPARTE'] = 'esES654321P'
+
+                new_data_gen = DataGenerator()
+                nifs_test_invoice = new_data_gen.get_out_invoice()
+                self.nif_contraparte = nifs_test_invoice.fiscal_vat[2:]
+                self.nif_titular = (
+                    nifs_test_invoice.company_id.partner_id.vat[2:]
+                )
+                self.nombre_contraparte = nifs_test_invoice.fiscal_name
+                self.nombre_partner = nifs_test_invoice.partner_id.name
+
+                self.nifs_test_obj = SII(nifs_test_invoice).generate_object()
+
+            with it('el NIF del Titular no debe empezar por "ES"'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['Cabecera']['Titular']['NIF']
+                ).to(equal(self.nif_titular))
+
+            with it('el NIF de la Contraparte no debe empezar por "ES"'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']['NIF']
+                ).to(equal(self.nif_contraparte))
+            with it('el Nombre de la Contraparte debe ser igual al valor fiscal'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']['NombreRazon']
+                ).to(equal(self.nombre_contraparte))
+            with it('el Nombre de la Contraparte debe ser distinto al del partner'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']['NombreRazon']
+                ).not_to(equal(self.nombre_partner))
 
         with it('la ClaveRegimenEspecialOTrascendencia debe ser válido'):
             expect(

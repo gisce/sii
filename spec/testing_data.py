@@ -72,6 +72,10 @@ class DataGenerator:
             invoice_tax_iva_exento
         ]
         spain = Country(code='ES', is_eu_member=False)
+        self.fiscal_name = os.environ.get(
+            'FISCAL_NOMBRE_CONTRAPARTE', u'Qwerting Tarantino')
+        self.fiscal_vat = os.environ.get(
+            'FISCAL_VAT_CONTRAPARTE', u'ES09346536A')
         self.partner_invoice = Partner(
             name=os.environ.get('NOMBRE_CONTRAPARTE', u'Francisco García'),
             nif=os.environ.get('NIF_CONTRAPARTE', u'ES12345678Z'),
@@ -132,7 +136,7 @@ class DataGenerator:
         )
         return invoice
 
-    def get_out_invoice(self):
+    def get_out_invoice(self, with_fiscal_info=True):
         journal = Journal(
             name=u'Factura de Energía Emitida'
         )
@@ -144,6 +148,9 @@ class DataGenerator:
             rectifying_id=False,
             number='FEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
+            fiscal_info=with_fiscal_info,
+            fiscal_name=self.fiscal_name,
+            fiscal_vat=self.fiscal_vat,
             address_contact_id=self.address_contact_id,
             company_id=self.company,
             amount_total=self.amount_total,
