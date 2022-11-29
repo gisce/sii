@@ -432,6 +432,185 @@ with description('El XML Generado'):
                 self.in_invoice_obj['SuministroLRFacturasRecibidas']
                 ['RegistroLRFacturasRecibidas']
             )
+        with context('la fecha de factura del periodo de liquidacion'):
+            with it('debe ser la fecha factura'):
+                period_value = '{}/{}'.format(
+                    self.factura_recibida['PeriodoLiquidacion']['Periodo'],
+                    self.factura_recibida['PeriodoLiquidacion']['Ejercicio']
+                )
+                expect(
+                    period_value
+                ).to(equal('12/2016'))
+
+        with context('en los datos del emisor de la factura'):
+
+            with context('si no está registrado en la AEAT'):
+                with before.all:
+                    new_data_gen = DataGenerator(contraparte_registered=False)
+                    self.in_invoice = new_data_gen.get_in_invoice()
+                    # Valid French TVA FR23334175221
+                    self.in_invoice.partner_id.country_id.code = 'FR'
+                    self.in_invoice.partner_id.country_id.is_eu_member = True
+                    self.in_invoice.partner_id.vat = 'FR23334175221'
+
+                    in_invoice_obj = SII(self.in_invoice).generate_object()
+                    self.emisor_factura = (
+                        in_invoice_obj['SuministroLRFacturasRecibidas']
+                        ['RegistroLRFacturasRecibidas']['IDFactura']
+                        ['IDEmisorFactura']
+                    )
+
+                with it('el ID debe ser el NIF del emisor'):
+                    nif_emisor = self.in_invoice.partner_id.vat[2:]
+                    expect(
+                        self.emisor_factura['IDOtro']['ID']
+                    ).to(equal(nif_emisor))
+
+                with it('el IDType debe ser "02"'):
+                    expect(
+                        self.emisor_factura['IDOtro']['IDType']
+                    ).to(equal('02'))
+
+                with it('el CodigoPais debe ser "FR"'):
+                    expect(
+                        self.emisor_factura['IDOtro']['CodigoPais']
+                    ).to(equal('FR'))
+
+        with context('en los detalles del IVA'):
+            with before.all:
+                detalle_iva_desglose_iva = (
+                    self.factura_recibida['FacturaRecibida']['DesgloseFactura']
+                    ['DesgloseIVA']['DetalleIVA']
+                )
+                self.grouped_detalle_iva = group_by_tax_rate(
+                    detalle_iva_desglose_iva, in_invoice=True
+                )
+
+            with it('el detalle de DesgloseIVA debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[21.0]['BaseImponible']
+                ).to(equal(
+                    self.in_invoice.tax_line[0].base
+                ))
+                expect(
+                    self.grouped_detalle_iva[21.0]['CuotaSoportada']
+                ).to(equal(
+                    self.in_invoice.tax_line[0].tax_amount
+                ))
+                expect(
+                    self.grouped_detalle_iva[21.0]['TipoImpositivo']
+                ).to(equal(
+                    self.in_invoice.tax_line[0].tax_id.amount * 100
+                ))
+
+            with _it('el detalle de DesgloseIVA para importe no sujeto a '
+                     'impuesto debe ser correcto'):
+                expect(
+                    self.grouped_detalle_iva[0.0]['BaseImponible']
+                ).to(equal(
+                    self.in_invoice.invoice_line[5].price_subtotal
+                ))
+                expect(
+                    self.grouped_detalle_iva[0.0]['CuotaSoportada']
+                ).to(equal(0))
+                expect(
+                    self.grouped_detalle_iva[0.0]['TipoImpositivo']
+                ).to(equal(0))
+
+        with context('si es una importación'):
+            with before.all:
+                # Clave Régimen Especial importación: '13'
+                self.cre_importacion = '13'
+                self.in_invoice.sii_in_clave_regimen_especial = (
+                    self.cre_importacion
+                )
+
+                self.import_inv_obj = SII(self.in_invoice).generate_object()
+                self.factura_recibida = (
+                    self.import_inv_obj['SuministroLRFacturasRecibidas']
+                    ['RegistroLRFacturasRecibidas']
+                )
+
+            with context('en los detalles del IVA'):
+                with it('el detalle de DesgloseIVA debe ser la original'):
+                    # TODO change TipoImpositivo and CuotaSoportada should be '0'
+                    detalle_iva_desglose_iva = (
+                        self.factura_recibida['FacturaRecibida']
+                        ['DesgloseFactura']['DesgloseIVA']['DetalleIVA']
+                    )
+                    self.grouped_detalle_iva = group_by_tax_rate(
+                        detalle_iva_desglose_iva, in_invoice=True
+                    )
+
+                    expect(
+                        self.grouped_detalle_iva[21.0]['BaseImponible']
+                    ).to(equal(
+                        self.in_invoice.tax_line[0].base
+                    ))
+                    expect(
+                        self.grouped_detalle_iva[21.0]['CuotaSoportada']
+                    ).to(equal(
+                        self.in_invoice.tax_line[0].tax_amount
+                    ))
+                    expect(
+                        self.grouped_detalle_iva[21.0]['TipoImpositivo']
+                    ).to(equal(
+                        self.in_invoice.tax_line[0].tax_id.amount * 100
+                    ))
+
+        with context('si es una factura del primer semestre 2017'):
+            with before.all:
+                # Clave Régimen Especial para
+                # Facturas Recibidas Primer Semestre 2017: '14'
+                self.cre_primer_semestre = '14'
+                self.in_invoice.sii_in_clave_regimen_especial = (
+                    self.cre_primer_semestre
+                )
+
+                self.first_semester_in_inv_obj = (
+                    SII(self.in_invoice).generate_object()
+                )
+                self.factura_recibida = (
+                    self.first_semester_in_inv_obj
+                    ['SuministroLRFacturasRecibidas']
+                    ['RegistroLRFacturasRecibidas']
+                )
+
+            with it('debe tener Clave de Régimen Especial "14"'):
+                expect(
+                    self.factura_recibida['FacturaRecibida']
+                    ['ClaveRegimenEspecialOTrascendencia']
+                ).to(equal(self.cre_primer_semestre))
+
+            with it('la cuota deducible debe ser 0'):
+                expect(
+                    self.factura_recibida['FacturaRecibida']['CuotaDeducible']
+                ).to(equal(0))
+
+            with it('la fecha de registro contable debe ser la fecha del '
+                    'envío'):
+                expect(
+                    self.factura_recibida['FacturaRecibida']
+                    ['FechaRegContable']
+                ).to(equal(datetime.today().strftime('%d-%m-%Y')))
+
+    with description('en los datos de una factura recibida sin periodo'):
+        with before.all:
+            self.in_invoice = self.data_gen.get_in_invoice_without_period()
+            self.in_invoice_obj = SII(self.in_invoice).generate_object()
+            self.factura_recibida = (
+                self.in_invoice_obj['SuministroLRFacturasRecibidas']
+                ['RegistroLRFacturasRecibidas']
+            )
+        with context('la fecha de factura del periodo de liquidacion'):
+            with it('debe ser la fecha factura'):
+                period_value = '{}/{}'.format(
+                    self.factura_recibida['PeriodoLiquidacion']['Periodo'],
+                    self.factura_recibida['PeriodoLiquidacion']['Ejercicio']
+                )
+                expect(
+                    period_value
+                ).to(equal('12/2016'))
 
         with context('en los datos del emisor de la factura'):
 
