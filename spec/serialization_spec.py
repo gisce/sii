@@ -1062,7 +1062,7 @@ with description('El XML Generado en una baja de una factura emitida'):
         with before.all:
             self.invoice = self.data_gen.get_out_invoice()
             self.invoice_obj = (
-                SIIDeregister(self.invoice).generate_deregister_object()
+                SIIDeregister(self.invoice).generate_object()
             )
             self.cabecera = (
                 self.invoice_obj['BajaLRFacturasEmitidas']['Cabecera']
@@ -1093,7 +1093,7 @@ with description('El XML Generado en una baja de una factura emitida'):
         with before.all:
             self.invoice = self.data_gen.get_out_invoice()
             self.invoice_obj = (
-                SIIDeregister(self.invoice).generate_deregister_object()
+                SIIDeregister(self.invoice).generate_object()
             )
             self.factura_emitida = (
                 self.invoice_obj['BajaLRFacturasEmitidas']
@@ -1149,7 +1149,7 @@ with description('El XML Generado en una baja de una factura recibida'):
         with before.all:
             self.invoice = self.data_gen.get_in_invoice()
             self.invoice_obj = (
-                SIIDeregister(self.invoice).generate_deregister_object()
+                SIIDeregister(self.invoice).generate_object()
             )
             self.cabecera = (
                 self.invoice_obj['BajaLRFacturasRecibidas']['Cabecera']
@@ -1180,7 +1180,7 @@ with description('El XML Generado en una baja de una factura recibida'):
         with before.all:
             self.invoice = self.data_gen.get_in_invoice()
             self.invoice_obj = (
-                SIIDeregister(self.invoice).generate_deregister_object()
+                SIIDeregister(self.invoice).generate_object()
             )
             self.factura_recibida = (
                 self.invoice_obj['BajaLRFacturasRecibidas']
