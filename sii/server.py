@@ -202,7 +202,7 @@ class SiiService(Service):
 
 class SiiDeregisterService(SiiService):
 
-    def get_deregister_msg(self):
+    def get_msg(self):
         dict_from_marsh = (
             SIIDeregister(self.invoice).generate_deregister_object()
         )
@@ -241,7 +241,7 @@ class SiiDeregisterService(SiiService):
             self.result = fault
             raise fault
 
-    def deregister(self, invoice):
+    def send(self, invoice):
         self.invoice = invoice
         if self.invoice.type.startswith('out_'):
             if self.emitted_service is None:
