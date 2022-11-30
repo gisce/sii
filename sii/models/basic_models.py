@@ -101,18 +101,16 @@ class Invoice:
                  sii_out_clave_regimen_especial=None,
                  origin_date_invoice=None,
                  origin=None,
-                 fiscal_info=False,
                  fiscal_name=None,
                  fiscal_vat=None):
         self.journal_id = journal_id
         self.number = number
         self.type = invoice_type
         self.partner_id = partner_id
-        if fiscal_info:
-            if fiscal_name:
-                self.fiscal_name = fiscal_name
-            if fiscal_vat:
-                self.fiscal_vat = fiscal_vat
+        if fiscal_name:
+            self.fiscal_name = fiscal_name
+        if fiscal_vat:
+            self.fiscal_vat = fiscal_vat
         self.address_contact_id = address_contact_id
         self.company_id = company_id
         self.period_id = period_id
