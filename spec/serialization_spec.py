@@ -124,13 +124,13 @@ with description('El XML Generado'):
                     self.nifs_test_obj['SuministroLRFacturasEmitidas']
                     ['RegistroLRFacturasEmitidas']['FacturaExpedida']
                     ['Contraparte']['NombreRazon']
-                ).to(equal(self.nombre_contraparte))
-            with it('el Nombre de la Contraparte debe ser distinto al del partner'):
+                ).to(equal(self.nombre_partner))
+            with it('el Nombre de la Contraparte debe ser igual al del partner'):
                 expect(
                     self.nifs_test_obj['SuministroLRFacturasEmitidas']
                     ['RegistroLRFacturasEmitidas']['FacturaExpedida']
                     ['Contraparte']['NombreRazon']
-                ).not_to(equal(self.nombre_partner))
+                ).to(equal(self.nombre_partner))
 
         with context('en los NIFs involucrados con fiscal info'):
             with before.all:

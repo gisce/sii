@@ -27,7 +27,7 @@ class FiscalPartner(object):
                 self.name = invoice.fiscal_name
             else:
                 self.name = invoice.partner_id.name
-            if hasattr(invoice, 'fiscal_vat') and invoice.fiscal_name:
+            if hasattr(invoice, 'fiscal_vat') and invoice.fiscal_vat:
                 self.vat = invoice.fiscal_vat
             else:
                 self.vat = invoice.partner_id.vat
