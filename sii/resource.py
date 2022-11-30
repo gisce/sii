@@ -1,5 +1,6 @@
 # coding=utf-8
 import re
+import warnings
 from decimal import Decimal, localcontext
 
 from sii import __SII_VERSION__
@@ -770,8 +771,7 @@ class SIIDeregister(SII):
                 )
             )
 
-    def validate_deregister_invoice(self):
-
+    def validate_invoice(self):
         res = {}
 
         errors = self.invoice_deregister_model.validate(
@@ -786,9 +786,8 @@ class SIIDeregister(SII):
 
         return res
 
-    def generate_deregister_object(self):
-
-        validation_values = self.validate_deregister_invoice()
+    def generate_object(self):
+        validation_values = self.validate_invoice()
         if not validation_values['successful']:
             raise Exception(
                 'Errors were found while trying to validate the data:',
