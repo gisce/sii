@@ -202,9 +202,9 @@ class SiiService(Service):
 
 class SiiDeregisterService(SiiService):
 
-    def get_deregister_msg(self):
+    def get_msg(self):
         dict_from_marsh = (
-            SIIDeregister(self.invoice).generate_deregister_object()
+            SIIDeregister(self.invoice).generate_object()
         )
         res_header = res_invoice = None
         if self.invoice.type.startswith('out_'):
@@ -227,7 +227,7 @@ class SiiDeregisterService(SiiService):
         return res_header, res_invoice
 
     def deregister_invoice(self):
-        msg_header, msg_invoice = self.get_deregister_msg()
+        msg_header, msg_invoice = self.get_msg()
         try:
             if self.invoice.type.startswith('out_'):
                 res = self.emitted_service.AnulacionLRFacturasEmitidas(
@@ -241,7 +241,7 @@ class SiiDeregisterService(SiiService):
             self.result = fault
             raise fault
 
-    def deregister(self, invoice):
+    def send(self, invoice):
         self.invoice = invoice
         if self.invoice.type.startswith('out_'):
             if self.emitted_service is None:

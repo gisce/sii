@@ -9,6 +9,39 @@ def unidecode_str(s):
         s = s.decode('utf-8')
     return unidecode(s)
 
+class FiscalPartner(object):
+    def __init__(self, invoice=None, name=None, vat=None,
+                 aeat_registered=None, partner_country=None
+    ):
+        """
+        :param invoice: Invoce from take info
+        :param name: Fiscal partner name
+        :param vat: Fiscal partner vat
+        :param aeat_registered: Fiscal partner is registered on aeat
+        :param partner_country: Fiscal partner country
+        """
+        if invoice is None and name is None and vat is None:
+            raise ValueError('Missing invoice or manual values')
+        if invoice:
+            if hasattr(invoice, 'fiscal_name') and invoice.fiscal_name:
+                self.name = invoice.fiscal_name
+            else:
+                self.name = invoice.partner_id.name
+            if hasattr(invoice, 'fiscal_vat') and invoice.fiscal_vat:
+                self.vat = invoice.fiscal_vat
+            else:
+                self.vat = invoice.partner_id.vat
+            self.aeat_registered = invoice.partner_id.aeat_registered
+            self.partner_country = invoice.partner_id.country_id or invoice.partner_id.country
+        else:
+            self.name = name
+            self.vat = vat
+            self.aeat_registered = aeat_registered
+            self.partner_country = partner_country
+
+    def sii_get_vat_type(self):
+        return VAT.sii_get_vat_type(self.vat)
+
 
 class VAT:
     def __init__(self, vat):

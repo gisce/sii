@@ -1,10 +1,11 @@
 # coding=utf-8
 import re
+import warnings
 from decimal import Decimal, localcontext
 
 from sii import __SII_VERSION__
 from sii.models import invoices_record, invoices_deregister
-from sii.utils import unidecode_str, VAT
+from sii.utils import unidecode_str, VAT, FiscalPartner
 from datetime import date
 
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
@@ -129,31 +130,30 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     return vals
 
 
-def get_partner_info(partner, in_invoice, nombre_razon=False):
-    vat_type = partner.sii_get_vat_type()
+def get_partner_info(fiscal_partner, in_invoice, nombre_razon=False):
+    vat_type = fiscal_partner.sii_get_vat_type()
     contraparte = {}
 
+    partner_country = fiscal_partner.partner_country
     if nombre_razon:
-        contraparte['NombreRazon'] = unidecode_str(partner.name)
-
-    partner_country = partner.country_id or partner.country
+        contraparte['NombreRazon'] = unidecode_str(fiscal_partner.name)
 
     if vat_type == '02':
-        if not partner.aeat_registered and not in_invoice:
+        if not fiscal_partner.aeat_registered and not in_invoice:
             contraparte['IDOtro'] = {
                 'CodigoPais': partner_country.code,
                 'IDType': '07',
-                'ID': VAT.clean_vat(partner.vat)
+                'ID': VAT.clean_vat(fiscal_partner.vat)
             }
         else:
-            contraparte['NIF'] = VAT.clean_vat(partner.vat)
+            contraparte['NIF'] = VAT.clean_vat(fiscal_partner.vat)
     else:
         if vat_type == '04' and partner_country.is_eu_member:
             vat_type = '02'
         contraparte['IDOtro'] = {
             'CodigoPais': partner_country.code,
             'IDType': vat_type,
-            'ID': VAT.clean_vat(partner.vat)
+            'ID': VAT.clean_vat(fiscal_partner.vat)
         }
 
     return contraparte
@@ -360,6 +360,8 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
 
     rectificativa = rect_sust_opc1 or rect_sust_opc2
 
+    fiscal_partner = FiscalPartner(invoice)
+
     factura_expedida = {
         'TipoFactura': 'R4' if rectificativa else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
@@ -367,7 +369,7 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
         'DescripcionOperacion': invoice.sii_description,
         'Contraparte': get_partner_info(
-            invoice.partner_id, in_invoice=False, nombre_razon=True),
+            fiscal_partner, in_invoice=False, nombre_razon=True),
         'TipoDesglose': get_factura_emitida_tipo_desglose(invoice)
     }
 
@@ -480,7 +482,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         cuota_deducible = 0  # Cuota deducible: Etiqueta con 0
 
     rectificativa = rect_sust_opc1 or rect_sust_opc2
-
+    fiscal_partner = FiscalPartner(invoice)
     factura_recibida = {
         'TipoFactura': 'R4' if rectificativa else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
@@ -488,7 +490,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         'ImporteTotal': importe_total,
         'DescripcionOperacion': invoice.sii_description,
         'Contraparte': get_partner_info(
-            invoice.partner_id, in_invoice=in_invoice, nombre_razon=True),
+            fiscal_partner, in_invoice=in_invoice, nombre_razon=True),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
         'FechaRegContable': fecha_reg_contable
@@ -561,12 +563,12 @@ def get_factura_emitida_dict(invoice,
 
 def get_factura_recibida_dict(invoice,
                               rect_sust_opc1=False, rect_sust_opc2=False):
+    fiscal_partner = FiscalPartner(invoice)
     if invoice.period_id and invoice.period_id.name:
         period_name = invoice.period_id.name
     else:
         year, month, date = invoice.date_invoice.split('-')
         period_name = '{}/{}'.format(month, year)
-
     obj = {
         'SuministroLRFacturasRecibidas': {
             'Cabecera': get_header(invoice),
@@ -577,7 +579,7 @@ def get_factura_recibida_dict(invoice,
                 },
                 'IDFactura': {
                     'IDEmisorFactura': get_partner_info(
-                        invoice.partner_id, in_invoice=True
+                        fiscal_partner, in_invoice=True
                     ),
                     'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
@@ -694,7 +696,7 @@ def get_baja_factura_recibida_dict(invoice):
 
     cabecera = get_header(invoice)
     cabecera.pop('TipoComunicacion')
-
+    fiscal_partner = FiscalPartner(invoice)
     obj = {
         'BajaLRFacturasRecibidas': {
             'Cabecera': cabecera,
@@ -705,7 +707,7 @@ def get_baja_factura_recibida_dict(invoice):
                 },
                 'IDFactura': {
                     'IDEmisorFactura': get_partner_info(
-                        invoice.partner_id, in_invoice=True, nombre_razon=True
+                        fiscal_partner, in_invoice=True, nombre_razon=True
                     ),
                     'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
@@ -769,8 +771,7 @@ class SIIDeregister(SII):
                 )
             )
 
-    def validate_deregister_invoice(self):
-
+    def validate_invoice(self):
         res = {}
 
         errors = self.invoice_deregister_model.validate(
@@ -785,9 +786,8 @@ class SIIDeregister(SII):
 
         return res
 
-    def generate_deregister_object(self):
-
-        validation_values = self.validate_deregister_invoice()
+    def generate_object(self):
+        validation_values = self.validate_invoice()
         if not validation_values['successful']:
             raise Exception(
                 'Errors were found while trying to validate the data:',
