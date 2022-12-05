@@ -75,13 +75,29 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
             tipo_impositivo_unitario = inv_tax.tax_id.amount
             tipo_impositivo = tipo_impositivo_unitario * 100
 
-            invoice_total -= (base_imponible + cuota)
+            if is_inversion_sujeto_pasivo(inv_tax.name) and in_invoice:
+                # Si es inversion de sujeto pasivo y de factura recibia
+                # no se debe tener en cuenta por el total de la factura
+                # ya que se generan 2 líneas de impuesto repercutido y soportado
+                # que se contrarestan
+                # No tenemos en cuenta el impuesto que se genera para la línea de
+                # IVA soportado
+                if inv_tax.tax_id.amount < 0:
+                    continue
+                new_value = {
+                    'BaseImponible': base_imponible,
+                    'TipoImpositivo': tipo_impositivo,
+                    'CuotaSoportada': cuota
+                }
+                vals['inversion_sujeto_pasivo'].append(new_value)
+            else:
+                invoice_total -= (base_imponible + cuota)
 
             tax_type = inv_tax.tax_id.type
             is_iva_exento = (
                 tipo_impositivo_unitario == 0 and tax_type == 'percent'
             )
-            if is_inversion_sujeto_pasivo(inv_tax.name):
+            if is_inversion_sujeto_pasivo(inv_tax.name) and not in_invoice:
                 new_value = {
                     'BaseImponible': base_imponible,
                     'TipoImpositivo': tipo_impositivo,
