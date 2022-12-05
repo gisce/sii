@@ -620,30 +620,53 @@ with description('El XML Generado'):
                                 'inversion_sujeto_pasivo'][0]['TipoImpositivo']
                         )
                     )
-                with it('debe tener el mismo importe que la factura'):
+                with it('la parte de detalle de iva debe tener los valores de la factura tiene que ser igual que el los datos a enviar'):
                     expect(
-                        Decimal('20.02')
+                        self.detalle_iva_isp_list[
+                            'inversion_sujeto_pasivo'][0]['BaseImponible']
                     ).to(
                         equal(
-                            self.detalle_iva_isp_list[
-                                'inversion_sujeto_pasivo'][0]['BaseImponible']
+                            Decimal(
+                                str(self.detalle_iva_isp['DetalleIVA'][0]['BaseImponible'])
+                            )
                         )
                     )
                     expect(
-                        Decimal('4.20')
+                        self.detalle_iva_isp_list[
+                            'inversion_sujeto_pasivo'][0]['CuotaSoportada']
                     ).to(
                         equal(
-                            self.detalle_iva_isp_list[
-                                      'inversion_sujeto_pasivo'][0]['CuotaSoportada']
-
+                            Decimal(str(self.detalle_iva_isp['DetalleIVA'][0]['CuotaSoportada']))
                         )
                     )
                     expect(
-                        Decimal('21.0')
+                        self.detalle_iva_isp_list[
+                            'inversion_sujeto_pasivo'][0]['TipoImpositivo']
                     ).to(
                         equal(
-                            self.detalle_iva_isp_list[
-                                'inversion_sujeto_pasivo'][0]['TipoImpositivo']
+                            Decimal(str(self.detalle_iva_isp['DetalleIVA'][0]['TipoImpositivo']))
+                        )
+                    )
+                with it('los datos a enviar tienen que ser igual'):
+                    expect(
+                        20.02
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp['DetalleIVA'][0]['BaseImponible']
+                        )
+                    )
+                    expect(
+                        4.20
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp['DetalleIVA'][0]['CuotaSoportada']
+                        )
+                    )
+                    expect(
+                        21.0
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp['DetalleIVA'][0]['TipoImpositivo']
                         )
                     )
 
