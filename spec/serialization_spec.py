@@ -1,10 +1,11 @@
 # coding=utf-8
 
-from sii.resource import SII, SIIDeregister
+from sii.resource import SII, SIIDeregister, get_iva_values
 from sii.models.invoices_record import CRE_FACTURAS_EMITIDAS
 from sii.utils import unidecode_str, VAT
 from expects import *
 from datetime import datetime
+from decimal import Decimal
 from spec.testing_data import DataGenerator, Tax, InvoiceLine, InvoiceTax
 from mamba import *
 import os
@@ -573,6 +574,78 @@ with description('El XML Generado'):
                 expect(
                     self.grouped_detalle_iva[0.0]['TipoImpositivo']
                 ).to(equal(0))
+
+        with context('en los detalles del IVA inversion sujeto pasivo'):
+            with before.all:
+                in_invoice_isp = self.data_gen.get_in_invoice_with_isp()
+
+                self.in_invoice_obj = SII(in_invoice_isp).generate_object()
+                self.factura_recibida = (
+                    self.in_invoice_obj['SuministroLRFacturasRecibidas']
+                    ['RegistroLRFacturasRecibidas']
+                )
+                self.detalle_iva_isp_list = get_iva_values(in_invoice_isp, in_invoice=True)
+                self.detalle_iva_isp = (
+                    self.factura_recibida['FacturaRecibida']['DesgloseFactura']
+                    ['InversionSujetoPasivo']
+                )
+
+                # self.grouped_detalle_iva_isp = group_by_tax_rate(
+                #     self.detalle_iva_isp, in_invoice=True
+                # )
+            with context('debe contener Sujeto Passivo'):
+                with it('la parte de detalle de iva debe tener los valores de la factura'):
+                    expect(
+                        Decimal('20.02')
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp_list[
+                                'inversion_sujeto_pasivo'][0]['BaseImponible']
+                        )
+                    )
+                    expect(
+                        Decimal('4.20')
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp_list[
+                                      'inversion_sujeto_pasivo'][0]['CuotaSoportada']
+
+                        )
+                    )
+                    expect(
+                        Decimal('21.0')
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp_list[
+                                'inversion_sujeto_pasivo'][0]['TipoImpositivo']
+                        )
+                    )
+                with it('debe tener el mismo importe que la factura'):
+                    expect(
+                        Decimal('20.02')
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp_list[
+                                'inversion_sujeto_pasivo'][0]['BaseImponible']
+                        )
+                    )
+                    expect(
+                        Decimal('4.20')
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp_list[
+                                      'inversion_sujeto_pasivo'][0]['CuotaSoportada']
+
+                        )
+                    )
+                    expect(
+                        Decimal('21.0')
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp_list[
+                                'inversion_sujeto_pasivo'][0]['TipoImpositivo']
+                        )
+                    )
 
         with context('si es una importación'):
             with before.all:
