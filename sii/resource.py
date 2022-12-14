@@ -1,10 +1,11 @@
 # coding=utf-8
 import re
+import warnings
 from decimal import Decimal, localcontext
 
 from sii import __SII_VERSION__
 from sii.models import invoices_record, invoices_deregister
-from sii.utils import unidecode_str, VAT
+from sii.utils import unidecode_str, VAT, FiscalPartner
 from datetime import date
 
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
@@ -66,23 +67,41 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
 
     for inv_tax in invoice.tax_line:
         if 'iva' in inv_tax.name.lower():
-            vals['sujeta_a_iva'] = True
-            if is_export:
-                vals['sujeta_a_iva'] = False
-                vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
             base_iva = inv_tax.base
             base_imponible = sign * base_iva
             cuota = inv_tax.tax_amount
             tipo_impositivo_unitario = inv_tax.tax_id.amount
             tipo_impositivo = tipo_impositivo_unitario * 100
 
-            invoice_total -= (base_imponible + cuota)
+            if is_inversion_sujeto_pasivo(inv_tax.name) and in_invoice:
+                # Si es inversion de sujeto pasivo y de factura recibia
+                # no se debe tener en cuenta por el total de la factura
+                # ya que se generan 2 líneas de impuesto repercutido y soportado
+                # que se contrarestan
+                # No tenemos en cuenta el impuesto que se genera para la línea de
+                # IVA soportado
+                if inv_tax.tax_id.amount < 0:
+                    continue
+                new_value = {
+                    'BaseImponible': base_imponible,
+                    'TipoImpositivo': tipo_impositivo,
+                    'CuotaSoportada': cuota
+                }
+                vals['inversion_sujeto_pasivo'].append(new_value)
+                invoice_total -= base_imponible
+                continue
+            else:
+                vals['sujeta_a_iva'] = True
+		if is_export:
+                    vals['sujeta_a_iva'] = False
+                    vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
+                invoice_total -= (base_imponible + cuota)
 
             tax_type = inv_tax.tax_id.type
             is_iva_exento = (
                 tipo_impositivo_unitario == 0 and tax_type == 'percent'
             )
-            if is_inversion_sujeto_pasivo(inv_tax.name):
+            if is_inversion_sujeto_pasivo(inv_tax.name) and not in_invoice:
                 new_value = {
                     'BaseImponible': base_imponible,
                     'TipoImpositivo': tipo_impositivo,
@@ -116,7 +135,10 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     vals['detalle_iva'] = list(iva_values.values())
 
     invoice_total = round(invoice_total, 2)
-    if invoice_total != 0:
+    fp = invoice.fiscal_position
+    canarias = (fp and 'islas canarias' in unidecode_str(fp.name.lower()))
+
+    if invoice_total != 0 or (canarias and not vals['sujeta_a_iva'] and invoice.amount_total == 0):
         vals['no_sujeta_a_iva'] = True
         vals['importe_no_sujeto'] = invoice_total
         if in_invoice:
@@ -128,29 +150,30 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     return vals
 
 
-def get_partner_info(partner, in_invoice, nombre_razon=False):
-    vat_type = partner.sii_get_vat_type()
+def get_partner_info(fiscal_partner, in_invoice, nombre_razon=False):
+    vat_type = fiscal_partner.sii_get_vat_type()
     contraparte = {}
 
+    partner_country = fiscal_partner.partner_country
     if nombre_razon:
-        contraparte['NombreRazon'] = unidecode_str(partner.name)
-
-    partner_country = partner.country_id or partner.country
+        contraparte['NombreRazon'] = unidecode_str(fiscal_partner.name)
 
     if vat_type == '02':
-        if not partner.aeat_registered and not in_invoice:
+        if not fiscal_partner.aeat_registered and not in_invoice:
             contraparte['IDOtro'] = {
                 'CodigoPais': partner_country.code,
                 'IDType': '07',
-                'ID': VAT.clean_vat(partner.vat)
+                'ID': VAT.clean_vat(fiscal_partner.vat)
             }
         else:
-            contraparte['NIF'] = VAT.clean_vat(partner.vat)
+            contraparte['NIF'] = VAT.clean_vat(fiscal_partner.vat)
     else:
+        if vat_type == '04' and partner_country.is_eu_member:
+            vat_type = '02'
         contraparte['IDOtro'] = {
             'CodigoPais': partner_country.code,
             'IDType': vat_type,
-            'ID': VAT.clean_vat(partner.vat)
+            'ID': VAT.clean_vat(fiscal_partner.vat)
         }
 
     return contraparte
@@ -316,9 +339,33 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
 
     if opcion == 1:
         factura_rectificada = invoice.rectifying_id
+        fact_rectificadora_dict = SII(factura_rectificada).generate_object()
+        base_rectificada = 0
+        cuota_rectificada = 0
+
+        in_invoice = factura_rectificada.type.startswith('in_')
+        if in_invoice:
+            factura_rect_dict = fact_rectificadora_dict['SuministroLRFacturasRecibidas'][
+                'RegistroLRFacturasRecibidas']['FacturaRecibida']
+            cuota_key = 'CuotaSoportada'
+            detalle_iva = factura_rect_dict.get(
+                'DesgloseFactura', {}).get('DesgloseIVA', {}).get(
+                'DetalleIVA', [])
+        else:
+            factura_rect_dict = fact_rectificadora_dict['SuministroLRFacturasEmitidas'][
+                'RegistroLRFacturasEmitidas']['FacturaExpedida']
+            cuota_key = 'CuotaRepercutida'
+            detalle_iva = factura_rect_dict.get(
+                    'TipoDesglose', {}).get('DesgloseFactura', {}).get(
+                    'Sujeta', {}).get('NoExenta', {}).get(
+                    'DesgloseIVA', {}).get('DetalleIVA', [])
+        for iva in detalle_iva:
+            base_rectificada += iva['BaseImponible']
+            cuota_rectificada += iva.get(cuota_key, 0)
+
         rectificativa_fields['ImporteRectificacion'] = {
-            'BaseRectificada': abs(factura_rectificada.amount_untaxed),
-            'CuotaRectificada': abs(factura_rectificada.amount_tax)
+            'BaseRectificada': abs(base_rectificada),
+            'CuotaRectificada': abs(cuota_rectificada)
         }
     elif opcion == 2:
         rectificativa_fields['ImporteRectificacion'] = {
@@ -333,6 +380,8 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
 
     rectificativa = rect_sust_opc1 or rect_sust_opc2
 
+    fiscal_partner = FiscalPartner(invoice)
+
     factura_expedida = {
         'TipoFactura': 'R4' if rectificativa else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
@@ -340,7 +389,7 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
         'DescripcionOperacion': invoice.sii_description,
         'Contraparte': get_partner_info(
-            invoice.partner_id, in_invoice=False, nombre_razon=True),
+            fiscal_partner, in_invoice=False, nombre_razon=True),
         'TipoDesglose': get_factura_emitida_tipo_desglose(invoice)
     }
 
@@ -411,7 +460,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
 
     cuota_deducible = 0
     importe_total = get_invoice_sign(invoice) * invoice.amount_total
-
+    desglose_factura = {}
     if iva_values['sujeta_a_iva']:
         detalle_iva = []
 
@@ -433,14 +482,25 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         }
     else:
         importe_no_sujeto = iva_values['importe_no_sujeto']
-
-        desglose_factura = {
-            'DesgloseIVA': {
-                'DetalleIVA': [{
-                    'BaseImponible': importe_no_sujeto
-                }]
+        if importe_no_sujeto:
+            desglose_factura = {
+                'DesgloseIVA': {
+                    'DetalleIVA': [{
+                        'BaseImponible': importe_no_sujeto
+                    }]
+                }
             }
-        }
+    if iva_values.get('inversion_sujeto_pasivo'):
+        detalle_isp = iva_values.get('inversion_sujeto_pasivo')
+        detalle_iva_isp = []
+        detalle_iva_isp.extend(detalle_isp)
+        for iva in detalle_isp:
+            cuota_deducible += iva.get('CuotaSoportada', 0)
+        desglose_factura.update({
+            'InversionSujetoPasivo': {
+                'DetalleIVA': detalle_iva_isp
+            }
+        })
 
     fecha_reg_contable = invoice.date_invoice
 
@@ -453,7 +513,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         cuota_deducible = 0  # Cuota deducible: Etiqueta con 0
 
     rectificativa = rect_sust_opc1 or rect_sust_opc2
-
+    fiscal_partner = FiscalPartner(invoice)
     factura_recibida = {
         'TipoFactura': 'R4' if rectificativa else 'F1',
         'ClaveRegimenEspecialOTrascendencia':
@@ -461,7 +521,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         'ImporteTotal': importe_total,
         'DescripcionOperacion': invoice.sii_description,
         'Contraparte': get_partner_info(
-            invoice.partner_id, in_invoice=in_invoice, nombre_razon=True),
+            fiscal_partner, in_invoice=in_invoice, nombre_razon=True),
         'DesgloseFactura': desglose_factura,
         'CuotaDeducible': cuota_deducible,
         'FechaRegContable': fecha_reg_contable
@@ -534,17 +594,23 @@ def get_factura_emitida_dict(invoice,
 
 def get_factura_recibida_dict(invoice,
                               rect_sust_opc1=False, rect_sust_opc2=False):
+    fiscal_partner = FiscalPartner(invoice)
+    if invoice.period_id and invoice.period_id.name:
+        period_name = invoice.period_id.name
+    else:
+        year, month, date = invoice.date_invoice.split('-')
+        period_name = '{}/{}'.format(month, year)
     obj = {
         'SuministroLRFacturasRecibidas': {
             'Cabecera': get_header(invoice),
             'RegistroLRFacturasRecibidas': {
                 'PeriodoLiquidacion': {
-                    'Ejercicio': invoice.period_id.name[3:7],
-                    'Periodo': invoice.period_id.name[0:2]
+                    'Ejercicio': period_name[3:7],
+                    'Periodo': period_name[0:2]
                 },
                 'IDFactura': {
                     'IDEmisorFactura': get_partner_info(
-                        invoice.partner_id, in_invoice=True
+                        fiscal_partner, in_invoice=True
                     ),
                     'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
@@ -661,7 +727,7 @@ def get_baja_factura_recibida_dict(invoice):
 
     cabecera = get_header(invoice)
     cabecera.pop('TipoComunicacion')
-
+    fiscal_partner = FiscalPartner(invoice)
     obj = {
         'BajaLRFacturasRecibidas': {
             'Cabecera': cabecera,
@@ -672,7 +738,7 @@ def get_baja_factura_recibida_dict(invoice):
                 },
                 'IDFactura': {
                     'IDEmisorFactura': get_partner_info(
-                        invoice.partner_id, in_invoice=True, nombre_razon=True
+                        fiscal_partner, in_invoice=True, nombre_razon=True
                     ),
                     'NumSerieFacturaEmisor': invoice.origin,
                     'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
@@ -736,8 +802,7 @@ class SIIDeregister(SII):
                 )
             )
 
-    def validate_deregister_invoice(self):
-
+    def validate_invoice(self):
         res = {}
 
         errors = self.invoice_deregister_model.validate(
@@ -752,9 +817,8 @@ class SIIDeregister(SII):
 
         return res
 
-    def generate_deregister_object(self):
-
-        validation_values = self.validate_deregister_invoice()
+    def generate_object(self):
+        validation_values = self.validate_invoice()
         if not validation_values['successful']:
             raise Exception(
                 'Errors were found while trying to validate the data:',

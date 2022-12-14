@@ -1,10 +1,11 @@
 # coding=utf-8
 
-from sii.resource import SII, SIIDeregister
+from sii.resource import SII, SIIDeregister, get_iva_values
 from sii.models.invoices_record import CRE_FACTURAS_EMITIDAS
 from sii.utils import unidecode_str, VAT
 from expects import *
 from datetime import datetime
+from decimal import Decimal
 from spec.testing_data import DataGenerator, Tax, InvoiceLine, InvoiceTax
 from mamba import *
 import os
@@ -90,14 +91,17 @@ with description('El XML Generado'):
                 ['RegistroLRFacturasEmitidas']
             )
 
-        with context('en los NIFs involucrados'):
+        with context('en los NIFs involucrados sin fiscal info'):
             with before.all:
                 os.environ['NIF_TITULAR'] = 'ES12345678T'
                 os.environ['NIF_CONTRAPARTE'] = 'esES654321P'
+                os.environ['FISCAL_VAT_CONTRAPARTE'] = 'esES654321P'
 
                 new_data_gen = DataGenerator()
-                nifs_test_invoice = new_data_gen.get_out_invoice()
+                nifs_test_invoice = new_data_gen.get_out_invoice(with_fiscal_info=False)
                 self.nif_contraparte = nifs_test_invoice.partner_id.vat[2:]
+                self.nombre_contraparte = unidecode_str(nifs_test_invoice.partner_id.name)
+                self.nombre_partner = unidecode_str(nifs_test_invoice.partner_id.name)
                 self.nif_titular = (
                     nifs_test_invoice.company_id.partner_id.vat[2:]
                 )
@@ -116,6 +120,60 @@ with description('El XML Generado'):
                     ['RegistroLRFacturasEmitidas']['FacturaExpedida']
                     ['Contraparte']['NIF']
                 ).to(equal(self.nif_contraparte))
+            with it('el Nombre de la Contraparte debe ser igual al valor partner'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']['NombreRazon']
+                ).to(equal(self.nombre_partner))
+            with it('el Nombre de la Contraparte debe ser igual al del partner'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']['NombreRazon']
+                ).to(equal(self.nombre_partner))
+
+        with context('en los NIFs involucrados con fiscal info'):
+            with before.all:
+                os.environ['NIF_TITULAR'] = 'ES12345678T'
+                os.environ['NIF_CONTRAPARTE'] = 'esES654321P'
+                os.environ['FISCAL_VAT_CONTRAPARTE'] = 'esES654321P'
+
+                new_data_gen = DataGenerator()
+                nifs_test_invoice = new_data_gen.get_out_invoice()
+                self.nif_contraparte = nifs_test_invoice.fiscal_vat[2:]
+                self.nif_titular = (
+                    nifs_test_invoice.company_id.partner_id.vat[2:]
+                )
+                self.nombre_contraparte = nifs_test_invoice.fiscal_name
+                self.nombre_partner = nifs_test_invoice.partner_id.name
+
+                self.nifs_test_obj = SII(nifs_test_invoice).generate_object()
+
+            with it('el NIF del Titular no debe empezar por "ES"'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['Cabecera']['Titular']['NIF']
+                ).to(equal(self.nif_titular))
+
+            with it('el NIF de la Contraparte no debe empezar por "ES"'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']['NIF']
+                ).to(equal(self.nif_contraparte))
+            with it('el Nombre de la Contraparte debe ser igual al valor fiscal'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']['NombreRazon']
+                ).to(equal(self.nombre_contraparte))
+            with it('el Nombre de la Contraparte debe ser distinto al del partner'):
+                expect(
+                    self.nifs_test_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']['NombreRazon']
+                ).not_to(equal(self.nombre_partner))
 
         with it('la ClaveRegimenEspecialOTrascendencia debe ser válido'):
             expect(
@@ -432,6 +490,15 @@ with description('El XML Generado'):
                 self.in_invoice_obj['SuministroLRFacturasRecibidas']
                 ['RegistroLRFacturasRecibidas']
             )
+        with context('la fecha de factura del periodo de liquidacion'):
+            with it('debe ser la fecha factura'):
+                period_value = '{}/{}'.format(
+                    self.factura_recibida['PeriodoLiquidacion']['Periodo'],
+                    self.factura_recibida['PeriodoLiquidacion']['Ejercicio']
+                )
+                expect(
+                    period_value
+                ).to(equal('12/2016'))
 
         with context('en los datos del emisor de la factura'):
 
@@ -441,6 +508,7 @@ with description('El XML Generado'):
                     self.in_invoice = new_data_gen.get_in_invoice()
                     # Valid French TVA FR23334175221
                     self.in_invoice.partner_id.country_id.code = 'FR'
+                    self.in_invoice.partner_id.country_id.is_eu_member = True
                     self.in_invoice.partner_id.vat = 'FR23334175221'
 
                     in_invoice_obj = SII(self.in_invoice).generate_object()
@@ -456,10 +524,275 @@ with description('El XML Generado'):
                         self.emisor_factura['IDOtro']['ID']
                     ).to(equal(nif_emisor))
 
-                with it('el IDType debe ser "04"'):
+                with it('el IDType debe ser "02"'):
                     expect(
                         self.emisor_factura['IDOtro']['IDType']
-                    ).to(equal('04'))
+                    ).to(equal('02'))
+
+                with it('el CodigoPais debe ser "FR"'):
+                    expect(
+                        self.emisor_factura['IDOtro']['CodigoPais']
+                    ).to(equal('FR'))
+
+        with context('en los detalles del IVA'):
+            with before.all:
+                detalle_iva_desglose_iva = (
+                    self.factura_recibida['FacturaRecibida']['DesgloseFactura']
+                    ['DesgloseIVA']['DetalleIVA']
+                )
+                self.grouped_detalle_iva = group_by_tax_rate(
+                    detalle_iva_desglose_iva, in_invoice=True
+                )
+
+            with it('el detalle de DesgloseIVA debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[21.0]['BaseImponible']
+                ).to(equal(
+                    self.in_invoice.tax_line[0].base
+                ))
+                expect(
+                    self.grouped_detalle_iva[21.0]['CuotaSoportada']
+                ).to(equal(
+                    self.in_invoice.tax_line[0].tax_amount
+                ))
+                expect(
+                    self.grouped_detalle_iva[21.0]['TipoImpositivo']
+                ).to(equal(
+                    self.in_invoice.tax_line[0].tax_id.amount * 100
+                ))
+
+            with _it('el detalle de DesgloseIVA para importe no sujeto a '
+                     'impuesto debe ser correcto'):
+                expect(
+                    self.grouped_detalle_iva[0.0]['BaseImponible']
+                ).to(equal(
+                    self.in_invoice.invoice_line[5].price_subtotal
+                ))
+                expect(
+                    self.grouped_detalle_iva[0.0]['CuotaSoportada']
+                ).to(equal(0))
+                expect(
+                    self.grouped_detalle_iva[0.0]['TipoImpositivo']
+                ).to(equal(0))
+
+        with context('en los detalles del IVA inversion sujeto pasivo'):
+            with before.all:
+                in_invoice_isp = self.data_gen.get_in_invoice_with_isp()
+
+                self.in_invoice_obj = SII(in_invoice_isp).generate_object()
+                self.factura_recibida = (
+                    self.in_invoice_obj['SuministroLRFacturasRecibidas']
+                    ['RegistroLRFacturasRecibidas']
+                )
+                self.detalle_iva_isp_list = get_iva_values(in_invoice_isp, in_invoice=True)
+                self.detalle_iva_isp = (
+                    self.factura_recibida['FacturaRecibida']['DesgloseFactura']
+                    ['InversionSujetoPasivo']
+                )
+
+                # self.grouped_detalle_iva_isp = group_by_tax_rate(
+                #     self.detalle_iva_isp, in_invoice=True
+                # )
+            with context('debe contener Sujeto Passivo'):
+                with it('la parte de detalle de iva debe tener los valores de la factura'):
+                    expect(
+                        Decimal('20.02')
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp_list[
+                                'inversion_sujeto_pasivo'][0]['BaseImponible']
+                        )
+                    )
+                    expect(
+                        Decimal('4.20')
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp_list[
+                                      'inversion_sujeto_pasivo'][0]['CuotaSoportada']
+
+                        )
+                    )
+                    expect(
+                        Decimal('21.0')
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp_list[
+                                'inversion_sujeto_pasivo'][0]['TipoImpositivo']
+                        )
+                    )
+                with it('la parte de detalle de iva debe tener los valores de la factura tiene que ser igual que el los datos a enviar'):
+                    expect(
+                        self.detalle_iva_isp_list[
+                            'inversion_sujeto_pasivo'][0]['BaseImponible']
+                    ).to(
+                        equal(
+                            Decimal(
+                                str(self.detalle_iva_isp['DetalleIVA'][0]['BaseImponible'])
+                            )
+                        )
+                    )
+                    expect(
+                        self.detalle_iva_isp_list[
+                            'inversion_sujeto_pasivo'][0]['CuotaSoportada']
+                    ).to(
+                        equal(
+                            Decimal(str(self.detalle_iva_isp['DetalleIVA'][0]['CuotaSoportada']))
+                        )
+                    )
+                    expect(
+                        self.detalle_iva_isp_list[
+                            'inversion_sujeto_pasivo'][0]['TipoImpositivo']
+                    ).to(
+                        equal(
+                            Decimal(str(self.detalle_iva_isp['DetalleIVA'][0]['TipoImpositivo']))
+                        )
+                    )
+                with it('los datos a enviar tienen que ser igual'):
+                    expect(
+                        20.02
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp['DetalleIVA'][0]['BaseImponible']
+                        )
+                    )
+                    expect(
+                        4.20
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp['DetalleIVA'][0]['CuotaSoportada']
+                        )
+                    )
+                    expect(
+                        21.0
+                    ).to(
+                        equal(
+                            self.detalle_iva_isp['DetalleIVA'][0]['TipoImpositivo']
+                        )
+                    )
+
+        with context('si es una importación'):
+            with before.all:
+                # Clave Régimen Especial importación: '13'
+                self.cre_importacion = '13'
+                self.in_invoice.sii_in_clave_regimen_especial = (
+                    self.cre_importacion
+                )
+
+                self.import_inv_obj = SII(self.in_invoice).generate_object()
+                self.factura_recibida = (
+                    self.import_inv_obj['SuministroLRFacturasRecibidas']
+                    ['RegistroLRFacturasRecibidas']
+                )
+
+            with context('en los detalles del IVA'):
+                with it('el detalle de DesgloseIVA debe ser la original'):
+                    # TODO change TipoImpositivo and CuotaSoportada should be '0'
+                    detalle_iva_desglose_iva = (
+                        self.factura_recibida['FacturaRecibida']
+                        ['DesgloseFactura']['DesgloseIVA']['DetalleIVA']
+                    )
+                    self.grouped_detalle_iva = group_by_tax_rate(
+                        detalle_iva_desglose_iva, in_invoice=True
+                    )
+
+                    expect(
+                        self.grouped_detalle_iva[21.0]['BaseImponible']
+                    ).to(equal(
+                        self.in_invoice.tax_line[0].base
+                    ))
+                    expect(
+                        self.grouped_detalle_iva[21.0]['CuotaSoportada']
+                    ).to(equal(
+                        self.in_invoice.tax_line[0].tax_amount
+                    ))
+                    expect(
+                        self.grouped_detalle_iva[21.0]['TipoImpositivo']
+                    ).to(equal(
+                        self.in_invoice.tax_line[0].tax_id.amount * 100
+                    ))
+
+        with context('si es una factura del primer semestre 2017'):
+            with before.all:
+                # Clave Régimen Especial para
+                # Facturas Recibidas Primer Semestre 2017: '14'
+                self.cre_primer_semestre = '14'
+                self.in_invoice.sii_in_clave_regimen_especial = (
+                    self.cre_primer_semestre
+                )
+
+                self.first_semester_in_inv_obj = (
+                    SII(self.in_invoice).generate_object()
+                )
+                self.factura_recibida = (
+                    self.first_semester_in_inv_obj
+                    ['SuministroLRFacturasRecibidas']
+                    ['RegistroLRFacturasRecibidas']
+                )
+
+            with it('debe tener Clave de Régimen Especial "14"'):
+                expect(
+                    self.factura_recibida['FacturaRecibida']
+                    ['ClaveRegimenEspecialOTrascendencia']
+                ).to(equal(self.cre_primer_semestre))
+
+            with it('la cuota deducible debe ser 0'):
+                expect(
+                    self.factura_recibida['FacturaRecibida']['CuotaDeducible']
+                ).to(equal(0))
+
+            with it('la fecha de registro contable debe ser la fecha del '
+                    'envío'):
+                expect(
+                    self.factura_recibida['FacturaRecibida']
+                    ['FechaRegContable']
+                ).to(equal(datetime.today().strftime('%d-%m-%Y')))
+
+    with description('en los datos de una factura recibida sin periodo'):
+        with before.all:
+            self.in_invoice = self.data_gen.get_in_invoice_without_period()
+            self.in_invoice_obj = SII(self.in_invoice).generate_object()
+            self.factura_recibida = (
+                self.in_invoice_obj['SuministroLRFacturasRecibidas']
+                ['RegistroLRFacturasRecibidas']
+            )
+        with context('la fecha de factura del periodo de liquidacion'):
+            with it('debe ser la fecha factura'):
+                period_value = '{}/{}'.format(
+                    self.factura_recibida['PeriodoLiquidacion']['Periodo'],
+                    self.factura_recibida['PeriodoLiquidacion']['Ejercicio']
+                )
+                expect(
+                    period_value
+                ).to(equal('12/2016'))
+
+        with context('en los datos del emisor de la factura'):
+
+            with context('si no está registrado en la AEAT'):
+                with before.all:
+                    new_data_gen = DataGenerator(contraparte_registered=False)
+                    self.in_invoice = new_data_gen.get_in_invoice()
+                    # Valid French TVA FR23334175221
+                    self.in_invoice.partner_id.country_id.code = 'FR'
+                    self.in_invoice.partner_id.country_id.is_eu_member = True
+                    self.in_invoice.partner_id.vat = 'FR23334175221'
+
+                    in_invoice_obj = SII(self.in_invoice).generate_object()
+                    self.emisor_factura = (
+                        in_invoice_obj['SuministroLRFacturasRecibidas']
+                        ['RegistroLRFacturasRecibidas']['IDFactura']
+                        ['IDEmisorFactura']
+                    )
+
+                with it('el ID debe ser el NIF del emisor'):
+                    nif_emisor = self.in_invoice.partner_id.vat[2:]
+                    expect(
+                        self.emisor_factura['IDOtro']['ID']
+                    ).to(equal(nif_emisor))
+
+                with it('el IDType debe ser "02"'):
+                    expect(
+                        self.emisor_factura['IDOtro']['IDType']
+                    ).to(equal('02'))
 
                 with it('el CodigoPais debe ser "FR"'):
                     expect(
@@ -711,6 +1044,8 @@ with description('El XML Generado'):
             self.out_invoice_RA = self.data_gen.get_out_invoice_RA()
             self.out_invoice_RA.rectifying_id.sii_registered = True
             self.out_invoice_RA_obj = SII(self.out_invoice_RA).generate_object()
+            factura_rectificada = self.out_invoice_RA.rectifying_id
+            self.out_invoice_origin_obj = SII(factura_rectificada).generate_object()
             self.fact_RA_emitida = (
                 self.out_invoice_RA_obj['SuministroLRFacturasEmitidas']
                 ['RegistroLRFacturasEmitidas']
@@ -749,14 +1084,70 @@ with description('El XML Generado'):
                     self.fact_RA_emitida['FacturaExpedida']
                     ['ImporteRectificacion']['BaseRectificada']
                 ).to(equal(
-                    self.out_invoice_RA.rectifying_id.amount_untaxed
+                    700
                 ))
 
                 expect(
                     self.fact_RA_emitida['FacturaExpedida']
                     ['ImporteRectificacion']['CuotaRectificada']
                 ).to(equal(
-                    self.out_invoice_RA.rectifying_id.amount_tax
+                    79
+                ))
+
+    with description('en los datos de una factura recibida rectificativa '
+                     'sin anuladora RA'):
+        with before.all:
+            self.in_invoice_RA = self.data_gen.get_in_invoice_RA()
+            self.in_invoice_RA.rectifying_id.sii_registered = True
+            self.in_invoice_RA_obj = SII(self.in_invoice_RA).generate_object()
+            factura_rectificada = self.in_invoice_RA.rectifying_id
+            self.in_invoice_origin_obj = SII(factura_rectificada).generate_object()
+            self.fact_RA_recibida = (
+                self.in_invoice_RA_obj['SuministroLRFacturasRecibidas']
+                ['RegistroLRFacturasRecibidas']
+            )
+
+        with context('en los datos de rectificación'):
+            with it('el TipoRectificativa debe ser por sustitución (S)'):
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']['TipoRectificativa']
+                ).to(equal('S'))
+
+            with it('debe contener las FacturasRectificadas'):
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['FacturasRectificadas']['IDFacturaRectificada'][0]
+                    ['NumSerieFacturaEmisor']
+                ).to(equal(
+                    self.in_invoice_RA.rectifying_id.origin
+                ))
+
+                fecha_expedicion = (
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['FacturasRectificadas']['IDFacturaRectificada'][0]
+                    ['FechaExpedicionFacturaEmisor']
+                )
+                expect(
+                    datetime.strptime(
+                        fecha_expedicion, '%d-%m-%Y'
+                    ).strftime('%Y-%m-%d')
+                ).to(equal(
+                    self.in_invoice_RA.rectifying_id.origin_date_invoice
+                ))
+
+            with it('debe contener el ImporteRectificacion'):
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['ImporteRectificacion']['BaseRectificada']
+                ).to(equal(
+                    6608.0
+                ))
+
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['ImporteRectificacion']['CuotaRectificada']
+                ).to(equal(
+                    79
                 ))
 
 with description('El XML Generado en una baja de una factura emitida'):
@@ -767,7 +1158,7 @@ with description('El XML Generado en una baja de una factura emitida'):
         with before.all:
             self.invoice = self.data_gen.get_out_invoice()
             self.invoice_obj = (
-                SIIDeregister(self.invoice).generate_deregister_object()
+                SIIDeregister(self.invoice).generate_object()
             )
             self.cabecera = (
                 self.invoice_obj['BajaLRFacturasEmitidas']['Cabecera']
@@ -798,7 +1189,7 @@ with description('El XML Generado en una baja de una factura emitida'):
         with before.all:
             self.invoice = self.data_gen.get_out_invoice()
             self.invoice_obj = (
-                SIIDeregister(self.invoice).generate_deregister_object()
+                SIIDeregister(self.invoice).generate_object()
             )
             self.factura_emitida = (
                 self.invoice_obj['BajaLRFacturasEmitidas']
@@ -854,7 +1245,7 @@ with description('El XML Generado en una baja de una factura recibida'):
         with before.all:
             self.invoice = self.data_gen.get_in_invoice()
             self.invoice_obj = (
-                SIIDeregister(self.invoice).generate_deregister_object()
+                SIIDeregister(self.invoice).generate_object()
             )
             self.cabecera = (
                 self.invoice_obj['BajaLRFacturasRecibidas']['Cabecera']
@@ -885,7 +1276,7 @@ with description('El XML Generado en una baja de una factura recibida'):
         with before.all:
             self.invoice = self.data_gen.get_in_invoice()
             self.invoice_obj = (
-                SIIDeregister(self.invoice).generate_deregister_object()
+                SIIDeregister(self.invoice).generate_object()
             )
             self.factura_recibida = (
                 self.invoice_obj['BajaLRFacturasRecibidas']

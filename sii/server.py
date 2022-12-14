@@ -184,7 +184,7 @@ class SiiService(Service):
         return res_header, res_invoices
 
     out_inv_config = {
-        'wsdl': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_1_1/SuministroFactEmitidas.wsdl',
+        'wsdl': 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii_1_1_bis/fact/ws/SuministroFactEmitidas.wsdl',
         'port_name': 'SuministroFactEmitidas',
         'binding_name': '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactEmitidas.wsdl}siiBinding',
         'type_address': '/wlpl/SSII-FACT/ws/fe/SiiFactFEV1SOAP',
@@ -192,7 +192,7 @@ class SiiService(Service):
     }
 
     in_inv_config = {
-        'wsdl': 'http://www.agenciatributaria.es/static_files/AEAT/Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/Suministro_inmediato_informacion/FicherosSuministros/V_1_1/SuministroFactRecibidas.wsdl',
+        'wsdl': 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii_1_1_bis/fact/ws/SuministroFactRecibidas.wsdl',
         'port_name': 'SuministroFactRecibidas',
         'binding_name': '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroFactRecibidas.wsdl}siiBinding',
         'type_address': '/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP',
@@ -202,9 +202,9 @@ class SiiService(Service):
 
 class SiiDeregisterService(SiiService):
 
-    def get_deregister_msg(self):
+    def get_msg(self):
         dict_from_marsh = (
-            SIIDeregister(self.invoice).generate_deregister_object()
+            SIIDeregister(self.invoice).generate_object()
         )
         res_header = res_invoice = None
         if self.invoice.type.startswith('out_'):
@@ -227,7 +227,7 @@ class SiiDeregisterService(SiiService):
         return res_header, res_invoice
 
     def deregister_invoice(self):
-        msg_header, msg_invoice = self.get_deregister_msg()
+        msg_header, msg_invoice = self.get_msg()
         try:
             if self.invoice.type.startswith('out_'):
                 res = self.emitted_service.AnulacionLRFacturasEmitidas(
@@ -241,7 +241,7 @@ class SiiDeregisterService(SiiService):
             self.result = fault
             raise fault
 
-    def deregister(self, invoice):
+    def send(self, invoice):
         self.invoice = invoice
         if self.invoice.type.startswith('out_'):
             if self.emitted_service is None:

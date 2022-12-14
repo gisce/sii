@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLLAA.wsdl" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLLAA.wsdl">
+	<wsdl:types>
+		<xs:schema targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLLAA.wsdl" elementFormDefault="qualified" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLLAA.wsdl" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd">
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" schemaLocation="ConsultaLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" schemaLocation="RespuestaConsultaLR.xsd"/>
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="EntradaConsultaLLAA">
+		<wsdl:part name="ConsultaLLAA" element="siiLRC:ConsultaLLAA"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaConsultaLLAA">
+		<wsdl:part name="RespuestaConsultaLLAA" element="siiLRRC:RespuestaConsultaLLAA"/>
+	</wsdl:message>
+	<wsdl:portType name="siiSOAP">
+		<wsdl:operation name="ConsultaLLAA">
+			<wsdl:input message="siiWdsl:EntradaConsultaLLAA"/>
+			<wsdl:output message="siiWdsl:RespuestaConsultaLLAA"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="siiBinding" type="siiWdsl:siiSOAP">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="ConsultaLLAA">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="siiService">
+		<!-- Entorno de PRODUCCION -->
+		<wsdl:port name="ConsultaLLAA" binding="siiWdsl:siiBinding">
+			<soap:address location="https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/llaa/SiiLLAAV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRODUCCION -->
+		<wsdl:port name="ConsultaLLAASello" binding="siiWdsl:siiBinding">
+			<soap:address location="https://www10.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/llaa/SiiLLAAV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRUEBAS -->
+		<wsdl:port name="ConsultaLLAAEmitidasPruebas" binding="siiWdsl:siiBinding">
+			<soap:address location="https://prewww1.aeat.es/wlpl/SSII-FACT/ws/llaa/SiiLLAAV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRUEBAS para acceso con certificado de sello -->
+		<wsdl:port name="ConsultaLLAAEmitidasPruebasSello" binding="siiWdsl:siiBinding">
+			<soap:address location="https://prewww10.aeat.es/wlpl/SSII-FACT/ws/llaa/SiiLLAAV1SOAP"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

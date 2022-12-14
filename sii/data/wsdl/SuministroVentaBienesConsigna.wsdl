@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroVentaBienesConsigna.wsdl" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroVentaBienesConsigna.wsdl">
+	<wsdl:types>
+		<xs:schema targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroVentaBienesConsigna.wsdl" elementFormDefault="qualified" xmlns:siiWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroVentaBienesConsigna.wsdl" xmlns:sii="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" xmlns:siiLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" xmlns:siiLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" xmlns:siiLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd">
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd" schemaLocation="SuministroLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd" schemaLocation="ConsultaLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaConsultaLR.xsd" schemaLocation="RespuestaConsultaLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/RespuestaSuministro.xsd" schemaLocation="RespuestaSuministro.xsd"/>
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="EntradaSuministroLRVentaBienesConsigna">
+		<wsdl:part name="SuministroLRVentaBienesConsigna" element="siiLR:SuministroLRVentaBienesConsigna"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaAnulacionLRVentaBienesConsigna">
+		<wsdl:part name="AnulacionLRVentaBienesConsigna" element="siiLR:BajaLRVentaBienesConsigna"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaConsultaLRVentaBienesConsigna">
+		<wsdl:part name="ConsultaLRConsultaVentaBienesConsigna" element="siiLRC:ConsultaLRConsultaVentaBienesConsigna"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaSuministroLRVentaBienesConsigna">
+		<wsdl:part name="RespuestaSuministroLRVentaBienesConsigna" element="siiR:RespuestaLRVentaBienesConsigna"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaAnulacionLRVentaBienesConsigna">
+		<wsdl:part name="RespuestaAnulacionLRVentaBienesConsigna" element="siiR:RespuestaLRBajaVentaBienesConsigna"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaConsultaLRVentaBienesConsigna">
+		<wsdl:part name="RespuestaConsultaLRVentaBienesConsigna" element="siiLRRC:RespuestaConsultaLRVentaBienesConsigna"/>
+	</wsdl:message>
+	<wsdl:portType name="siiSOAP">
+		<wsdl:operation name="SuministroLRVentaBienesConsigna">
+			<wsdl:input message="siiWdsl:EntradaSuministroLRVentaBienesConsigna"/>
+			<wsdl:output message="siiWdsl:RespuestaSuministroLRVentaBienesConsigna"/>
+		</wsdl:operation>
+		<wsdl:operation name="AnulacionLRVentaBienesConsigna">
+			<wsdl:input message="siiWdsl:EntradaAnulacionLRVentaBienesConsigna"/>
+			<wsdl:output message="siiWdsl:RespuestaAnulacionLRVentaBienesConsigna"/>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRVentaBienesConsigna">
+			<wsdl:input message="siiWdsl:EntradaConsultaLRVentaBienesConsigna"/>
+			<wsdl:output message="siiWdsl:RespuestaConsultaLRVentaBienesConsigna"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="siiBinding" type="siiWdsl:siiSOAP">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="SuministroLRVentaBienesConsigna">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="AnulacionLRVentaBienesConsigna">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaLRVentaBienesConsigna">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="siiService">
+		<!-- Entorno de PRODUCCION-->
+		<wsdl:port name="SuministroVentaBienesConsigna" binding="siiWdsl:siiBinding">
+			<soap:address location="https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/vb/SiiFactVBV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRODUCCION para acceso con certificado de sello-->
+		<wsdl:port name="SuministroVentaBienesConsignaSello" binding="siiWdsl:siiBinding">
+			<soap:address location="https://www10.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/vb/SiiFactVBV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRUEBAS -->
+		<wsdl:port name="SuministroVentaBienesConsignaPruebas" binding="siiWdsl:siiBinding">
+			<soap:address location="https://prewww1.aeat.es/wlpl/SSII-FACT/ws/vb/SiiFactVBV1SOAP"/>
+		</wsdl:port>
+		<!-- Entorno de PRUEBAS para acceso con certificado de sello -->
+		<wsdl:port name="SuministroVentaBienesConsignaPruebasSello" binding="siiWdsl:siiBinding">
+			<soap:address location="https://prewww10.aeat.es/wlpl/SSII-FACT/ws/vb/SiiFactVBV1SOAP"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>
