@@ -88,6 +88,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                     'CuotaSoportada': cuota
                 }
                 vals['inversion_sujeto_pasivo'].append(new_value)
+                invoice_total -= base_imponible
                 continue
             else:
                 vals['sujeta_a_iva'] = True
