@@ -67,21 +67,38 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
 
     for inv_tax in invoice.tax_line:
         if 'iva' in inv_tax.name.lower():
-            vals['sujeta_a_iva'] = True
-
             base_iva = inv_tax.base
             base_imponible = sign * base_iva
             cuota = inv_tax.tax_amount
             tipo_impositivo_unitario = inv_tax.tax_id.amount
             tipo_impositivo = tipo_impositivo_unitario * 100
 
-            invoice_total -= (base_imponible + cuota)
+            if is_inversion_sujeto_pasivo(inv_tax.name) and in_invoice:
+                # Si es inversion de sujeto pasivo y de factura recibia
+                # no se debe tener en cuenta por el total de la factura
+                # ya que se generan 2 líneas de impuesto repercutido y soportado
+                # que se contrarestan
+                # No tenemos en cuenta el impuesto que se genera para la línea de
+                # IVA soportado
+                if inv_tax.tax_id.amount < 0:
+                    continue
+                new_value = {
+                    'BaseImponible': base_imponible,
+                    'TipoImpositivo': tipo_impositivo,
+                    'CuotaSoportada': cuota
+                }
+                vals['inversion_sujeto_pasivo'].append(new_value)
+                invoice_total -= base_imponible
+                continue
+            else:
+                vals['sujeta_a_iva'] = True
+                invoice_total -= (base_imponible + cuota)
 
             tax_type = inv_tax.tax_id.type
             is_iva_exento = (
                 tipo_impositivo_unitario == 0 and tax_type == 'percent'
             )
-            if is_inversion_sujeto_pasivo(inv_tax.name):
+            if is_inversion_sujeto_pasivo(inv_tax.name) and not in_invoice:
                 new_value = {
                     'BaseImponible': base_imponible,
                     'TipoImpositivo': tipo_impositivo,
@@ -440,7 +457,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
 
     cuota_deducible = 0
     importe_total = get_invoice_sign(invoice) * invoice.amount_total
-
+    desglose_factura = {}
     if iva_values['sujeta_a_iva']:
         detalle_iva = []
 
@@ -462,14 +479,25 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         }
     else:
         importe_no_sujeto = iva_values['importe_no_sujeto']
-
-        desglose_factura = {
-            'DesgloseIVA': {
-                'DetalleIVA': [{
-                    'BaseImponible': importe_no_sujeto
-                }]
+        if importe_no_sujeto:
+            desglose_factura = {
+                'DesgloseIVA': {
+                    'DetalleIVA': [{
+                        'BaseImponible': importe_no_sujeto
+                    }]
+                }
             }
-        }
+    if iva_values.get('inversion_sujeto_pasivo'):
+        detalle_isp = iva_values.get('inversion_sujeto_pasivo')
+        detalle_iva_isp = []
+        detalle_iva_isp.extend(detalle_isp)
+        for iva in detalle_isp:
+            cuota_deducible += iva.get('CuotaSoportada', 0)
+        desglose_factura.update({
+            'InversionSujetoPasivo': {
+                'DetalleIVA': detalle_iva_isp
+            }
+        })
 
     fecha_reg_contable = invoice.date_invoice
 
