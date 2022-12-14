@@ -457,7 +457,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
 
     cuota_deducible = 0
     importe_total = get_invoice_sign(invoice) * invoice.amount_total
-
+    desglose_factura = {}
     if iva_values['sujeta_a_iva']:
         detalle_iva = []
 
