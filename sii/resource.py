@@ -67,8 +67,6 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
 
     for inv_tax in invoice.tax_line:
         if 'iva' in inv_tax.name.lower():
-            vals['sujeta_a_iva'] = True
-
             base_iva = inv_tax.base
             base_imponible = sign * base_iva
             cuota = inv_tax.tax_amount
@@ -90,7 +88,9 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                     'CuotaSoportada': cuota
                 }
                 vals['inversion_sujeto_pasivo'].append(new_value)
+                continue
             else:
+                vals['sujeta_a_iva'] = True
                 invoice_total -= (base_imponible + cuota)
 
             tax_type = inv_tax.tax_id.type
