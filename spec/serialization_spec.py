@@ -670,6 +670,65 @@ with description('El XML Generado'):
                         )
                     )
 
+        with context('en los detalles del IVA con IRPF'):
+            with before.all:
+                self.in_invoice_irpf = self.data_gen.get_in_invoice_with_irfp()
+
+                self.in_invoice_obj = SII(self.in_invoice_irpf).generate_object()
+                self.factura_recibida = (
+                    self.in_invoice_obj['SuministroLRFacturasRecibidas']
+                    ['RegistroLRFacturasRecibidas']
+                )
+                self.detalle_iva_irpf_list = get_iva_values(self.in_invoice_irpf, in_invoice=True)
+                self.detalle_iva_desglose_irpf = (
+                    self.factura_recibida['FacturaRecibida']['DesgloseFactura']
+                    ['DesgloseIVA']['DetalleIVA'][0]
+                )
+
+            with context('debe contener'):
+                with it('solo la parte del IVA'):
+                    tax_line_iva = None
+                    for x in self.in_invoice_irpf.tax_line:
+                        if 'IVA' in x.name.upper():
+                            tax_line_iva = x
+                    expect(
+                        self.detalle_iva_desglose_irpf['BaseImponible']
+                    ).to(equal(
+                        tax_line_iva.base
+                    ))
+                    expect(
+                        Decimal('2400')
+                    ).to(
+                        equal(
+                            self.detalle_iva_desglose_irpf['BaseImponible']
+                        )
+                    )
+                    expect(
+                        Decimal('504')
+                    ).to(
+                        equal(
+                            self.detalle_iva_desglose_irpf['CuotaSoportada']
+
+                        )
+                    )
+                    expect(
+                        self.detalle_iva_desglose_irpf['CuotaSoportada']
+                    ).to(equal(
+                        tax_line_iva.tax_amount
+                    ))
+                    expect(
+                        Decimal('21.0')
+                    ).to(
+                        equal(
+                            self.detalle_iva_desglose_irpf['TipoImpositivo']
+                        )
+                    )
+                    expect(
+                        self.detalle_iva_desglose_irpf['TipoImpositivo']
+                    ).to(equal(
+                        tax_line_iva.tax_id.amount * 100
+                    ))
+
         with context('si es una importación'):
             with before.all:
                 # Clave Régimen Especial importación: '13'
