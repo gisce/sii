@@ -66,6 +66,8 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     invoice_total = sign * invoice.amount_total
 
     for inv_tax in invoice.tax_line:
+        if ' IRPF ' in inv_tax.name.lower():
+            invoice_total -= (inv_tax.tax_amount)
         if 'iva' in inv_tax.name.lower():
             base_iva = inv_tax.base
             base_imponible = sign * base_iva
