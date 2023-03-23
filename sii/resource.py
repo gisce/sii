@@ -151,7 +151,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     return vals
 
 def get_total_factura_retencion(invoice):
-    total_retencion = 0.0
+    total_retencion = Decimal('0.0')
     sign = get_invoice_sign(invoice)
     for inv_tax in invoice.tax_line:
         if 'iva' in inv_tax.name.lower():
