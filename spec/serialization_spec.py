@@ -1106,6 +1106,10 @@ with description('El XML Generado'):
                 self.in_invoice_RA_obj['SuministroLRFacturasRecibidas']
                 ['RegistroLRFacturasRecibidas']
             )
+            self.fact_origin = (
+                self.in_invoice_origin_obj['SuministroLRFacturasRecibidas']
+                ['RegistroLRFacturasRecibidas']
+            )
 
         with context('en los datos de rectificación'):
             with it('el TipoRectificativa debe ser por sustitución (S)'):
@@ -1147,7 +1151,28 @@ with description('El XML Generado'):
                     self.fact_RA_recibida['FacturaRecibida']
                     ['ImporteRectificacion']['CuotaRectificada']
                 ).to(equal(
-                    79
+                    -79.0
+                ))
+            with it('los Importes de rectificacion debe ser igual que los datos de la factura original'):
+                base_presentada = sum(x['BaseImponible'] for x in
+                    self.fact_origin['FacturaRecibida']['DesgloseFactura'][
+                        'DesgloseIVA']['DetalleIVA'])
+                cuota_presentada = sum(
+                    x.get('CuotaSoportada', 0.0) for x in
+                    self.fact_origin['FacturaRecibida'][
+                        'DesgloseFactura']['DesgloseIVA']['DetalleIVA'])
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['ImporteRectificacion']['BaseRectificada']
+                ).to(equal(
+                    base_presentada
+                ))
+
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['ImporteRectificacion']['CuotaRectificada']
+                ).to(equal(
+                    cuota_presentada
                 ))
 
 with description('El XML Generado en una baja de una factura emitida'):
