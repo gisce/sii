@@ -1,0 +1,64 @@
+name: GISCE_SII_VERSION
+on:
+  push:
+    branches: [ main ]
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.event.head_commit.message, 'Bump to v') }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Setup git
+        run: |
+          git config --global user.email "devel@gisce.net"
+          git config --global user.name "giscegit"
+      - name: Install python packages
+        run: |
+          pip install bump2version
+          pip install giscemultitools
+      - name: Get PR info
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_GIT_TOKEN }}
+          WORKSPACE: ${{github.workspace}}
+        run: |
+          echo 'PR_INFO<<EOF' >> $GITHUB_ENV
+          gisce_github get-commits-sha-from-merge-commit --owner gisce --repository sii --sha $GITHUB_SHA >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+      - name: Retrive info
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_GIT_TOKEN }}
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< '${{ secrets.SSH_PRIVATE }}'
+          pr_labels=$( echo '${{ env.PR_INFO }}' | jq -r '.pullRequest.labels' )
+          is_minor=false
+          is_major=false
+          is_patch=false
+          for label in echo $( echo $pr_labels | jq -r '.[].name' ); do
+            if [[ $label == 'minor' ]]; then
+              is_minor=true
+            elif [[ $label == 'major' ]]; then
+              is_major=true
+            elif [[ $label == 'patch' ]]; then
+              is_patch=true
+            fi
+          done
+          VERSION_TYPE=false
+          if [[ $is_major == true ]]; then
+            VERSION_TYPE="major"
+          elif [[ $is_minor == true ]]; then
+            VERSION_TYPE="minor"
+          elif [[ $is_patch == true ]]; then
+            VERSION_TYPE="patch"
+          fi
+          if [[ $VERSION_TYPE != false ]]; then
+            bump2version $VERSION_TYPE --tag --commit -m "Bump to v{new_version}" sii/__init__.py
+            git push origin main --tags
+          fi
+
