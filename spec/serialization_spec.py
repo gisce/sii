@@ -1147,7 +1147,7 @@ with description('El XML Generado'):
                     self.fact_RA_recibida['FacturaRecibida']
                     ['ImporteRectificacion']['CuotaRectificada']
                 ).to(equal(
-                    79
+                    -79.0
                 ))
 
 with description('El XML Generado en una baja de una factura emitida'):
