@@ -70,6 +70,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
         if ' IRPF ' in inv_tax.name.upper():
             invoice_total -= (inv_tax.tax_amount)
             vals['factura_retencion'] = True
+            continue
         if 'iva' in inv_tax.name.lower():
             base_iva = inv_tax.base
             base_imponible = sign * base_iva
