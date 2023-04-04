@@ -511,3 +511,129 @@ class DataGenerator:
             sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
         )
         return invoice
+
+    def get_out_invoice_with_irfp(self):
+        journal = Journal(
+            name=u'Factura de Energía Recibida'
+        )
+
+        tax_iva_irpf_19 = Tax(
+            name='Retenciones IRPF 19%',
+            amount=-0.19, type='percent'
+        )
+        tax_iva_soportado_21 = Tax(
+            name='21% IVA repercutido',
+            amount=0.21, type='percent'
+        )
+        invoice_line = [
+            InvoiceLine(
+                price_subtotal=2400.0,
+                invoice_line_tax_id=[tax_iva_irpf_19, tax_iva_soportado_21])
+        ]
+        base_iva_irfp = sum(
+            [line.price_subtotal
+             for line in invoice_line]
+        )
+        invoice_tax_iva_isp_soportado_21 = InvoiceTax(
+            name=tax_iva_soportado_21.name, base=base_iva_irfp,
+            tax_amount=504.0,
+            tax_id=tax_iva_soportado_21
+        )
+        tax_iva_irpf_19 = InvoiceTax(
+            name=tax_iva_irpf_19.name, base=base_iva_irfp,
+            tax_amount=-456.0,
+            tax_id=tax_iva_irpf_19
+        )
+        tax_line_inversion_sujeto_pasivo = [
+            tax_iva_irpf_19, invoice_tax_iva_isp_soportado_21
+        ]
+        tax_lines = tax_line_inversion_sujeto_pasivo
+        invoice_lines = invoice_line
+
+        invoice = Invoice(
+                invoice_type='out_invoice',
+                journal_id=journal,
+                rectificative_type='N',
+                rectifying_id=False,
+                number='FEmit{}'.format(self.invoice_number),
+                partner_id=self.partner_invoice,
+                fiscal_name=self.fiscal_name,
+                fiscal_vat=self.fiscal_vat,
+                address_contact_id=self.address_contact_id,
+                company_id=self.company,
+                amount_total=self.amount_total,
+                amount_untaxed=self.amount_untaxed,
+                amount_tax=self.amount_tax,
+                period_id=self.period,
+                date_invoice=self.date_invoice,
+                tax_line=tax_lines,
+                invoice_line=invoice_lines,
+                sii_registered=self.sii_registered,
+                fiscal_position=self.fiscal_position,
+                sii_description=self.sii_description,
+                sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+            )
+        return invoice
+
+    def get_in_invoice_with_irfp(self):
+        journal = Journal(
+            name=u'Factura de Energía Emitida'
+        )
+
+        tax_iva_irpf_19 = Tax(
+            name='Retenciones IRPF 19%',
+            amount=-0.19, type='percent'
+        )
+        tax_iva_soportado_21 = Tax(
+            name='21% IVA Soportado (operaciones corrientes)',
+            amount=0.21, type='percent'
+        )
+        invoice_line = [
+            InvoiceLine(
+                price_subtotal=2400.0,
+                invoice_line_tax_id=[tax_iva_irpf_19, tax_iva_soportado_21])
+        ]
+        base_iva_irfp = sum(
+            [line.price_subtotal
+             for line in invoice_line]
+        )
+        invoice_tax_iva_isp_soportado_21 = InvoiceTax(
+            name=tax_iva_soportado_21.name, base=base_iva_irfp,
+            tax_amount=504.0,
+            tax_id=tax_iva_soportado_21
+        )
+        tax_iva_irpf_19 = InvoiceTax(
+            name=tax_iva_irpf_19.name, base=base_iva_irfp,
+            tax_amount=-456.0,
+            tax_id=tax_iva_irpf_19
+        )
+        tax_line_inversion_sujeto_pasivo = [
+            tax_iva_irpf_19, invoice_tax_iva_isp_soportado_21
+        ]
+        tax_lines = tax_line_inversion_sujeto_pasivo
+        invoice_lines = invoice_line
+
+        invoice = Invoice(
+            invoice_type='in_invoice',
+            journal_id=journal,
+            rectificative_type='N',
+            rectifying_id=False,
+            number='FRecib{}'.format(self.invoice_number),
+            origin='FRecibOrigen{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
+            period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
+            date_invoice=self.date_invoice,
+            tax_line=tax_lines,
+            invoice_line=invoice_lines,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+        )
+        return invoice
