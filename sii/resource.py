@@ -454,8 +454,8 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
 
 def get_tipus_factura_emitida(article=None, rectificativa=False):
     if article:
-        if article.tipus_factura:
-            result = article.tipus_factura
+        if article.tipo_factura:
+            result = article.tipo_factura
         else:
             raise "No hay tipo de factura especificado en el articulo del diario"
     elif rectificativa:
