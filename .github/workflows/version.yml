@@ -1,13 +1,13 @@
 name: GISCE_SII_VERSION
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
 jobs:
   bump:
     runs-on: ubuntu-latest
     if: ${{ !startsWith(github.event.head_commit.message, 'Bump to v') }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ssh-key: ${{ secrets.SSH_PRIVATE }}
       - name: Set up Python ${{ matrix.python-version }}
