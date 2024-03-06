@@ -1355,3 +1355,48 @@ with description('El XML Generado en una baja de una factura recibida'):
                 ).to(equal(
                     self.invoice.origin_date_invoice
                 ))
+
+    with description('en los datos de una factura rectificativa emitida'):
+        with before.all:
+            self.out_refund = self.data_gen.get_out_invoice_rescision()
+            self.out_refund_obj = SII(self.out_refund).generate_object()
+            self.fact_rect_emit = (
+                self.out_refund_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+
+        with context('en los datos de rectificación'):
+            with it('el TipoRectificativa debe ser por sustitución (S)'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida']['TipoRectificativa']
+                ).to(equal('I'))
+
+        with context('en los detalles del IVA'):
+            with before.all:
+                detalle_iva = (
+                    self.fact_rect_emit['FacturaExpedida']['TipoDesglose']
+                    ['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']
+                    ['DetalleIVA']
+                )
+                self.grouped_detalle_iva = group_by_tax_rate(
+                    detalle_iva, in_invoice=False
+                )
+
+            with it('la BaseImponible debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[21.0]['BaseImponible']
+                ).to(equal(
+                    -1 * abs(self.out_refund.tax_line[0].base)
+                ))
+            with it('la CuotaRepercutida debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[21.0]['CuotaRepercutida']
+                ).to(equal(
+                    -1 * abs(self.out_refund.tax_line[0].tax_amount)
+                ))
+            with it('el TipoImpositivo debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[21.0]['TipoImpositivo']
+                ).to(equal(
+                    self.out_refund.tax_line[0].tax_id.amount * 100
+                ))

@@ -11,6 +11,7 @@ import logging
 
 # logging.basicConfig(level=logging.DEBUG)
 
+
 certificate_path = os.environ['CERTIFICATE_PATH']
 key_path = os.environ['KEY_PATH']
 current_date = date.strftime(date.today(), '%Y-%m-%d')
