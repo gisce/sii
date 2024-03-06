@@ -10,11 +10,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '2.7'
+      - uses: actions/checkout@v4
+      - name: Install Python 2
+        if: matrix.python-version == '2.7'
+        run: |
+          sudo apt update
+          sudo apt install python2 python-pip
+          sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+          sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+          printf '1\n' | sudo update-alternatives --config python
+          cd /usr/bin
+          sudo ln -s /usr/bin/pip2 ./pip
       - name: Get tag
         id: tag
         uses: dawidd6/action-get-tag@v1
