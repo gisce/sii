@@ -148,11 +148,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
 
 
 def get_partner_info(fiscal_partner, in_invoice, nombre_razon=False):
-    auto_vat = fiscal_partner.auto_vat_type == '00'
-    if auto_vat:
-        vat_type = fiscal_partner.sii_get_vat_type()
-    else:
-        vat_type = fiscal_partner.auto_vat_type
+    vat_type, auto_vat = fiscal_partner.sii_get_vat_type()
     contraparte = {}
 
     partner_country = fiscal_partner.partner_country
