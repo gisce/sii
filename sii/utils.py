@@ -43,7 +43,9 @@ class FiscalPartner(object):
             self.auto_vat_type = auto_vat_type
 
     def sii_get_vat_type(self):
-        return VAT.sii_get_vat_type(self.vat)
+        return VAT.sii_get_vat_type(
+            self.vat, self.aeat_registered, self.auto_vat_type
+        )
 
 
 class VAT:
@@ -119,19 +121,27 @@ class VAT:
         return False
 
     @staticmethod
-    def sii_get_vat_type(vat):
+    def sii_get_vat_type(vat, aeat_registered, auto_vat_type):
         partner_vat = vat
+        auto_vat = auto_vat_type == '00'
+
         is_nif = VAT.is_dni_vat(partner_vat)
         is_nie = VAT.is_nie_vat(partner_vat)
         is_enterprise = VAT.is_enterprise_vat(partner_vat)
-        if is_nif or is_nie or is_enterprise:
-            return '02'
+
+        if not auto_vat:
+            return auto_vat_type, auto_vat
+        elif is_nif or is_nie or is_enterprise:
+            if aeat_registered:
+                return '02', auto_vat
+            else:
+                return '07', auto_vat
         elif VAT.is_passport(partner_vat):
-            return '03'
+            return '03', auto_vat
         elif VAT.is_official_identification_document(partner_vat):
-            return '04'
+            return '04', auto_vat
         else:
-            return '02'
+            return '02', auto_vat
 
 
 COUNTRY_CODES = {
