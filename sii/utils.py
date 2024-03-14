@@ -11,7 +11,8 @@ def unidecode_str(s):
 
 class FiscalPartner(object):
     def __init__(self, invoice=None, name=None, vat=None,
-                 aeat_registered=None, partner_country=None
+                 aeat_registered=None, partner_country=None,
+                 auto_vat_type=None
     ):
         """
         :param invoice: Invoce from take info
@@ -33,11 +34,13 @@ class FiscalPartner(object):
                 self.vat = invoice.partner_id.vat
             self.aeat_registered = invoice.partner_id.aeat_registered
             self.partner_country = invoice.partner_id.country_id or invoice.partner_id.country
+            self.auto_vat_type = invoice.partner_id.vat_type
         else:
             self.name = name
             self.vat = vat
             self.aeat_registered = aeat_registered
             self.partner_country = partner_country
+            self.auto_vat_type = auto_vat_type
 
     def sii_get_vat_type(self):
         return VAT.sii_get_vat_type(self.vat)
