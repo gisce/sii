@@ -568,3 +568,61 @@ class DataGenerator:
             sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
         )
         return invoice
+
+    def get_out_invoice_partner_id_type_05(self, with_fiscal_info=True):
+        journal = Journal(
+            name=u'Factura de Energía Emitida'
+        )
+        spain = Country(code='ES', is_eu_member=False)
+        partner = Partner(
+            name=os.environ.get('NOMBRE_CONTRAPARTE', u'Francisco García'),
+            nif=os.environ.get('NIF_CONTRAPARTE', u'ES12345678Z'),
+            country=spain, aeat_registered=True, auto_vat_type='05'
+        )
+        if with_fiscal_info:
+            invoice = Invoice(
+                invoice_type='out_invoice',
+                journal_id=journal,
+                rectificative_type='N',
+                rectifying_id=False,
+                number='FEmit{}'.format(self.invoice_number),
+                partner_id=partner,
+                fiscal_name=self.fiscal_name,
+                fiscal_vat=self.fiscal_vat,
+                address_contact_id=self.address_contact_id,
+                company_id=self.company,
+                amount_total=self.amount_total,
+                amount_untaxed=self.amount_untaxed,
+                amount_tax=self.amount_tax,
+                period_id=self.period,
+                date_invoice=self.date_invoice,
+                tax_line=self.tax_line,
+                invoice_line=self.invoice_line,
+                sii_registered=self.sii_registered,
+                fiscal_position=self.fiscal_position,
+                sii_description=self.sii_description,
+                sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+            )
+        else:
+            invoice = Invoice(
+                invoice_type='out_invoice',
+                journal_id=journal,
+                rectificative_type='N',
+                rectifying_id=False,
+                number='FEmit{}'.format(self.invoice_number),
+                partner_id=partner,
+                address_contact_id=self.address_contact_id,
+                company_id=self.company,
+                amount_total=self.amount_total,
+                amount_untaxed=self.amount_untaxed,
+                amount_tax=self.amount_tax,
+                period_id=self.period,
+                date_invoice=self.date_invoice,
+                tax_line=self.tax_line,
+                invoice_line=self.invoice_line,
+                sii_registered=self.sii_registered,
+                fiscal_position=self.fiscal_position,
+                sii_description=self.sii_description,
+                sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+            )
+        return invoice

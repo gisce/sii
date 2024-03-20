@@ -94,8 +94,8 @@ with description('El XML Generado'):
         with context('en los NIFs involucrados sin fiscal info'):
             with before.all:
                 os.environ['NIF_TITULAR'] = 'ES12345678T'
-                os.environ['NIF_CONTRAPARTE'] = 'esES654321P'
-                os.environ['FISCAL_VAT_CONTRAPARTE'] = 'esES654321P'
+                os.environ['NIF_CONTRAPARTE'] = 'ES18745529T'
+                os.environ['FISCAL_VAT_CONTRAPARTE'] = 'ES18745529T'
 
                 new_data_gen = DataGenerator()
                 nifs_test_invoice = new_data_gen.get_out_invoice(with_fiscal_info=False)
@@ -136,8 +136,8 @@ with description('El XML Generado'):
         with context('en los NIFs involucrados con fiscal info'):
             with before.all:
                 os.environ['NIF_TITULAR'] = 'ES12345678T'
-                os.environ['NIF_CONTRAPARTE'] = 'esES654321P'
-                os.environ['FISCAL_VAT_CONTRAPARTE'] = 'esES654321P'
+                os.environ['NIF_CONTRAPARTE'] = 'ES18745529T'
+                os.environ['FISCAL_VAT_CONTRAPARTE'] = 'ES18745529T'
 
                 new_data_gen = DataGenerator()
                 nifs_test_invoice = new_data_gen.get_out_invoice()
@@ -524,10 +524,10 @@ with description('El XML Generado'):
                         self.emisor_factura['IDOtro']['ID']
                     ).to(equal(nif_emisor))
 
-                with it('el IDType debe ser "02"'):
+                with it('el IDType debe ser "04"'):
                     expect(
                         self.emisor_factura['IDOtro']['IDType']
-                    ).to(equal('02'))
+                    ).to(equal('04'))
 
                 with it('el CodigoPais debe ser "FR"'):
                     expect(
@@ -789,10 +789,10 @@ with description('El XML Generado'):
                         self.emisor_factura['IDOtro']['ID']
                     ).to(equal(nif_emisor))
 
-                with it('el IDType debe ser "02"'):
+                with it('el IDType debe ser "04"'):
                     expect(
                         self.emisor_factura['IDOtro']['IDType']
-                    ).to(equal('02'))
+                    ).to(equal('04'))
 
                 with it('el CodigoPais debe ser "FR"'):
                     expect(
@@ -1400,3 +1400,36 @@ with description('El XML Generado en una baja de una factura recibida'):
                 ).to(equal(
                     self.out_refund.tax_line[0].tax_id.amount * 100
                 ))
+
+    with description('en los datos de una factura emitida'):
+        with before.all:
+            self.out_invoice = self.data_gen.get_out_invoice()
+            self.out_invoice_obj = SII(self.out_invoice).generate_object()
+            self.factura_emitida = (
+                self.out_invoice_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+
+        with context('en una contraparte con IDType 05'):
+            with before.all:
+                new_data_gen = DataGenerator(contraparte_registered=False)
+                self.out_invoice = new_data_gen.get_out_invoice_partner_id_type_05()
+                self.nif_contraparte = self.out_invoice.partner_id.vat[2:]
+
+                out_invoice_obj = SII(self.out_invoice).generate_object()
+                self.contraparte = (
+                    out_invoice_obj['SuministroLRFacturasEmitidas']
+                    ['RegistroLRFacturasEmitidas']['FacturaExpedida']
+                    ['Contraparte']
+                )
+
+            with it('el ID debe ser el NIF de la contraparte'):
+                expect(
+                    self.contraparte['IDOtro']['ID']
+                ).to(equal(self.nif_contraparte))
+
+            with it('el IDType debe ser "05"'):
+                expect(self.contraparte['IDOtro']['IDType']).to(equal('05'))
+
+            with it('el CodigoPais debe ser "ES"'):
+                expect(self.contraparte['IDOtro']['CodigoPais']).to(equal('ES'))
