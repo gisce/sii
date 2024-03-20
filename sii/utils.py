@@ -34,7 +34,7 @@ class FiscalPartner(object):
                 self.vat = invoice.partner_id.vat
             self.aeat_registered = invoice.partner_id.aeat_registered
             self.partner_country = invoice.partner_id.country_id or invoice.partner_id.country
-            self.auto_vat_type = invoice.partner_id.vat_type
+            self.auto_vat_type = invoice.partner_id.auto_vat_type
         else:
             self.name = name
             self.vat = vat

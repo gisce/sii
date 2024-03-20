@@ -155,7 +155,7 @@ def get_partner_info(fiscal_partner, in_invoice, nombre_razon=False):
     if nombre_razon:
         contraparte['NombreRazon'] = unidecode_str(fiscal_partner.name)
 
-    if auto_vat and ((vat_type == '04' and partner_country.is_eu_member) or (vat_type == '07' and in_invoice)):
+    if auto_vat and vat_type == '07' and in_invoice:
         vat_type = '02'
 
     if vat_type == '02':
@@ -263,7 +263,8 @@ def get_factura_emitida_tipo_desglose(invoice):
         partner_vat_starts_with_n = (
             partner_vat and partner_vat.upper().startswith('N')
         )
-        has_id_otro = invoice.partner_id.sii_get_vat_type() != '02'
+        id_type, auto_vat = invoice.partner_id.sii_get_vat_type()
+        has_id_otro = id_type != '02'
         if has_id_otro or partner_vat_starts_with_n:
             tipo_desglose = {
                 'DesgloseTipoOperacion': {
