@@ -92,7 +92,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                 continue
             else:
                 vals['sujeta_a_iva'] = True
-		if is_export:
+                if is_export:
                     vals['sujeta_a_iva'] = False
                     vals['detalle_iva_exento']['BaseImponible'] += base_imponible
                 invoice_total -= (base_imponible + cuota)
