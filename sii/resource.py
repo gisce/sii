@@ -92,6 +92,9 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                 continue
             else:
                 vals['sujeta_a_iva'] = True
+                if is_export:
+                    vals['sujeta_a_iva'] = False
+                    vals['detalle_iva_exento']['BaseImponible'] += base_imponible
                 invoice_total -= (base_imponible + cuota)
 
             tax_type = inv_tax.tax_id.type
@@ -109,7 +112,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
             # detectan como IVA exento
             elif not is_export and not is_import and is_iva_exento:
                 vals['iva_exento'] = True
-                vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
+                vals['detalle_iva_exento']['BaseImponible'] += base_imponible
             else:
                 if in_invoice:
                     cuota_key = 'CuotaSoportada'
