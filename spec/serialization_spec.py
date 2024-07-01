@@ -345,30 +345,27 @@ with description('El XML Generado'):
                     detalle_iva = (
                         self.factura_emitida['FacturaExpedida']['TipoDesglose']
                         ['DesgloseTipoOperacion']['Entrega']['Sujeta']
-                        ['NoExenta']['DesgloseIVA']['DetalleIVA']
+                        ['Exenta']['DetalleExenta']
                     )
-                    self.grouped_detalle_iva = group_by_tax_rate(
-                        detalle_iva, in_invoice=False
-                    )
+                    self.detalle_iva = detalle_iva
 
                 with it('la BaseImponible debe ser la original'):
                     expect(
-                        self.grouped_detalle_iva[21.0]['BaseImponible']
+                        self.detalle_iva['BaseImponible']
                     ).to(equal(
                         self.out_invoice.tax_line[0].base
                     ))
-                with it('la CuotaRepercutida debe ser la original'):
+                with it('la Causa Exención tiene que ser E2'):
                     expect(
-                        self.grouped_detalle_iva[21.0]['CuotaRepercutida']
-                    ).to(equal(
-                        self.out_invoice.tax_line[0].tax_amount
-                    ))
-                with it('el TipoImpositivo debe ser la original'):
+                        self.detalle_iva['CausaExencion']
+                    ).to(equal('E2'))
+                with it('No lleva ni tipo impositivo ni Cuota'):
                     expect(
-                        self.grouped_detalle_iva[21.0]['TipoImpositivo']
-                    ).to(equal(
-                        self.out_invoice.tax_line[0].tax_id.amount * 100
-                    ))
+                        self.detalle_iva.get('TipoImpositivo','NOTEXIST')
+                    ).to(equal('NOTEXIST'))
+                    expect(
+                        self.detalle_iva.get('CuotaRepercutida','NOTEXIST')
+                    ).to(equal('NOTEXIST'))
 
         with context('si es una operación de alquiler (CRE "12" o "13")'):
             with before.all:
