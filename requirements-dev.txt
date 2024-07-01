@@ -1,2 +1,3 @@
-mamba==0.10
+mamba==0.10;python_version<="2.7.18"
+mamba;python_version>"2.7.18"
 expects

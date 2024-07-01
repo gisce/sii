@@ -16,15 +16,27 @@ jobs:
     strategy:
       # You can use PyPy versions in python-version.
       # For example, pypy2 and pypy3
+      fail-fast: false
       matrix:
-        python-version: ["2.7", "3.6"]
+        python-version: ["2.7", "3.11"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      if: matrix.python-version == '3.11'
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Install Python 2
+      if: matrix.python-version == '2.7'
+      run: |
+        sudo apt update
+        sudo apt install python2 python-pip
+        sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+        sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+        printf '1\n' | sudo update-alternatives --config python
+        cd /usr/bin
+        sudo ln -s /usr/bin/pip2 ./pip
     - name: Install dependencies
       run: |
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
