@@ -350,10 +350,11 @@ with description('El XML Generado'):
                     self.detalle_iva = detalle_iva
 
                 with it('la BaseImponible debe ser la original'):
+                    total_base = sum([x.base for x in self.out_invoice.tax_line[0] if 'IVA' in x.name])
                     expect(
                         self.detalle_iva['BaseImponible']
                     ).to(equal(
-                        self.out_invoice.tax_line[0].base
+                        total_base
                     ))
                 with it('la Causa Exención tiene que ser E2'):
                     expect(
