@@ -47,8 +47,15 @@ class Partner:
 
 
 class Journal:
-    def __init__(self, name):
+    def __init__(self, name, article=None):
         self.name = name
+        self.article = article
+
+
+class Article:
+    def __init__(self, tipo_factura, tipo_rectificativa):
+        self.tipo_factura = tipo_factura
+        self.tipo_rectificativa = tipo_rectificativa
 
 
 class FiscalPosition:

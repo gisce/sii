@@ -345,30 +345,28 @@ with description('El XML Generado'):
                     detalle_iva = (
                         self.factura_emitida['FacturaExpedida']['TipoDesglose']
                         ['DesgloseTipoOperacion']['Entrega']['Sujeta']
-                        ['NoExenta']['DesgloseIVA']['DetalleIVA']
+                        ['Exenta']['DetalleExenta']
                     )
-                    self.grouped_detalle_iva = group_by_tax_rate(
-                        detalle_iva, in_invoice=False
-                    )
+                    self.detalle_iva = detalle_iva
 
                 with it('la BaseImponible debe ser la original'):
+                    total_base = sum([x.base for x in self.out_invoice.tax_line if 'IVA' in x.name])
                     expect(
-                        self.grouped_detalle_iva[21.0]['BaseImponible']
+                        self.detalle_iva['BaseImponible']
                     ).to(equal(
-                        self.out_invoice.tax_line[0].base
+                        total_base
                     ))
-                with it('la CuotaRepercutida debe ser la original'):
+                with it('la Causa Exención tiene que ser E2'):
                     expect(
-                        self.grouped_detalle_iva[21.0]['CuotaRepercutida']
-                    ).to(equal(
-                        self.out_invoice.tax_line[0].tax_amount
-                    ))
-                with it('el TipoImpositivo debe ser la original'):
+                        self.detalle_iva['CausaExencion']
+                    ).to(equal('E2'))
+                with it('No lleva ni tipo impositivo ni Cuota'):
                     expect(
-                        self.grouped_detalle_iva[21.0]['TipoImpositivo']
-                    ).to(equal(
-                        self.out_invoice.tax_line[0].tax_id.amount * 100
-                    ))
+                        self.detalle_iva.get('TipoImpositivo','NOTEXIST')
+                    ).to(equal('NOTEXIST'))
+                    expect(
+                        self.detalle_iva.get('CuotaRepercutida','NOTEXIST')
+                    ).to(equal('NOTEXIST'))
 
         with context('si es una operación de alquiler (CRE "12" o "13")'):
             with before.all:
@@ -1224,6 +1222,10 @@ with description('El XML Generado'):
                 self.in_invoice_RA_obj['SuministroLRFacturasRecibidas']
                 ['RegistroLRFacturasRecibidas']
             )
+            self.fact_origin = (
+                self.in_invoice_origin_obj['SuministroLRFacturasRecibidas']
+                ['RegistroLRFacturasRecibidas']
+            )
 
         with context('en los datos de rectificación'):
             with it('el TipoRectificativa debe ser por sustitución (S)'):
@@ -1265,7 +1267,28 @@ with description('El XML Generado'):
                     self.fact_RA_recibida['FacturaRecibida']
                     ['ImporteRectificacion']['CuotaRectificada']
                 ).to(equal(
-                    79
+                    -79.0
+                ))
+            with it('los Importes de rectificacion debe ser igual que los datos de la factura original'):
+                base_presentada = sum(x['BaseImponible'] for x in
+                    self.fact_origin['FacturaRecibida']['DesgloseFactura'][
+                        'DesgloseIVA']['DetalleIVA'])
+                cuota_presentada = sum(
+                    x.get('CuotaSoportada', 0.0) for x in
+                    self.fact_origin['FacturaRecibida'][
+                        'DesgloseFactura']['DesgloseIVA']['DetalleIVA'])
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['ImporteRectificacion']['BaseRectificada']
+                ).to(equal(
+                    base_presentada
+                ))
+
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['ImporteRectificacion']['CuotaRectificada']
+                ).to(equal(
+                    cuota_presentada
                 ))
 
 with description('El XML Generado en una baja de una factura emitida'):
@@ -1447,4 +1470,49 @@ with description('El XML Generado en una baja de una factura recibida'):
                     ).strftime('%Y-%m-%d')
                 ).to(equal(
                     self.invoice.origin_date_invoice
+                ))
+
+    with description('en los datos de una factura rectificativa emitida'):
+        with before.all:
+            self.out_refund = self.data_gen.get_out_invoice_rescision()
+            self.out_refund_obj = SII(self.out_refund).generate_object()
+            self.fact_rect_emit = (
+                self.out_refund_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+
+        with context('en los datos de rectificación'):
+            with it('el TipoRectificativa debe ser por sustitución (S)'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida']['TipoRectificativa']
+                ).to(equal('I'))
+
+        with context('en los detalles del IVA'):
+            with before.all:
+                detalle_iva = (
+                    self.fact_rect_emit['FacturaExpedida']['TipoDesglose']
+                    ['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']
+                    ['DetalleIVA']
+                )
+                self.grouped_detalle_iva = group_by_tax_rate(
+                    detalle_iva, in_invoice=False
+                )
+
+            with it('la BaseImponible debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[21.0]['BaseImponible']
+                ).to(equal(
+                    -1 * abs(self.out_refund.tax_line[0].base)
+                ))
+            with it('la CuotaRepercutida debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[21.0]['CuotaRepercutida']
+                ).to(equal(
+                    -1 * abs(self.out_refund.tax_line[0].tax_amount)
+                ))
+            with it('el TipoImpositivo debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[21.0]['TipoImpositivo']
+                ).to(equal(
+                    self.out_refund.tax_line[0].tax_id.amount * 100
                 ))

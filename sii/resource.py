@@ -97,6 +97,9 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
                 continue
             else:
                 vals['sujeta_a_iva'] = True
+                if is_export:
+                    vals['sujeta_a_iva'] = False
+                    vals['detalle_iva_exento']['BaseImponible'] += base_imponible
                 invoice_total -= (base_imponible + cuota)
 
             tax_type = inv_tax.tax_id.type
@@ -114,7 +117,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
             # detectan como IVA exento
             elif not is_export and not is_import and is_iva_exento:
                 vals['iva_exento'] = True
-                vals['detalle_iva_exento']['BaseImponible'] += inv_tax.base
+                vals['detalle_iva_exento']['BaseImponible'] += base_imponible
             else:
                 if in_invoice:
                     cuota_key = 'CuotaSoportada'
@@ -373,10 +376,9 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
         for iva in detalle_iva:
             base_rectificada += iva['BaseImponible']
             cuota_rectificada += iva.get(cuota_key, 0)
-
         rectificativa_fields['ImporteRectificacion'] = {
-            'BaseRectificada': abs(base_rectificada),
-            'CuotaRectificada': abs(cuota_rectificada)
+            'BaseRectificada': base_rectificada,
+            'CuotaRectificada': cuota_rectificada
         }
     elif opcion == 2:
         rectificativa_fields['ImporteRectificacion'] = {
@@ -390,11 +392,12 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
 def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
 
     rectificativa = rect_sust_opc1 or rect_sust_opc2
+    article = invoice.journal_id.article
 
     fiscal_partner = FiscalPartner(invoice)
 
     factura_expedida = {
-        'TipoFactura': 'R4' if rectificativa else 'F1',
+        'TipoFactura': get_tipus_factura_emitida(article, rectificativa),
         'ClaveRegimenEspecialOTrascendencia':
             invoice.sii_out_clave_regimen_especial,
         'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
@@ -457,8 +460,27 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             }
 
         factura_expedida.update(vals)
+    elif article:
+        if article.tipo_rectificativa == 'I':
+            factura_expedida.update({
+                'TipoRectificativa': 'I'
+            })
 
     return factura_expedida
+
+
+def get_tipus_factura_emitida(article=None, rectificativa=False):
+    if article:
+        if article.tipo_factura:
+            result = article.tipo_factura
+        else:
+            raise "No hay tipo de factura especificado en el articulo del diario"
+    elif rectificativa:
+        result = 'R4'
+    else:
+        result = 'F1'
+
+    return result
 
 
 def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):

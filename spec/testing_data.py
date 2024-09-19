@@ -10,6 +10,7 @@ class DataGenerator:
     def __init__(self, invoice_registered=False, contraparte_registered=True):
         self.sii_registered = invoice_registered
         self.period = Period(name='12/2016')
+        self.article = Article(tipo_factura='R1', tipo_rectificativa='I')
         name_iva_21 = 'IVA 21%'
         name_iva_4 = 'IVA 4%'
         name_ibi = 'IBI 15%'
@@ -456,7 +457,8 @@ class DataGenerator:
 
     def get_in_invoice_RA(self):
         journal = Journal(
-            name=u'Factura de Energía Rectificativa Recibida'
+            name=u'Factura de Energía Rectificativa Recibida',
+            article=self.article
         )
 
         tax_line = self.tax_line
@@ -512,7 +514,62 @@ class DataGenerator:
         )
         return invoice
 
-    def get_out_invoice_with_irfp(self):
+    def get_out_invoice_rescision(self):
+        journal = Journal(
+            name=u'Factura de Energía Rectificativa Rescision Emitida',
+            article=self.article
+        )
+
+        tax_line = self.tax_line
+        for invoice_tax in tax_line:
+            invoice_tax.tax_amount = -1 * abs(invoice_tax.tax_amount)
+
+        rect_invoice = Invoice(
+            invoice_type='out_invoice',
+            journal_id=journal,
+            rectificative_type='N',
+            rectifying_id=False,
+            number='FEmitRectificada{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
+            period_id=self.period,
+            date_invoice=self.date_invoice,
+            tax_line=self.tax_line,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+        )
+
+        invoice = Invoice(
+            invoice_type='out_refund',
+            journal_id=journal,
+            rectificative_type='A',
+            rectifying_id=False,
+            number='FRectEmit{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
+            period_id=self.period,
+            date_invoice=self.date_invoice,
+            tax_line=tax_line,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+        )
+        return invoice
+      
+          def get_out_invoice_with_irfp(self):
         journal = Journal(
             name=u'Factura de Energía Recibida'
         )
