@@ -569,7 +569,7 @@ class DataGenerator:
         )
         return invoice
       
-          def get_out_invoice_with_irfp(self):
+    def get_out_invoice_with_irfp(self):
         journal = Journal(
             name=u'Factura de Energía Recibida'
         )
