@@ -917,18 +917,32 @@ with description('El XML Generado'):
 
     with description('en los datos de una factura rectificativa emitida'):
         with before.all:
-            self.out_refund = self.data_gen.get_out_refund_invoice()
+            self.out_refund, self.out_b_inovice = self.data_gen.get_out_refund_invoice()
             self.out_refund_obj = SII(self.out_refund).generate_object()
+            self.out_b_inovice_obj = SII(self.out_b_inovice).generate_object()
             self.fact_rect_emit = (
                 self.out_refund_obj['SuministroLRFacturasEmitidas']
                 ['RegistroLRFacturasEmitidas']
             )
-
+            self.fact_refund_emit = (
+                self.out_b_inovice_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+        with context('en los datos de abonadora'):
+            with it('la FechaOperacion debe ser por factura original'):
+                expect(
+                    self.fact_refund_emit['FacturaExpedida']['FechaOperacion']
+                ).to(equal('31-12-2016'))
         with context('en los datos de rectificación'):
             with it('el TipoRectificativa debe ser por sustitución (S)'):
                 expect(
                     self.fact_rect_emit['FacturaExpedida']['TipoRectificativa']
                 ).to(equal('S'))
+
+            with it('la FechaOperacion debe ser por factura original'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida']['FechaOperacion']
+                ).to(equal('31-12-2016'))
 
             with before.all:
                 self.importe_rectificacion = (
@@ -961,7 +975,7 @@ with description('El XML Generado'):
                 expect(
                     self.grouped_detalle_iva[21.0]['BaseImponible']
                 ).to(equal(
-                    -1 * abs(self.out_refund.tax_line[0].base)
+                    self.out_refund.tax_line[0].base
                 ))
             with it('la CuotaRepercutida debe ser la original'):
                 expect(
@@ -975,6 +989,30 @@ with description('El XML Generado'):
                 ).to(equal(
                     self.out_refund.tax_line[0].tax_id.amount * 100
                 ))
+
+    with description('en los datos de una factura rectificativa de una rectificativa emitida'):
+        with before.all:
+            self.out_refund, self.out_b_inovice = self.data_gen.get_out_refund_mulitple_invoice()
+            self.out_refund_obj = SII(self.out_refund).generate_object()
+            self.out_b_inovice_obj = SII(self.out_b_inovice).generate_object()
+            self.fact_rect_emit = (
+                self.out_refund_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+            self.fact_refund_emit = (
+                self.out_b_inovice_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+        with context('en los datos de abonadora'):
+            with it('la FechaOperacion debe ser por factura original'):
+                expect(
+                    self.fact_refund_emit['FacturaExpedida']['FechaOperacion']
+                ).to(equal('07-12-2023'))
+        with context('en los datos de rectificación'):
+            with it('la FechaOperacion debe ser por factura original'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida']['FechaOperacion']
+                ).to(equal('07-12-2023'))
 
     with description('en los datos de una factura rectificativa recibida'):
         with before.all:

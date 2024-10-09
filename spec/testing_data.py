@@ -354,9 +354,12 @@ class DataGenerator:
         journal = Journal(
             name=u'Factura de Energía Rectificativa Emitida'
         )
+        rect_tax_line = self.tax_line[:]
+        for invoice_tax in rect_tax_line:
+            invoice_tax.tax_amount = -1 * abs(invoice_tax.tax_amount)
 
-        tax_line = self.tax_line
-        for invoice_tax in tax_line:
+        refund_tax_line = self.tax_line[:]
+        for invoice_tax in refund_tax_line:
             invoice_tax.tax_amount = -1 * abs(invoice_tax.tax_amount)
 
         rect_invoice = Invoice(
@@ -381,8 +384,8 @@ class DataGenerator:
             sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
         )
 
-        invoice = Invoice(
-            invoice_type='out_refund',
+        r_invoice = Invoice(
+            invoice_type='out_invoice',
             journal_id=journal,
             rectificative_type='R',
             rectifying_id=rect_invoice,
@@ -395,14 +398,155 @@ class DataGenerator:
             amount_tax=self.amount_tax,
             period_id=self.period,
             date_invoice=self.date_invoice,
-            tax_line=tax_line,
+            tax_line=rect_tax_line,
             invoice_line=self.invoice_line,
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
             sii_description=self.sii_description,
             sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
         )
-        return invoice
+        b_invoice = Invoice(
+            invoice_type='out_refund',
+            journal_id=journal,
+            rectificative_type='B',
+            rectifying_id=rect_invoice,
+            number='FAboEmit{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=-1.0 * self.amount_total,
+            amount_untaxed=-1.0 * self.amount_untaxed,
+            amount_tax=-1.0 * self.amount_tax,
+            period_id=self.period,
+            date_invoice=self.date_invoice,
+            tax_line=refund_tax_line,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+        )
+        return r_invoice, b_invoice
+
+    def get_out_refund_mulitple_invoice(self):
+        journal = Journal(
+            name=u'Factura de Energía Rectificativa Emitida'
+        )
+        rect_tax_line = self.tax_line[:]
+        for invoice_tax in rect_tax_line:
+            invoice_tax.tax_amount = -1 * abs(invoice_tax.tax_amount)
+
+        refund_tax_line = self.tax_line[:]
+        for invoice_tax in refund_tax_line:
+            invoice_tax.tax_amount = -1 * abs(invoice_tax.tax_amount)
+
+        orig_invoice = Invoice(
+            invoice_type='out_invoice',
+            journal_id=journal,
+            rectificative_type='N',
+            rectifying_id=False,
+            number='FEmitRectificada{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
+            period_id=self.period,
+            date_invoice='2023-12-07',
+            tax_line=self.tax_line,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+        )
+
+        r1_invoice = Invoice(
+            invoice_type='out_invoice',
+            journal_id=journal,
+            rectificative_type='R',
+            rectifying_id=orig_invoice,
+            number='FRectEmit{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
+            period_id=self.period,
+            date_invoice='2024-01-07',
+            tax_line=rect_tax_line,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+        )
+        b1_invoice = Invoice(
+            invoice_type='out_refund',
+            journal_id=journal,
+            rectificative_type='B',
+            rectifying_id=orig_invoice,
+            number='FAboEmit{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=-1.0 * self.amount_total,
+            amount_untaxed=-1.0 * self.amount_untaxed,
+            amount_tax=-1.0 * self.amount_tax,
+            period_id=self.period,
+            date_invoice='2024-01-07',
+            tax_line=refund_tax_line,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+        )
+        r2_invoice = Invoice(
+            invoice_type='out_invoice',
+            journal_id=journal,
+            rectificative_type='R',
+            rectifying_id=r1_invoice,
+            number='FRect2Emit{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
+            period_id=self.period,
+            date_invoice='2024-02-07',
+            tax_line=rect_tax_line,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+        )
+        b2_invoice = Invoice(
+            invoice_type='out_refund',
+            journal_id=journal,
+            rectificative_type='B',
+            rectifying_id=r1_invoice,
+            number='FAbo2Emit{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=-1.0 * self.amount_total,
+            amount_untaxed=-1.0 * self.amount_untaxed,
+            amount_tax=-1.0 * self.amount_tax,
+            period_id=self.period,
+            date_invoice='2024-02-07',
+            tax_line=refund_tax_line,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+        )
+        return r2_invoice, b2_invoice
 
     def get_out_invoice_RA(self):
         journal = Journal(
@@ -550,7 +694,7 @@ class DataGenerator:
             invoice_type='out_refund',
             journal_id=journal,
             rectificative_type='A',
-            rectifying_id=False,
+            rectifying_id=rect_invoice,
             number='FRectEmit{}'.format(self.invoice_number),
             partner_id=self.partner_invoice,
             address_contact_id=self.address_contact_id,

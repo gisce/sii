@@ -537,6 +537,7 @@ class DetalleFactura(MySchema):
     TipoRectificativa = CustomStringField()  # TODO obligatorio si es una rectificativa
     ImporteRectificacion = fields.Nested(ImporteRectificacion)  # TODO obligatorio si TipoRectificativa = 'S'
     FacturasRectificadas = fields.Nested(FacturasRectificadas)  # TODO opcional si TipoFactura = Rectificativa
+    FechaOperacion = DateString()
     # TODO ImporteTotal OBLIGATORIO si:
     # 1.Obligatorio si Baseimponible=0 y TipoFactura=”F2” o “R5”
     # 2.Obligatorio si Baseimponible=0 y ClaveRegimenEspecialOTranscedencia = “05”o “03”
