@@ -334,7 +334,8 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
     :return:
     """
     rectificativa_fields = {
-        'TipoRectificativa': 'S'  # Por sustitución
+        'TipoRectificativa': 'S',  # Por sustitución
+        'FechaOperacion': invoice.rectifying_id.date_invoice
     }
 
     if opcion == 1:
@@ -424,7 +425,10 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         factura_expedida['DatosInmueble'] = {
             'DetalleInmueble': detalle_inmueble
         }
-
+    if invoice.type in ('A', 'B'):
+        factura_expedida.update(
+            {'FechaOperacion': invoice.rectifying_id.date_invoice}
+        )
     if rectificativa:
         opcion = 0
         if rect_sust_opc1:
