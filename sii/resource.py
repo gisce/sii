@@ -425,7 +425,7 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         factura_expedida['DatosInmueble'] = {
             'DetalleInmueble': detalle_inmueble
         }
-    if invoice.type in ('A', 'B'):
+    if invoice.rectificative_type in ('A', 'B'):
         factura_expedida.update(
             {'FechaOperacion': invoice.rectifying_id.date_invoice}
         )
