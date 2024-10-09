@@ -286,6 +286,12 @@ def get_factura_emitida_tipo_desglose(invoice):
 
     return tipo_desglose
 
+def get_fecha_operacion_rec(invoice):
+    if invoice.rectificative_type == 'N':
+        return invoice.date_invoice
+    else:
+        return get_fecha_operacion_rec(invoice.rectifying_id)
+
 
 def get_fact_rect_sustitucion_fields(invoice, opcion=False):
     """
@@ -335,7 +341,7 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
     """
     rectificativa_fields = {
         'TipoRectificativa': 'S',  # Por sustitución
-        'FechaOperacion': invoice.rectifying_id.date_invoice
+        'FechaOperacion': get_fecha_operacion_rec(invoice)
     }
 
     if opcion == 1:
@@ -427,7 +433,7 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         }
     if invoice.rectificative_type in ('A', 'B'):
         factura_expedida.update(
-            {'FechaOperacion': invoice.rectifying_id.date_invoice}
+            {'FechaOperacion': get_fecha_operacion_rec(invoice)}
         )
     if rectificativa:
         opcion = 0
