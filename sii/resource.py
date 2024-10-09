@@ -340,9 +340,11 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
     :return:
     """
     rectificativa_fields = {
-        'TipoRectificativa': 'S',  # Por sustitución
-        'FechaOperacion': get_fecha_operacion_rec(invoice)
+        'TipoRectificativa': 'S' # Por sustitución
     }
+    
+    if 'out_' in invoice.type:
+        rectificativa_fields['FechaOperacion'] = get_fecha_operacion_rec(invoice)
 
     if opcion == 1:
         factura_rectificada = invoice.rectifying_id

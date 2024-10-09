@@ -1114,7 +1114,6 @@ with description('El XML Generado'):
                 ).to(equal(
                     self.out_invoice_RA.rectifying_id.date_invoice
                 ))
-
             with it('debe contener el ImporteRectificacion'):
                 expect(
                     self.fact_RA_emitida['FacturaExpedida']
@@ -1152,7 +1151,10 @@ with description('El XML Generado'):
                 expect(
                     self.fact_RA_recibida['FacturaRecibida']['TipoRectificativa']
                 ).to(equal('S'))
-
+            with it('la FechaOperacion NO debe existir'):
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida'].get('FechaOperacion', False)
+                ).to(equal(False))
             with it('debe contener las FacturasRectificadas'):
                 expect(
                     self.fact_RA_recibida['FacturaRecibida']
