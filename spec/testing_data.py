@@ -658,6 +658,80 @@ class DataGenerator:
         )
         return invoice
 
+    def get_in_invoice_RA_N_negative(self):
+        journal = Journal(
+            name=u'Factura de Energía Rectificativa Recibida',
+            article=self.article
+        )
+        tax_iva_21 = Tax(name='21% IVA Soportado', amount=0.21, type='percent')
+        amount_total_n = -6.21
+        amount_tax_n = -1.08
+        base_amount_n = -5.13
+        tax_line_n = [
+            InvoiceTax(
+                name='21% IVA Soportado', base=-5.13,
+                tax_amount=-1.08, tax_id=tax_iva_21
+            )
+        ]
+        amount_total_ra = 14.65
+        amount_tax_ra = 2.54
+        base_amount_ra = 12.11
+        tax_line_ra = [
+            InvoiceTax(
+                name='21% IVA Soportado', base=-5.13,
+                tax_amount=-1.08, tax_id=tax_iva_21
+            )
+        ]
+
+        rect_invoice = Invoice(
+            invoice_type='in_invoice',
+            journal_id=journal,
+            rectificative_type='N',
+            rectifying_id=False,
+            number='FRecibRectificada{}'.format(self.invoice_number),
+            origin='FRectRecibRectificadaOrigen{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=amount_total_n,
+            amount_untaxed=base_amount_n,
+            amount_tax=amount_tax_n,
+            period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
+            date_invoice=self.date_invoice,
+            tax_line=tax_line_n,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+        )
+
+        invoice = Invoice(
+            invoice_type='in_invoice',
+            journal_id=journal,
+            rectificative_type='RA',
+            rectifying_id=rect_invoice,
+            number='FRectRecib{}'.format(self.invoice_number),
+            origin='FRectRecibOrigen{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=amount_total_ra,
+            amount_untaxed=base_amount_ra,
+            amount_tax=amount_tax_ra,
+            period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
+            date_invoice=self.date_invoice,
+            tax_line=tax_line_ra,
+            invoice_line=self.invoice_line,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+        )
+        return invoice
+
     def get_out_invoice_rescision(self):
         journal = Journal(
             name=u'Factura de Energía Rectificativa Rescision Emitida',

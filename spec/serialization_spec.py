@@ -1213,6 +1213,90 @@ with description('El XML Generado'):
                     cuota_presentada
                 ))
 
+    with description('en los datos de una factura recibida rectificativa '
+                     'sin anuladora RA sobre una factura original negativa'):
+        with before.all:
+            self.in_invoice_RA = self.data_gen.get_in_invoice_RA_N_negative()
+            self.in_invoice_RA.rectifying_id.sii_registered = True
+            self.in_invoice_RA_obj = SII(self.in_invoice_RA).generate_object()
+            factura_rectificada = self.in_invoice_RA.rectifying_id
+            self.in_invoice_origin_obj = SII(factura_rectificada).generate_object()
+            self.fact_RA_recibida = (
+                self.in_invoice_RA_obj['SuministroLRFacturasRecibidas']
+                ['RegistroLRFacturasRecibidas']
+            )
+            self.fact_origin = (
+                self.in_invoice_origin_obj['SuministroLRFacturasRecibidas']
+                ['RegistroLRFacturasRecibidas']
+            )
+
+        with context('en los datos de rectificación'):
+            with it('el TipoRectificativa debe ser por sustitución (S)'):
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']['TipoRectificativa']
+                ).to(equal('S'))
+            with it('la FechaOperacion NO debe existir'):
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida'].get('FechaOperacion', False)
+                ).to(equal(False))
+            with it('debe contener las FacturasRectificadas'):
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['FacturasRectificadas']['IDFacturaRectificada'][0]
+                    ['NumSerieFacturaEmisor']
+                ).to(equal(
+                    self.in_invoice_RA.rectifying_id.origin
+                ))
+
+                fecha_expedicion = (
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['FacturasRectificadas']['IDFacturaRectificada'][0]
+                    ['FechaExpedicionFacturaEmisor']
+                )
+                expect(
+                    datetime.strptime(
+                        fecha_expedicion, '%d-%m-%Y'
+                    ).strftime('%Y-%m-%d')
+                ).to(equal(
+                    self.in_invoice_RA.rectifying_id.origin_date_invoice
+                ))
+
+            with it('debe contener el ImporteRectificacion'):
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['ImporteRectificacion']['BaseRectificada']
+                ).to(equal(
+                    -5.13
+                ))
+
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['ImporteRectificacion']['CuotaRectificada']
+                ).to(equal(
+                    -1.08
+                ))
+            with it('los Importes de rectificacion debe ser igual que los datos de la factura original'):
+                base_presentada = sum(x['BaseImponible'] for x in
+                    self.fact_origin['FacturaRecibida']['DesgloseFactura'][
+                        'DesgloseIVA']['DetalleIVA'])
+                cuota_presentada = sum(
+                    x.get('CuotaSoportada', 0.0) for x in
+                    self.fact_origin['FacturaRecibida'][
+                        'DesgloseFactura']['DesgloseIVA']['DetalleIVA'])
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['ImporteRectificacion']['BaseRectificada']
+                ).to(equal(
+                    base_presentada
+                ))
+
+                expect(
+                    self.fact_RA_recibida['FacturaRecibida']
+                    ['ImporteRectificacion']['CuotaRectificada']
+                ).to(equal(
+                    cuota_presentada
+                ))
+
 with description('El XML Generado en una baja de una factura emitida'):
     with before.all:
         self.data_gen = DataGenerator()
