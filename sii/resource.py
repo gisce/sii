@@ -344,7 +344,8 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
     }
     
     if 'out_' in invoice.type:
-        rectificativa_fields['FechaOperacion'] = get_fecha_operacion_rec(invoice)
+        pass
+        #rectificativa_fields['FechaOperacion'] = get_fecha_operacion_rec(invoice)
 
     if opcion == 1:
         factura_rectificada = invoice.rectifying_id
@@ -434,9 +435,10 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             'DetalleInmueble': detalle_inmueble
         }
     if invoice.rectificative_type in ('A', 'B'):
-        factura_expedida.update(
-            {'FechaOperacion': get_fecha_operacion_rec(invoice)}
-        )
+        pass
+        # factura_expedida.update(
+        #     {'FechaOperacion': get_fecha_operacion_rec(invoice)}
+        # )
     if rectificativa:
         opcion = 0
         if rect_sust_opc1:
