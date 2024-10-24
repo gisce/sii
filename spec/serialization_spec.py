@@ -929,22 +929,20 @@ with description('El XML Generado'):
                 ['RegistroLRFacturasEmitidas']
             )
         with context('en los datos de abonadora'):
-            with it('la FechaOperacion debe ser por factura original'):
-                pass
-                # expect(
-                #     self.fact_refund_emit['FacturaExpedida']['FechaOperacion']
-                # ).to(equal('31-12-2016'))
+            with it('la FechaOperacion NO debe ser informado'):
+                expect(
+                     self.fact_refund_emit['FacturaExpedida'].get('FechaOperacion', False)
+                ).to(equal(False))
         with context('en los datos de rectificación'):
             with it('el TipoRectificativa debe ser por sustitución (S)'):
                 expect(
                     self.fact_rect_emit['FacturaExpedida']['TipoRectificativa']
                 ).to(equal('S'))
 
-            with it('la FechaOperacion debe ser por factura original'):
-                pass
-                # expect(
-                #     self.fact_rect_emit['FacturaExpedida']['FechaOperacion']
-                # ).to(equal('31-12-2016'))
+            with it('la FechaOperacion NO debe ser informado'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida'].get('FechaOperacion', False)
+                ).to(equal(False))
 
             with before.all:
                 self.importe_rectificacion = (
@@ -992,6 +990,181 @@ with description('El XML Generado'):
                     self.out_refund.tax_line[0].tax_id.amount * 100
                 ))
 
+    with description('en los datos de una factura rectificativa emitida con IVA 5% fecha postrior vigencia'):
+        with before.all:
+            self.out_refund, self.out_b_inovice = self.data_gen.get_out_refund_invoice_iva5()
+            self.out_refund_obj = SII(self.out_refund).generate_object()
+            self.out_b_inovice_obj = SII(self.out_b_inovice).generate_object()
+            self.fact_rect_emit = (
+                self.out_refund_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+            self.fact_refund_emit = (
+                self.out_b_inovice_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+        with context('en los datos de abonadora'):
+            with it('la FechaOperacion debe ser por factura original'):
+                expect(
+                     self.fact_refund_emit['FacturaExpedida']['FechaOperacion']
+                ).to(equal('01-01-2023'))
+        with context('en los datos de rectificación'):
+            with it('el TipoRectificativa debe ser por sustitución (S)'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida']['TipoRectificativa']
+                ).to(equal('S'))
+
+            with it('la FechaOperacion debe ser por factura original'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida']['FechaOperacion']
+                ).to(equal('01-01-2023'))
+
+            with before.all:
+                self.importe_rectificacion = (
+                    self.fact_rect_emit['FacturaExpedida']
+                    ['ImporteRectificacion']
+                )
+
+            with it('la BaseRectificada debe ser 0'):
+                expect(
+                    self.importe_rectificacion['BaseRectificada']
+                ).to(equal(0))
+
+            with it('la CuotaRectificada debe ser 0'):
+                expect(
+                    self.importe_rectificacion['CuotaRectificada']
+                ).to(equal(0))
+
+        with context('en los detalles del IVA'):
+            with before.all:
+                detalle_iva = (
+                    self.fact_rect_emit['FacturaExpedida']['TipoDesglose']
+                    ['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']
+                    ['DetalleIVA']
+                )
+                self.grouped_detalle_iva = group_by_tax_rate(
+                    detalle_iva, in_invoice=False
+                )
+
+            with it('la BaseImponible debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[5.0]['BaseImponible']
+                ).to(equal(
+                    self.out_refund.tax_line[0].base
+                ))
+            with it('la CuotaRepercutida debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[5.0]['CuotaRepercutida']
+                ).to(equal(
+                    -1 * abs(self.out_refund.tax_line[0].tax_amount)
+                ))
+            with it('el TipoImpositivo debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[5.0]['TipoImpositivo']
+                ).to(equal(
+                    self.out_refund.tax_line[0].tax_id.amount * 100
+                ))
+
+    with description('en los datos de una factura rectificativa emitida con IVA 5% fecha en vigencia'):
+        with before.all:
+            self.out_refund, self.out_b_inovice = self.data_gen.get_out_refund_invoice_iva5(fecha_facturas_recti='2024-03-18')
+            self.out_refund_obj = SII(self.out_refund).generate_object()
+            self.out_b_inovice_obj = SII(self.out_b_inovice).generate_object()
+            self.fact_rect_emit = (
+                self.out_refund_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+            self.fact_refund_emit = (
+                self.out_b_inovice_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+        with context('en los datos de abonadora'):
+            with it('la FechaOperacion debe ser por factura original'):
+                expect(
+                     self.fact_refund_emit['FacturaExpedida'].get(
+                         'FechaOperacion', False)
+                ).to(equal(False))
+        with context('en los datos de rectificación'):
+            with it('el TipoRectificativa debe ser por sustitución (S)'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida']['TipoRectificativa']
+                ).to(equal('S'))
+
+            with it('la FechaOperacion no debe existir'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida'].get('FechaOperacion', False)
+                ).to(equal(False))
+
+            with before.all:
+                self.importe_rectificacion = (
+                    self.fact_rect_emit['FacturaExpedida']
+                    ['ImporteRectificacion']
+                )
+
+            with it('la BaseRectificada debe ser 0'):
+                expect(
+                    self.importe_rectificacion['BaseRectificada']
+                ).to(equal(0))
+
+            with it('la CuotaRectificada debe ser 0'):
+                expect(
+                    self.importe_rectificacion['CuotaRectificada']
+                ).to(equal(0))
+
+        with context('en los detalles del IVA'):
+            with before.all:
+                detalle_iva = (
+                    self.fact_rect_emit['FacturaExpedida']['TipoDesglose']
+                    ['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']
+                    ['DetalleIVA']
+                )
+                self.grouped_detalle_iva = group_by_tax_rate(
+                    detalle_iva, in_invoice=False
+                )
+
+            with it('la BaseImponible debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[5.0]['BaseImponible']
+                ).to(equal(
+                    self.out_refund.tax_line[0].base
+                ))
+            with it('la CuotaRepercutida debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[5.0]['CuotaRepercutida']
+                ).to(equal(
+                    -1 * abs(self.out_refund.tax_line[0].tax_amount)
+                ))
+            with it('el TipoImpositivo debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[5.0]['TipoImpositivo']
+                ).to(equal(
+                    self.out_refund.tax_line[0].tax_id.amount * 100
+                ))
+
+    with description('en los datos de una factura rectificativa de una rectificativa emitida iva 5%'):
+        with before.all:
+            self.out_refund, self.out_b_inovice = self.data_gen.get_out_refund_invoice_iva5_multi()
+            self.out_refund_obj = SII(self.out_refund).generate_object()
+            self.out_b_inovice_obj = SII(self.out_b_inovice).generate_object()
+            self.fact_rect_emit = (
+                self.out_refund_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+            self.fact_refund_emit = (
+                self.out_b_inovice_obj['SuministroLRFacturasEmitidas']
+                ['RegistroLRFacturasEmitidas']
+            )
+        with context('en los datos de abonadora'):
+            with it('la FechaOperacion debe ser por factura original'):
+                expect(
+                    self.fact_refund_emit['FacturaExpedida']['FechaOperacion']
+                ).to(equal('01-01-2023'))
+        with context('en los datos de rectificación'):
+            with it('la FechaOperacion debe ser por factura original'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida']['FechaOperacion']
+                ).to(equal('01-01-2023'))
+
     with description('en los datos de una factura rectificativa de una rectificativa emitida'):
         with before.all:
             self.out_refund, self.out_b_inovice = self.data_gen.get_out_refund_mulitple_invoice()
@@ -1007,16 +1180,14 @@ with description('El XML Generado'):
             )
         with context('en los datos de abonadora'):
             with it('la FechaOperacion debe ser por factura original'):
-                pass
-                # expect(
-                #     self.fact_refund_emit['FacturaExpedida']['FechaOperacion']
-                # ).to(equal('07-12-2023'))
+                expect(
+                    self.fact_refund_emit['FacturaExpedida'].get('FechaOperacion', False)
+                ).to(equal(False))
         with context('en los datos de rectificación'):
-            with it('la FechaOperacion debe ser por factura original'):
-                pass
-                # expect(
-                #     self.fact_rect_emit['FacturaExpedida']['FechaOperacion']
-                # ).to(equal('07-12-2023'))
+            with it('la FechaOperacion NO debe existir'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida'].get('FechaOperacion', False)
+                ).to(equal(False))
 
     with description('en los datos de una factura rectificativa recibida'):
         with before.all:

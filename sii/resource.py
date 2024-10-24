@@ -10,6 +10,7 @@ from datetime import date
 
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
 
+TIPO_IMPOSITIVA_NO_VIGENTES = {'5.00': '2024-09-30'}
 
 def is_inversion_sujeto_pasivo(tax_name):
     regex_isp = r'inv.*sujeto pasivo'
@@ -342,10 +343,6 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
     rectificativa_fields = {
         'TipoRectificativa': 'S' # Por sustitución
     }
-    
-    if 'out_' in invoice.type:
-        pass
-        #rectificativa_fields['FechaOperacion'] = get_fecha_operacion_rec(invoice)
 
     if opcion == 1:
         factura_rectificada = invoice.rectifying_id
@@ -434,11 +431,24 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         factura_expedida['DatosInmueble'] = {
             'DetalleInmueble': detalle_inmueble
         }
+
+    DetalleIVA = factura_expedida['TipoDesglose'].get(
+        'DesgloseFactura', {}).get('Sujeta', {}).get('NoExenta', {}).get(
+        'DesgloseIVA', {}).get('DetalleIVA', [])
+    tipo_impositivo_no_vigente = False
+    if DetalleIVA:
+        for detalle in DetalleIVA:
+            tipo_imp_detalle = '{}'.format(detalle.get('TipoImpositivo', None))
+            if tipo_imp_detalle in TIPO_IMPOSITIVA_NO_VIGENTES:
+                tipo_impositivo_no_vigente = TIPO_IMPOSITIVA_NO_VIGENTES[tipo_imp_detalle]
+                break
+
     if invoice.rectificative_type in ('A', 'B'):
-        pass
-        # factura_expedida.update(
-        #     {'FechaOperacion': get_fecha_operacion_rec(invoice)}
-        # )
+        if tipo_impositivo_no_vigente:
+            if invoice.date_invoice >  tipo_impositivo_no_vigente:
+                factura_expedida.update(
+                    {'FechaOperacion': get_fecha_operacion_rec(invoice)}
+                )
     if rectificativa:
         opcion = 0
         if rect_sust_opc1:
@@ -446,7 +456,12 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         elif rect_sust_opc2:
             opcion = 2
         vals = get_fact_rect_sustitucion_fields(invoice, opcion=opcion)
-
+        if opcion == 2:
+            if tipo_impositivo_no_vigente:
+                if invoice.date_invoice > tipo_impositivo_no_vigente:
+                    factura_expedida.update(
+                        {'FechaOperacion': get_fecha_operacion_rec(invoice)}
+                    )
         fact_rect = invoice.rectifying_id
         if fact_rect and fact_rect.sii_registered:
             numero_factura = fact_rect.number
