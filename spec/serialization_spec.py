@@ -1008,6 +1008,15 @@ with description('El XML Generado'):
                 expect(
                      self.fact_refund_emit['FacturaExpedida']['FechaOperacion']
                 ).to(equal('01-01-2023'))
+            with it('la TipoRectificativa debe ser S'):
+                expect(
+                    self.fact_refund_emit['FacturaExpedida']['TipoRectificativa']
+                ).to(equal('S'))
+            with it('la TipoFactura tiene que ser R4'):
+                expect(
+                    self.fact_refund_emit['FacturaExpedida'][
+                        'TipoFactura']
+                ).to(equal('R4'))
         with context('en los datos de rectificación'):
             with it('el TipoRectificativa debe ser por sustitución (S)'):
                 expect(
@@ -1084,6 +1093,14 @@ with description('El XML Generado'):
                      self.fact_refund_emit['FacturaExpedida'].get(
                          'FechaOperacion', False)
                 ).to(equal(False))
+            with it('la TipoRectificativa NO debe ser informado'):
+                expect(
+                    self.fact_refund_emit['FacturaExpedida'].get('TipoRectificativa',False)
+                ).to(equal(False))
+            with it('la TipoFactura tiene que ser F1'):
+                expect(
+                    self.fact_refund_emit['FacturaExpedida'].get('TipoFactura', False)
+                ).to(equal('F1'))
         with context('en los datos de rectificación'):
             with it('el TipoRectificativa debe ser por sustitución (S)'):
                 expect(
@@ -1094,6 +1111,15 @@ with description('El XML Generado'):
                 expect(
                     self.fact_rect_emit['FacturaExpedida'].get('FechaOperacion', False)
                 ).to(equal(False))
+            with it('la TipoRectificativa debe ser S'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida'].get('TipoRectificativa',False)
+                ).to(equal('S'))
+            with it('la TipoFactura tiene que ser R4'):
+                expect(
+                    self.fact_rect_emit['FacturaExpedida'][
+                        'TipoFactura']
+                ).to(equal('R4'))
 
             with before.all:
                 self.importe_rectificacion = (
@@ -1159,6 +1185,15 @@ with description('El XML Generado'):
                 expect(
                     self.fact_refund_emit['FacturaExpedida']['FechaOperacion']
                 ).to(equal('01-01-2023'))
+            with it('la TipoRectificativa debe ser S'):
+                expect(
+                    self.fact_refund_emit['FacturaExpedida']['TipoRectificativa']
+                ).to(equal('S'))
+            with it('la TipoFactura tiene que ser R4'):
+                expect(
+                    self.fact_refund_emit['FacturaExpedida'][
+                        'TipoFactura']
+                ).to(equal('R4'))
         with context('en los datos de rectificación'):
             with it('la FechaOperacion debe ser por factura original'):
                 expect(
