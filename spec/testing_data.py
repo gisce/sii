@@ -430,7 +430,7 @@ class DataGenerator:
         )
         return r_invoice, b_invoice
 
-    def get_out_refund_invoice_iva5(self, fecha_facturas_recti=None):
+    def get_out_refund_invoice_iva5(self, fecha_facturas_recti=None, sii_non_current_tax_rate='R4'):
         journal = Journal(
             name=u'Factura de Energía Rectificativa Emitida'
         )
@@ -482,6 +482,7 @@ class DataGenerator:
             fiscal_position=self.fiscal_position,
             sii_description=self.sii_description,
             sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+            sii_non_current_tax_rate=sii_non_current_tax_rate
         )
 
         r_invoice = Invoice(
@@ -504,6 +505,7 @@ class DataGenerator:
             fiscal_position=self.fiscal_position,
             sii_description=self.sii_description,
             sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+            sii_non_current_tax_rate = sii_non_current_tax_rate
         )
         b_invoice = Invoice(
             invoice_type='out_refund',
@@ -525,6 +527,7 @@ class DataGenerator:
             fiscal_position=self.fiscal_position,
             sii_description=self.sii_description,
             sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+            sii_non_current_tax_rate=sii_non_current_tax_rate
         )
         return r_invoice, b_invoice
 
