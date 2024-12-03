@@ -447,10 +447,16 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         if tipo_impositivo_no_vigente:
             if invoice.date_invoice >  tipo_impositivo_no_vigente:
                 factura_expedida.update(
-                    {'FechaOperacion': get_fecha_operacion_rec(invoice),
-                    'TipoRectificativa': 'S',
-                    'TipoFactura': 'R4'
-                })
+                    {
+                        'FechaOperacion': get_fecha_operacion_rec(invoice),
+                        'TipoRectificativa': 'S',
+                        'TipoFactura': 'R4',
+                        'ImporteRectificacion': {
+                            'BaseRectificada': 0,
+                            'CuotaRectificada': 0
+                        }
+                    }
+                )
     if rectificativa:
         opcion = 0
         if rect_sust_opc1:
