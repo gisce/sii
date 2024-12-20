@@ -43,7 +43,8 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
         'iva_no_exento': False,
         'detalle_iva_exento': {'BaseImponible': 0},
         'importe_no_sujeto': 0,
-        'inversion_sujeto_pasivo': []
+        'inversion_sujeto_pasivo': [],
+        'factura_retencion': False
     }
 
     # iva_values es un diccionario que agrupa los valores del IVA por el tipo
@@ -67,6 +68,10 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     invoice_total = sign * invoice.amount_total
 
     for inv_tax in invoice.tax_line:
+        if ' IRPF ' in inv_tax.name.upper():
+            invoice_total -= (inv_tax.tax_amount)
+            vals['factura_retencion'] = True
+            continue
         if 'iva' in inv_tax.name.lower():
             base_iva = inv_tax.base
             base_imponible = sign * base_iva
@@ -149,6 +154,15 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
             vals['detalle_iva'].append(new_value)
 
     return vals
+
+def get_total_factura_retencion(invoice):
+    total_retencion = Decimal('0.0')
+    sign = get_invoice_sign(invoice)
+    for inv_tax in invoice.tax_line:
+        if 'iva' in inv_tax.name.lower():
+            total_retencion += inv_tax.base
+            total_retencion += sign * inv_tax.tax_amount
+    return total_retencion
 
 
 def get_partner_info(fiscal_partner, in_invoice, nombre_razon=False):
@@ -564,6 +578,8 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         # Fecha registro contable: Fecha del envío.
         fecha_reg_contable = date.today().strftime('%Y-%m-%d')
         cuota_deducible = 0  # Cuota deducible: Etiqueta con 0
+    if iva_values.get('factura_retencion'):
+        importe_total = get_total_factura_retencion(invoice)
 
     rectificativa = rect_sust_opc1 or rect_sust_opc2
     fiscal_partner = FiscalPartner(invoice)
