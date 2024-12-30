@@ -542,7 +542,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             detalle_iva.append(iva_values['detalle_iva_exento'])
 
         if iva_values['intracomunitarias']:
-            detalle_iva.append(iva_values['intracomunitarias'])
+            detalle_iva.extend(iva_values['intracomunitarias'])
             for iva in detalle_iva:
                 cuota_deducible += iva.get('CuotaSoportada', 0)
 

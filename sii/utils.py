@@ -56,7 +56,7 @@ class VAT:
         if not vat:
             return ''
         country_code = len(vat) >= 2 and vat[:2].upper()
-        if country_code in COUNTRY_CODES or country_code == 'PS':
+        if country_code == 'ES' or country_code == 'PS':
             return vat[2:]
         return vat
 
