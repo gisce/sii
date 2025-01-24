@@ -576,7 +576,7 @@ with description('El XML Generado'):
                     )
 
                 with it('el ID debe ser el NIF del emisor'):
-                    nif_emisor = self.in_invoice.partner_id.vat[2:]
+                    nif_emisor = self.in_invoice.partner_id.vat
                     expect(
                         self.emisor_factura['IDOtro']['ID']
                     ).to(equal(nif_emisor))
@@ -900,7 +900,7 @@ with description('El XML Generado'):
                     )
 
                 with it('el ID debe ser el NIF del emisor'):
-                    nif_emisor = self.in_invoice.partner_id.vat[2:]
+                    nif_emisor = self.in_invoice.partner_id.vat
                     expect(
                         self.emisor_factura['IDOtro']['ID']
                     ).to(equal(nif_emisor))
