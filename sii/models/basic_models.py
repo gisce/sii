@@ -112,7 +112,8 @@ class Invoice:
                  origin_date_invoice=None,
                  origin=None,
                  fiscal_name=None,
-                 fiscal_vat=None):
+                 fiscal_vat=None,
+                 sii_non_current_tax_rate='R4'):
         self.journal_id = journal_id
         self.number = number
         self.type = invoice_type
@@ -139,3 +140,18 @@ class Invoice:
         self.sii_out_clave_regimen_especial = sii_out_clave_regimen_especial
         self.rectificative_type = rectificative_type
         self.rectifying_id = rectifying_id
+        self.sii_non_current_tax_rate = sii_non_current_tax_rate
+
+    def get_values_taxes_non_current_tax_rate(self):
+        if self.sii_non_current_tax_rate == 'R4':
+            return {
+                'TipoRectificativa': 'S',
+                'TipoFactura': 'R4',
+                'ImporteRectificacion': {
+                    'BaseRectificada': 0,
+                    'CuotaRectificada': 0
+                }
+            }
+        else:
+            return {}
+        

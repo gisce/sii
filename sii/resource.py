@@ -10,6 +10,7 @@ from datetime import date
 
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}  # 'BRA': -1
 
+TIPO_IMPOSITIVA_NO_VIGENTES = {'5.00': '2024-09-30'}
 
 def is_inversion_sujeto_pasivo(tax_name):
     regex_isp = r'inv.*sujeto pasivo'
@@ -42,7 +43,8 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
         'iva_no_exento': False,
         'detalle_iva_exento': {'BaseImponible': 0},
         'importe_no_sujeto': 0,
-        'inversion_sujeto_pasivo': []
+        'inversion_sujeto_pasivo': [],
+        'factura_retencion': False
     }
 
     # iva_values es un diccionario que agrupa los valores del IVA por el tipo
@@ -66,6 +68,10 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     invoice_total = sign * invoice.amount_total
 
     for inv_tax in invoice.tax_line:
+        if ' IRPF ' in inv_tax.name.upper():
+            invoice_total -= (inv_tax.tax_amount)
+            vals['factura_retencion'] = True
+            continue
         if 'iva' in inv_tax.name.lower():
             base_iva = inv_tax.base
             base_imponible = sign * base_iva
@@ -148,6 +154,15 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
             vals['detalle_iva'].append(new_value)
 
     return vals
+
+def get_total_factura_retencion(invoice):
+    total_retencion = Decimal('0.0')
+    sign = get_invoice_sign(invoice)
+    for inv_tax in invoice.tax_line:
+        if 'iva' in inv_tax.name.lower():
+            total_retencion += inv_tax.base
+            total_retencion += sign * inv_tax.tax_amount
+    return total_retencion
 
 
 def get_partner_info(fiscal_partner, in_invoice, nombre_razon=False):
@@ -281,6 +296,12 @@ def get_factura_emitida_tipo_desglose(invoice):
 
     return tipo_desglose
 
+def get_fecha_operacion_rec(invoice):
+    if invoice.rectificative_type == 'N':
+        return invoice.date_invoice
+    else:
+        return get_fecha_operacion_rec(invoice.rectifying_id)
+
 
 def get_fact_rect_sustitucion_fields(invoice, opcion=False):
     """
@@ -329,7 +350,7 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
     :return:
     """
     rectificativa_fields = {
-        'TipoRectificativa': 'S'  # Por sustitución
+        'TipoRectificativa': 'S' # Por sustitución
     }
 
     if opcion == 1:
@@ -420,6 +441,28 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             'DetalleInmueble': detalle_inmueble
         }
 
+    DetalleIVA = factura_expedida['TipoDesglose'].get(
+        'DesgloseFactura', {}).get('Sujeta', {}).get('NoExenta', {}).get(
+        'DesgloseIVA', {}).get('DetalleIVA', [])
+    tipo_impositivo_no_vigente = False
+    if DetalleIVA:
+        for detalle in DetalleIVA:
+            tipo_imp_detalle = '{}'.format(detalle.get('TipoImpositivo', None))
+            if tipo_imp_detalle in TIPO_IMPOSITIVA_NO_VIGENTES:
+                tipo_impositivo_no_vigente = TIPO_IMPOSITIVA_NO_VIGENTES[tipo_imp_detalle]
+                break
+
+    if invoice.rectificative_type in ('A', 'B'):
+        if tipo_impositivo_no_vigente:
+            if invoice.date_invoice > tipo_impositivo_no_vigente:
+                factura_expedida.update(
+                    {
+                        'FechaOperacion': get_fecha_operacion_rec(invoice)
+                    }
+                )
+                extra_info = invoice.get_values_taxes_non_current_tax_rate()
+                if extra_info:
+                    factura_expedida.update(extra_info)
     if rectificativa:
         opcion = 0
         if rect_sust_opc1:
@@ -427,7 +470,12 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         elif rect_sust_opc2:
             opcion = 2
         vals = get_fact_rect_sustitucion_fields(invoice, opcion=opcion)
-
+        if opcion == 2:
+            if tipo_impositivo_no_vigente:
+                if invoice.date_invoice > tipo_impositivo_no_vigente:
+                    factura_expedida.update(
+                        {'FechaOperacion': get_fecha_operacion_rec(invoice)}
+                    )
         fact_rect = invoice.rectifying_id
         if fact_rect and fact_rect.sii_registered:
             numero_factura = fact_rect.number
@@ -525,6 +573,8 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         # Fecha registro contable: Fecha del envío.
         fecha_reg_contable = date.today().strftime('%Y-%m-%d')
         cuota_deducible = 0  # Cuota deducible: Etiqueta con 0
+    if iva_values.get('factura_retencion'):
+        importe_total = get_total_factura_retencion(invoice)
 
     rectificativa = rect_sust_opc1 or rect_sust_opc2
     fiscal_partner = FiscalPartner(invoice)
