@@ -44,7 +44,8 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
         'detalle_iva_exento': {'BaseImponible': 0},
         'importe_no_sujeto': 0,
         'inversion_sujeto_pasivo': [],
-        'factura_retencion': False
+        'factura_retencion': False,
+        'intracomunitarias': []
     }
 
     # iva_values es un diccionario que agrupa los valores del IVA por el tipo
@@ -68,6 +69,26 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
     invoice_total = sign * invoice.amount_total
 
     for inv_tax in invoice.tax_line:
+        if 'intracomunitar' in inv_tax.name.lower() and in_invoice:
+            base_iva = inv_tax.base
+            base_imponible = sign * base_iva
+            cuota = inv_tax.tax_amount
+            tipo_impositivo_unitario = inv_tax.tax_id.amount
+            tipo_impositivo = tipo_impositivo_unitario * 100
+
+            # Només haurem de tenir en compte les línies que siguin positives
+            if inv_tax.tax_id.amount < 0:
+                continue
+
+            vals['sujeta_a_iva'] = True
+            new_value = {
+                'BaseImponible': base_imponible,
+                'TipoImpositivo': tipo_impositivo,
+                'CuotaSoportada': cuota
+            }
+            vals['intracomunitarias'].append(new_value)
+            invoice_total -= base_imponible
+            continue
         if ' IRPF ' in inv_tax.name.upper():
             invoice_total -= (inv_tax.tax_amount)
             vals['factura_retencion'] = True
@@ -538,6 +559,11 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
 
         if iva_values['iva_exento']:
             detalle_iva.append(iva_values['detalle_iva_exento'])
+
+        if iva_values['intracomunitarias']:
+            detalle_iva.extend(iva_values['intracomunitarias'])
+            for iva in detalle_iva:
+                cuota_deducible += iva.get('CuotaSoportada', 0)
 
         desglose_factura = {  # TODO to change
             # 'InversionSujetoPasivo': {
