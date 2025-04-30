@@ -489,6 +489,14 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
                 extra_info = invoice.get_values_taxes_non_current_tax_rate()
                 if extra_info:
                     factura_expedida.update(extra_info)
+
+    if invoice.issued_by_others and invoice.type.startswith('out_'):
+        factura_expedida.update(
+            {
+                'EmitidaPorTerceroODestinatario': 'S'
+            }
+        )
+
     if rectificativa:
         opcion = 0
         if rect_sust_opc1:

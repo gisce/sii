@@ -245,6 +245,14 @@ with description('El XML Generado'):
             with it('el CodigoPais debe ser "ES"'):
                 expect(self.contraparte['IDOtro']['CodigoPais']).to(equal('ES'))
 
+        with context('si está emitida por terceros o destinatarios'):
+            with before.all:
+                expect(
+                    self.factura_emitida['FacturaExpedida']['EmitidaPorTerceroODestinatario']
+                ).to(equal(
+                    'S'
+                ))
+
         with context('en los detalles del IVA'):
             with before.all:
                 detalle_iva = (
