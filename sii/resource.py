@@ -187,25 +187,19 @@ def get_total_factura_retencion(invoice):
 
 
 def get_partner_info(fiscal_partner, in_invoice, nombre_razon=False):
-    vat_type = fiscal_partner.sii_get_vat_type()
+    vat_type, auto_vat = fiscal_partner.sii_get_vat_type()
     contraparte = {}
 
     partner_country = fiscal_partner.partner_country
     if nombre_razon:
         contraparte['NombreRazon'] = unidecode_str(fiscal_partner.name)
 
+    if auto_vat and vat_type == '07' and in_invoice:
+        vat_type = '02'
+
     if vat_type == '02':
-        if not fiscal_partner.aeat_registered and not in_invoice:
-            contraparte['IDOtro'] = {
-                'CodigoPais': partner_country.code,
-                'IDType': '07',
-                'ID': VAT.clean_vat(fiscal_partner.vat)
-            }
-        else:
-            contraparte['NIF'] = VAT.clean_vat(fiscal_partner.vat)
+        contraparte['NIF'] = VAT.clean_vat(fiscal_partner.vat)
     else:
-        if vat_type == '04' and partner_country.is_eu_member:
-            vat_type = '02'
         contraparte['IDOtro'] = {
             'CodigoPais': partner_country.code,
             'IDType': vat_type,
@@ -308,7 +302,8 @@ def get_factura_emitida_tipo_desglose(invoice):
         partner_vat_starts_with_n = (
             partner_vat and partner_vat.upper().startswith('N')
         )
-        has_id_otro = invoice.partner_id.sii_get_vat_type() != '02'
+        id_type, auto_vat = invoice.partner_id.sii_get_vat_type()
+        has_id_otro = id_type != '02'
         if has_id_otro or partner_vat_starts_with_n:
             tipo_desglose = {
                 'DesgloseTipoOperacion': {

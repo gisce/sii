@@ -36,14 +36,17 @@ class ResPartnerAddress:
 
 
 class Partner:
-    def __init__(self, name, nif, country, aeat_registered=True):
+    def __init__(self, name, nif, country, aeat_registered=True, auto_vat_type='00'):
         self.name = name
         self.vat = nif
         self.country_id = country
         self.aeat_registered = aeat_registered
+        self.auto_vat_type = auto_vat_type
 
     def sii_get_vat_type(self):
-        return VAT.sii_get_vat_type(self.vat)
+        return VAT.sii_get_vat_type(
+            self.vat, self.aeat_registered, self.auto_vat_type
+        )
 
 
 class Journal:
