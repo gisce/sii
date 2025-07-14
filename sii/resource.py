@@ -385,9 +385,11 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
             factura_rect_dict = fact_rectificadora_dict['SuministroLRFacturasRecibidas'][
                 'RegistroLRFacturasRecibidas']['FacturaRecibida']
             cuota_key = 'CuotaSoportada'
-            detalle_iva = factura_rect_dict.get(
-                'DesgloseFactura', {}).get('DesgloseIVA', {}).get(
-                'DetalleIVA', [])
+            desglosefra = factura_rect_dict.get('DesgloseFactura', {})
+            detalle_iva = desglosefra.get('DesgloseIVA', {}).get('DetalleIVA')
+            if not detalle_iva:
+                detalle_iva = desglosefra.get('InversionSujetoPasivo', {}).get(
+                    'DetalleIVA', [])
         else:
             factura_rect_dict = fact_rectificadora_dict['SuministroLRFacturasEmitidas'][
                 'RegistroLRFacturasEmitidas']['FacturaExpedida']
