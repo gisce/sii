@@ -212,6 +212,101 @@ class DataGenerator:
         )
         return invoice
 
+    def get_in_invoice_refound_with_isp(self, with_extra_lines=False):
+        journal = Journal(
+            name=u'Factura de Energía Rectificativa Recibida'
+        )
+
+        tax_iva_isp_compra_21 = Tax(
+            name='IVA 21% Inversión del sujeto pasivo',
+            amount=0.0, type='percent'
+        )
+        invoice_line = [
+            InvoiceLine(
+                price_subtotal=20.02,
+                invoice_line_tax_id=[tax_iva_isp_compra_21])
+        ]
+        base_iva_isp = sum(
+            [line.price_subtotal
+             for line in invoice_line]
+        )
+        tax_iva_isp_soportado_21 = Tax(
+            name='IVA 21% Inversión del sujeto pasivo (1)',
+            amount=0.21, type='percent'
+        )
+        tax_iva_isp_repercutido_21 = Tax(
+            name='IVA 21% Inversión del sujeto pasivo (1)',
+            amount=-0.21, type='percent'
+        )
+        invoice_tax_iva_isp_soportado_21 = InvoiceTax(
+            name=tax_iva_isp_soportado_21.name, base=base_iva_isp,
+            tax_amount=4.2,
+            tax_id=tax_iva_isp_soportado_21
+        )
+        tax_iva_isp_repercutido_21 = InvoiceTax(
+            name=tax_iva_isp_repercutido_21.name, base=base_iva_isp,
+            tax_amount=-4.2,
+            tax_id=tax_iva_isp_repercutido_21
+        )
+        tax_line_inversion_sujeto_pasivo = [
+            tax_iva_isp_repercutido_21, invoice_tax_iva_isp_soportado_21
+        ]
+        tax_lines = tax_line_inversion_sujeto_pasivo
+        invoice_lines = invoice_line
+        if with_extra_lines:
+            tax_lines += self.tax_line
+            invoice_lines += self.invoice_line
+
+        fra_original = Invoice(
+            invoice_type='in_invoice',
+            journal_id=journal,
+            rectificative_type='N',
+            rectifying_id=False,
+            number='FRecibRectificada{}'.format(self.invoice_number),
+            origin='FRectRecibRectificadaOrigen{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
+            period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
+            date_invoice=self.date_invoice,
+            tax_line=tax_lines,
+            invoice_line=invoice_lines,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+        )
+
+        invoice = Invoice(
+            invoice_type='in_refound',
+            journal_id=journal,
+            rectificative_type='R',
+            rectifying_id=fra_original,
+            number='FRectRecib{}'.format(self.invoice_number),
+            origin='FRectRecibOrigen{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=self.amount_total,
+            amount_untaxed=self.amount_untaxed,
+            amount_tax=self.amount_tax,
+            period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
+            date_invoice=self.date_invoice,
+            tax_line=tax_lines,
+            invoice_line=invoice_lines,
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description=self.sii_description,
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+        )
+        return invoice
+
+
     def get_in_invoice_without_period(self):
         journal = Journal(
             name=u'Factura de Energía Recibida'

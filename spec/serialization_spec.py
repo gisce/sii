@@ -1487,6 +1487,66 @@ with description('El XML Generado'):
                     self.in_refund.tax_line[0].tax_id.amount * 100
                 ))
 
+    with description('en los datos de una factura rectificativa recibida sujeto pasivo'):
+        with before.all:
+            self.in_refund = self.data_gen.get_in_invoice_refound_with_isp()
+            self.in_refund_obj = SII(self.in_refund).generate_object()
+            self.fact_rect_recib = (
+                self.in_refund_obj['SuministroLRFacturasRecibidas']
+                ['RegistroLRFacturasRecibidas']
+            )
+
+        with context('en los datos de rectificación'):
+            with it('el TipoRectificativa debe ser por sustitución (S)'):
+                expect(
+                    self.fact_rect_recib['FacturaRecibida']['TipoRectificativa']
+                ).to(equal('S'))
+
+            with before.all:
+                self.importe_rectificacion = (
+                    self.fact_rect_recib['FacturaRecibida']
+                    ['ImporteRectificacion']
+                )
+
+            with it('la BaseRectificada debe ser 0'):
+                expect(
+                    self.importe_rectificacion['BaseRectificada']
+                ).to(equal(0))
+
+            with it('la CuotaRectificada debe ser 0'):
+                expect(
+                    self.importe_rectificacion['CuotaRectificada']
+                ).to(equal(0))
+
+        with context('en los detalles del IVA'):
+            with before.all:
+                detalle_iva = (
+                    self.fact_rect_recib['FacturaRecibida']['DesgloseFactura']
+                    ['InversionSujetoPasivo']['DetalleIVA']
+                )
+                self.grouped_detalle_iva = group_by_tax_rate(
+                    detalle_iva, in_invoice=True
+                )
+
+            with it('la BaseImponible debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[21.0]['BaseImponible']
+                ).to(equal(
+                    20.02 # --- abs(self.in_refund.tax_line[0].base) * 1
+                ))
+            with it('la CuotaRepercutida debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[21.0]['CuotaSoportada']
+                ).to(equal(
+                    4.2 # --- abs(self.in_refund.tax_line[0].tax_amount) * 1
+                ))
+            with it('el TipoImpositivo debe ser la original'):
+                expect(
+                    self.grouped_detalle_iva[21.0]['TipoImpositivo']
+                ).to(equal(
+                    abs(self.in_refund.tax_line[0].tax_id.amount) * 100
+                ))
+
     with description('en los datos de una factura emitida rectificativa '
                      'sin anuladora RA'):
         with before.all:
