@@ -494,7 +494,11 @@ with description('El XML Generado'):
                     ['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']
                     ['DetalleIVA'][0]
                 )
-
+            with context('debe contener en IVA VALUES'):
+                with it('factura_retencion con retencio a True'):
+                    expect(self.detalle_iva_irpf_list['factura_retencion']).to(
+                        equal(True)
+                    )
             with context('debe contener'):
                 with it('solo la parte del IVA'):
                     tax_line_iva = None
@@ -504,17 +508,17 @@ with description('El XML Generado'):
                     expect(
                         self.detalle_iva_desglose_irpf['BaseImponible']
                     ).to(equal(
-                        tax_line_iva.base
+                        float(tax_line_iva.base)
                     ))
                     expect(
-                        Decimal('2400')
+                        1500.28
                     ).to(
                         equal(
                             self.detalle_iva_desglose_irpf['BaseImponible']
                         )
                     )
                     expect(
-                        Decimal('504')
+                        315.06
                     ).to(
                         equal(
                             self.detalle_iva_desglose_irpf['CuotaRepercutida']
@@ -524,10 +528,10 @@ with description('El XML Generado'):
                     expect(
                         self.detalle_iva_desglose_irpf['CuotaRepercutida']
                     ).to(equal(
-                        tax_line_iva.tax_amount
+                        float(tax_line_iva.tax_amount)
                     ))
                     expect(
-                        Decimal('21.0')
+                        21.0
                     ).to(
                         equal(
                             self.detalle_iva_desglose_irpf['TipoImpositivo']
