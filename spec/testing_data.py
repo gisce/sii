@@ -106,6 +106,9 @@ class DataGenerator:
         self.fiscal_position = FiscalPosition(
             name=u'Régimen Islas Canarias'
         )
+        self.fiscal_position_general = FiscalPosition(
+            name=u'Régimen General 2024'
+        )
         self.sii_description = u'Descripción de operación estándar'
         self.sii_in_clave_regimen_especial = '01'
         self.sii_out_clave_regimen_especial = '01'
@@ -1130,34 +1133,83 @@ class DataGenerator:
         )
 
         tax_iva_irpf_19 = Tax(
-            name='Retenciones IRPF 19%',
+            name='Retenciones a cuenta IRPF 19%',
             amount=-0.19, type='percent'
         )
         tax_iva_soportado_21 = Tax(
             name='21% IVA repercutido',
             amount=0.21, type='percent'
         )
-        invoice_line = [
+        invoice_lines = [
             InvoiceLine(
-                price_subtotal=2400.0,
+                price_subtotal=1500.28,
                 invoice_line_tax_id=[tax_iva_irpf_19, tax_iva_soportado_21])
         ]
         base_iva_irfp = sum(
             [line.price_subtotal
-             for line in invoice_line]
+             for line in invoice_lines]
         )
-        invoice_tax_iva_isp_soportado_21 = InvoiceTax(
+        invoice_tax_iva_soportado_21 = InvoiceTax(
             name=tax_iva_soportado_21.name, base=base_iva_irfp,
-            tax_amount=504.0,
+            tax_amount=315.06,
             tax_id=tax_iva_soportado_21
         )
         tax_iva_irpf_19 = InvoiceTax(
             name=tax_iva_irpf_19.name, base=base_iva_irfp,
-            tax_amount=-456.0,
+            tax_amount=-285.05,
+            tax_id=tax_iva_irpf_19
+        )
+        tax_lines = [
+            tax_iva_irpf_19, invoice_tax_iva_soportado_21
+        ]
+
+        invoice = Invoice(
+                invoice_type='out_invoice',
+                journal_id=journal,
+                rectificative_type='N',
+                rectifying_id=False,
+                number='FEmit{}'.format(self.invoice_number),
+                partner_id=self.partner_invoice,
+                fiscal_name=self.fiscal_name,
+                fiscal_vat=self.fiscal_vat,
+                address_contact_id=self.address_contact_id,
+                company_id=self.company,
+                amount_total=1530.29,
+                amount_untaxed=1500.28,
+                amount_tax=30.01,
+                period_id=self.period,
+                date_invoice=self.date_invoice,
+                tax_line=tax_lines,
+                invoice_line=invoice_lines,
+                sii_registered=self.sii_registered,
+                fiscal_position=self.fiscal_position_general,
+                sii_description=self.sii_description,
+                sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+            )
+        return invoice
+
+    def get_out_invoice_with_irfp_and_without_iva(self):
+        journal = Journal(
+            name=u'Factura de Energía emitida'
+        )
+
+        tax_iva_irpf_19 = Tax(
+            name='Retenciones a cuenta IRPF 19%',
+            amount=-0.19, type='percent'
+        )
+        invoice_line = [
+            InvoiceLine(
+                price_subtotal=1255.02,
+                invoice_line_tax_id=[tax_iva_irpf_19])
+        ]
+        base_irfp = 1255.02
+        tax_iva_irpf_19 = InvoiceTax(
+            name=tax_iva_irpf_19.name, base=base_irfp,
+            tax_amount=-238.45,
             tax_id=tax_iva_irpf_19
         )
         tax_line_inversion_sujeto_pasivo = [
-            tax_iva_irpf_19, invoice_tax_iva_isp_soportado_21
+            tax_iva_irpf_19
         ]
         tax_lines = tax_line_inversion_sujeto_pasivo
         invoice_lines = invoice_line
@@ -1173,15 +1225,15 @@ class DataGenerator:
                 fiscal_vat=self.fiscal_vat,
                 address_contact_id=self.address_contact_id,
                 company_id=self.company,
-                amount_total=self.amount_total,
-                amount_untaxed=self.amount_untaxed,
-                amount_tax=self.amount_tax,
+                amount_total=1016.57,
+                amount_untaxed=1255.02,
+                amount_tax=-238.45,
                 period_id=self.period,
                 date_invoice=self.date_invoice,
                 tax_line=tax_lines,
                 invoice_line=invoice_lines,
                 sii_registered=self.sii_registered,
-                fiscal_position=self.fiscal_position,
+                fiscal_position=self.fiscal_position_general,
                 sii_description=self.sii_description,
                 sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
             )

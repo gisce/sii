@@ -494,7 +494,11 @@ with description('El XML Generado'):
                     ['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']
                     ['DetalleIVA'][0]
                 )
-
+            with context('debe contener en IVA VALUES'):
+                with it('factura_retencion con retencio a True'):
+                    expect(self.detalle_iva_irpf_list['factura_retencion']).to(
+                        equal(True)
+                    )
             with context('debe contener'):
                 with it('solo la parte del IVA'):
                     tax_line_iva = None
@@ -504,17 +508,17 @@ with description('El XML Generado'):
                     expect(
                         self.detalle_iva_desglose_irpf['BaseImponible']
                     ).to(equal(
-                        tax_line_iva.base
+                        float(tax_line_iva.base)
                     ))
                     expect(
-                        Decimal('2400')
+                        1500.28
                     ).to(
                         equal(
                             self.detalle_iva_desglose_irpf['BaseImponible']
                         )
                     )
                     expect(
-                        Decimal('504')
+                        315.06
                     ).to(
                         equal(
                             self.detalle_iva_desglose_irpf['CuotaRepercutida']
@@ -524,10 +528,10 @@ with description('El XML Generado'):
                     expect(
                         self.detalle_iva_desglose_irpf['CuotaRepercutida']
                     ).to(equal(
-                        tax_line_iva.tax_amount
+                        float(tax_line_iva.tax_amount)
                     ))
                     expect(
-                        Decimal('21.0')
+                        21.0
                     ).to(
                         equal(
                             self.detalle_iva_desglose_irpf['TipoImpositivo']
@@ -537,6 +541,45 @@ with description('El XML Generado'):
                         self.detalle_iva_desglose_irpf['TipoImpositivo']
                     ).to(equal(
                         tax_line_iva.tax_id.amount * 100
+                    ))
+        
+        with context('en los detalles del IRPF SIN IVA'):
+            with before.all:
+                self.out_invoice_irpf = self.data_gen.get_out_invoice_with_irfp_and_without_iva()
+
+                self.out_invoice_obj = SII(self.out_invoice_irpf).generate_object()
+                self.factura_emitida = (
+                    self.out_invoice_obj['SuministroLRFacturasEmitidas']['RegistroLRFacturasEmitidas']
+                )
+                self.detalle_iva_irpf_list = get_iva_values(self.out_invoice_irpf, in_invoice=False)
+                self.detalle_iva_desglose_irpf = (
+                    self.factura_emitida['FacturaExpedida']['TipoDesglose']
+                    ['DesgloseFactura']
+                )
+                self.importe_total = self.factura_emitida['FacturaExpedida']['ImporteTotal']
+            with context('debe contener en IVA VALUES'):
+                with it('factura_retencion con retencio a True'):
+                    expect(self.detalle_iva_irpf_list['factura_retencion']).to(
+                        equal(True)
+                    )
+            with context('debe contener Desglose de Factura'):
+                with it('No Sujeta'):
+                    expect(
+                        self.detalle_iva_desglose_irpf.keys()[0]
+                    ).to(equal(
+                        'NoSujeta'
+                    ))
+                with it('el importe la suma de amount total + retenciones'):
+                    expect(
+                        self.detalle_iva_desglose_irpf['NoSujeta']['ImportePorArticulos7_14_Otros']
+                    ).to(equal(
+                        1255.02
+                    ))
+                with it('el importe Total del desglose la suma de amount total + retenciones'):
+                    expect(
+                        self.importe_total
+                    ).to(equal(
+                        1255.02
                     ))
 
     with description('en los datos de una factura recibida'):
