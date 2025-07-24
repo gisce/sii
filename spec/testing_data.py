@@ -112,6 +112,7 @@ class DataGenerator:
         self.sii_description = u'Descripción de operación estándar'
         self.sii_in_clave_regimen_especial = '01'
         self.sii_out_clave_regimen_especial = '01'
+        self.issued_by_others = 'S'
 
     def get_in_invoice(self):
         journal = Journal(
@@ -367,6 +368,7 @@ class DataGenerator:
                 fiscal_position=self.fiscal_position,
                 sii_description=self.sii_description,
                 sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+                issued_by_others=self.issued_by_others,
             )
         else:
             invoice = Invoice(
@@ -389,6 +391,7 @@ class DataGenerator:
                 fiscal_position=self.fiscal_position,
                 sii_description=self.sii_description,
                 sii_out_clave_regimen_especial=self.sii_out_clave_regimen_especial,
+                issued_by_others=self.issued_by_others,
             )
         return invoice
 
