@@ -176,7 +176,7 @@ def get_iva_values(invoice, in_invoice, is_export=False, is_import=False):
 
     return vals
 
-def get_total_factura_retencion(invoice):
+def get_total_factura_retencion_recibidas(invoice):
     total_retencion = Decimal('0.0')
     sign = get_invoice_sign(invoice)
     for inv_tax in invoice.tax_line:
@@ -184,6 +184,14 @@ def get_total_factura_retencion(invoice):
             total_retencion += inv_tax.base
             total_retencion += sign * inv_tax.tax_amount
     return total_retencion
+
+def get_total_factura_irpf(invoice):
+    sign = get_invoice_sign(invoice)
+    invoice_total = sign * invoice.amount_total
+    for inv_tax in invoice.tax_line:
+        if ' IRPF ' in inv_tax.name.upper():
+            invoice_total -= (inv_tax.tax_amount)
+    return invoice_total
 
 
 def get_partner_info(fiscal_partner, in_invoice, nombre_razon=False):
@@ -315,7 +323,7 @@ def get_factura_emitida_tipo_desglose(invoice):
                 'DesgloseFactura': desglose
             }
 
-    return tipo_desglose
+    return {'tipo_desglose': tipo_desglose, 'iva_values': iva_values}
 
 def get_fecha_operacion_rec(invoice):
     if invoice.rectificative_type == 'N':
@@ -418,16 +426,21 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
     article = invoice.journal_id.article
 
     fiscal_partner = FiscalPartner(invoice)
-
+    info_desglose = get_factura_emitida_tipo_desglose(invoice)
+    iva_values = info_desglose['iva_values']
+    if iva_values.get('factura_retencion'):
+        importe_total = get_total_factura_irpf(invoice)
+    else:
+        importe_total = get_invoice_sign(invoice) * invoice.amount_total
     factura_expedida = {
         'TipoFactura': get_tipus_factura_emitida(article, rectificativa),
         'ClaveRegimenEspecialOTrascendencia':
             invoice.sii_out_clave_regimen_especial,
-        'ImporteTotal': get_invoice_sign(invoice) * invoice.amount_total,
+        'ImporteTotal': importe_total,
         'DescripcionOperacion': invoice.sii_description,
         'Contraparte': get_partner_info(
             fiscal_partner, in_invoice=False, nombre_razon=True),
-        'TipoDesglose': get_factura_emitida_tipo_desglose(invoice)
+        'TipoDesglose': info_desglose['tipo_desglose']
     }
 
     # Si la factura es una operación de arrendamiento
@@ -600,7 +613,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         fecha_reg_contable = date.today().strftime('%Y-%m-%d')
         cuota_deducible = 0  # Cuota deducible: Etiqueta con 0
     if iva_values.get('factura_retencion'):
-        importe_total = get_total_factura_retencion(invoice)
+        importe_total = get_total_factura_irpf(invoice)
 
     rectificativa = rect_sust_opc1 or rect_sust_opc2
     fiscal_partner = FiscalPartner(invoice)
