@@ -326,7 +326,7 @@ def get_factura_emitida_tipo_desglose(invoice):
     return {'tipo_desglose': tipo_desglose, 'iva_values': iva_values}
 
 def get_fecha_operacion_rec(invoice):
-    if invoice.rectificative_type == 'N':
+    if invoice.rectificative_type in ('N', 'C') or not invoice.rectifying_id:
         return invoice.date_invoice
     else:
         return get_fecha_operacion_rec(invoice.rectifying_id)
