@@ -599,7 +599,7 @@ class DetalleFacturaEmitida(DetalleFactura):
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
     DatosInmueble = fields.Nested(DatosInmueble)  # TODO obligatorio si ClaveRegimenEspecialOTranscedencia= “12” o “13”
-    EmitidaPorTerceroODestinatario = CustomStringField()
+    EmitidaPorTercerosODestinatario = CustomStringField()
 
     def validate_clave_regimen_especial_o_trascendencia(self, value):
         self.validate_field_is_one_of(

@@ -248,7 +248,7 @@ with description('El XML Generado'):
         with context('si está emitida por terceros o destinatarios'):
             with before.all:
                 expect(
-                    self.factura_emitida['FacturaExpedida']['EmitidaPorTerceroODestinatario']
+                    self.factura_emitida['FacturaExpedida']['EmitidaPorTercerosODestinatario']
                 ).to(equal(
                     'S'
                 ))

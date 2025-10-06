@@ -493,7 +493,7 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
     if invoice.issued_by_others and invoice.get_notify_issued_by_others() and invoice.type.startswith('out_'):
         factura_expedida.update(
             {
-                'EmitidaPorTerceroODestinatario': 'S'
+                'EmitidaPorTercerosODestinatario': 'S'
             }
         )
 
