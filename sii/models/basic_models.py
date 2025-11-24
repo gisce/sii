@@ -113,6 +113,7 @@ class Invoice:
                  origin=None,
                  fiscal_name=None,
                  fiscal_vat=None,
+                 issued_by_others=None,
                  sii_non_current_tax_rate='R4'):
         self.journal_id = journal_id
         self.number = number
@@ -141,6 +142,7 @@ class Invoice:
         self.rectificative_type = rectificative_type
         self.rectifying_id = rectifying_id
         self.sii_non_current_tax_rate = sii_non_current_tax_rate
+        self.issued_by_others = issued_by_others
 
     def get_values_taxes_non_current_tax_rate(self):
         if self.sii_non_current_tax_rate == 'R4':
@@ -154,4 +156,10 @@ class Invoice:
             }
         else:
             return {}
+    
+    def get_notify_issued_by_others(self):
+        if self.issued_by_others:
+            return True
+        else:
+            return False
         

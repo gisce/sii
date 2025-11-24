@@ -24,6 +24,8 @@ TIPO_NO_EXENTA_VALUES = ['S1', 'S2', 'S3']
 
 TIPO_RECTIFICATIVA_VALUES = ['S', 'I']
 
+EMITIDA_POR_TERCEROS_O_DESTINATARIO_VALUES = ['S', 'N']
+
 CODIGO_PAIS_VALUES = [
     'AF', 'AL', 'DE', 'AD', 'AO', 'AI', 'AQ', 'AG', 'SA', 'DZ', 'AR', 'AM',
     'AW', 'AU', 'AT', 'AZ', 'BS', 'BH', 'BD', 'BB', 'BE', 'BZ', 'BJ', 'BM',
@@ -597,11 +599,18 @@ class DetalleFacturaEmitida(DetalleFactura):
     TipoDesglose = fields.Nested(TipoDesglose, required=True)
     Contraparte = fields.Nested(Contraparte)  # TODO obligatorio si TipoFactura no es F2 ni F4
     DatosInmueble = fields.Nested(DatosInmueble)  # TODO obligatorio si ClaveRegimenEspecialOTranscedencia= “12” o “13”
+    EmitidaPorTercerosODestinatario = CustomStringField()
 
     def validate_clave_regimen_especial_o_trascendencia(self, value):
         self.validate_field_is_one_of(
             value=value, choices=sorted(dict(CRE_FACTURAS_EMITIDAS).keys()),
             field_name='Clave de Regimen Especial para Facturas Emitidas'
+        )
+
+    def validate_emitida_por_tecero_o_destinatario(self, value):
+        self.validate_field_is_one_of(
+            value=value, choices=EMITIDA_POR_TERCEROS_O_DESTINATARIO_VALUES,
+            field_name='Emitida Por Terceros O Destinatario'
         )
 
 
