@@ -153,4 +153,10 @@ class Invoice:
             }
         else:
             return {}
+    
+    def get_notify_issued_by_others(self):
+        if self.issued_by_others:
+            return True
+        else:
+            return False
         
