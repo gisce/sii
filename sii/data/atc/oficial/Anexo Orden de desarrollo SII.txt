@@ -1,0 +1,3377 @@
+ANEXO
+ESPECIFICACIONES TÉCNICAS DEL CONTENIDO DE LOS LIBROS REGISTRO DE IGIC LLEVADOS A TRAVÉS DE LA SEDE
+ELECTRÓNICA DE LA AGENCIA TRIBUTARIA CANARIA
+Leyenda
+
+Rojo=
+Negro=
+Fondo amarillo =
+
+I.
+
+Campo obligatorio
+Campo opcional
+Campo de Selección
+Modificaciones con efectos 1 de octubre 2025
+
+CAMPOS DE REGISTRO Y ESPECIFICACIONES FUNCIONALES DE LOS MENSAJES DE ALTA Y MODIFICACION.
+
+La información a suministrar se remitirá asociada a alguno de los tipos de libros registro que se citan a continuación o, en su caso, si se califica como una
+operación con trascendencia tributaria.
+1.
+2.
+3.
+4.
+
+Libro de registro de Facturas expedidas
+Libro de registro de Facturas Recibidas
+Libro de registro de Bienes de Inversión
+Suministro de otras Operaciones de trascendencia tributaria con carácter anual.
+4.1. Operaciones en metálico (Importes superiores a 6.000 euros que se hubieran percibido en metálico durante el ejercicio de una misma persona
+o entidad)
+4.2. Agencias de viajes. (Prestaciones de servicios en cuya realización intervienen actuando como mediadoras en nombre y por cuenta ajena a las
+que se refiere el apartado 7.b) de la disposición adicional cuarta del Real Decreto 1619/2012, de 30 de noviembre)
+
+A continuación, se incluye una descripción de cada uno de los campos de registro integrados en los mensajes informáticos en que se concreta el contenido de
+los libros registro del Impuesto General Indirecto Canario llevados a través de la Sede electrónica de la Agencia Tributaria Canaria para operaciones de alta y
+modificación. En el caso de operaciones de baja de facturas, la petición se realizará mediante un mensaje informático específico para bajas, que contendrá una
+
+cabecera común y la relación de todas las facturas que se quieran dar de baja en un mismo envío, con la identificación de cada factura y del ejercicio y periodo
+de la baja de cada factura:
+
+1.
+
+BLOQ
+UE
+
+Libro de registro de Facturas expedidas
+
+DATOS/
+
+DATOS/
+
+DATOS/
+
+DATOS/
+
+AGRUPA
+CIÓN
+
+AGRUPA
+CIÓN
+
+AGRUPA
+CIÓN
+
+AGRUPA
+CIÓN
+
+DATOS
+
+DESCRIPCIÓN
+
+AGRUP
+ACIÓN
+
+FORMATO
+LONGITUD
+LISTA
+
+Alfanumérico(3)
+L19
+
+Nombre-razón social
+del Titular del libro de
+registro de facturas
+expedidas
+
+Alfanumérico(1
+20)
+
+NIFRepres
+entante
+
+NIF del representante
+del titular del libro de
+registro
+
+FormatoNIF(9)
+
+NIF
+
+NIF asociado al titular
+del libro de registro
+
+FormatoNIF(9)
+
+NombreRa
+zon
+
+Titular
+
+AGR
+UPAC
+IÓN
+
+DATOS/
+
+Identificación de la
+versión del esquema
+utilizado para el
+intercambio de
+información
+
+IDVersion
+Sii
+
+Cabecer
+a
+
+DAT
+OS/
+
+TipoComu
+nicacion
+
+PeriodoLi
+quidacion
+
+Tipo de operación
+(alta, modificación)
+Ejercicio
+
+Ejercicio
+
+Periodo
+
+Periodo Liquidación
+
+NumSerieF
+acturaEmis
+or
+IDFactura
+
+FacturaEx
+pedida
+
+L0
+Numérico(4)
+Alfanumérico(2)
+
+IDEmisorF
+actura
+
+Registro
+LRfactu
+rasEmiti
+das
+
+Alfanumérico(2)
+
+NumSerieF
+acturaEmis
+orResumen
+Fin
+
+NIF
+
+NIF asociado al
+emisor de la factura.
+Nº Serie+Nº Factura
+que identifica a la
+factura emitida (en su
+caso primera factura
+del asiento resumen)
+Nº Serie+Nº Factura
+que identifica a la
+última factura cuando
+el Tipo de Factura es
+un asiento resumen de
+facturas
+
+L1
+FormatoNIF(9)
+
+Alfanumérico(6
+0)
+
+Alfanumérico(6
+0)
+
+FechaExpe
+dicionFact
+uraEmisor
+
+Fecha de expedición
+de la factura
+
+Fecha(dd-mmyyyy)
+Alfanumérico(2)
+
+TipoFactur
+a
+
+Especificación del tipo
+de factura: factura
+completa, factura
+simplificada, factura
+emitida en sustitución
+de facturas
+simplificadas, asiento
+
+L2_EMI
+
+TipoRectifi
+cativa
+
+FacturasAg IDFacturaA
+rupadas
+grupada
+
+FacturasRe
+ctificadas
+
+ImporteRe
+ctificacion
+
+IDFacturaR
+ectificada
+
+Base
+Rectificada
+Cuota
+Rectificada
+
+FechaOper
+acion
+
+NumSerieF
+acturaEmis
+or
+FechaExpe
+dicionFactu
+raEmisor
+NumSerieF
+acturaEmis
+or
+FechaExpe
+dicionFactu
+raEmisor
+
+resumen o factura
+rectificativa.
+Campo que identifica
+si el tipo de factura
+rectificativa es por
+sustitución o por
+diferencia
+Nº Serie+Nº Factura
+que identifica a la
+factura emitida
+Fecha de expedición
+de la factura
+
+Alfanumérico(1)
+L5
+
+Alfanumérico(6
+0)
+Fecha(dd-mmyyyy)
+
+Nº Serie+Nº Factura
+que identifica a la
+factura emitida
+Fecha de expedición
+de la factura
+
+Alfanumérico(6
+0)
+
+Base imponible de la
+factura/facturas
+sustituidas
+Cuota repercutida o
+soportada de la
+factura/facturas
+sustituidas
+Fecha en la que se ha
+realizado la operación
+siempre
+que
+sea
+
+Decimal(12,2)
+
+Fecha(dd-mmyyyy)
+
+Decimal(12,2)
+
+Fecha(dd-mmyyyy)
+
+diferente a la fecha de
+expedición
+ClaveRegi
+menEspeci
+alOTrascen
+dencia
+ClaveRegi
+menEspeci
+alOTrascen
+denciaAdic
+ional1
+ClaveRegi
+menEspeci
+alOTrascen
+denciaAdic
+ional2
+
+NumRegist
+roAutoriza
+cionFactur
+acion
+ImporteTot
+al
+BaseImpon
+ibleACoste
+
+Clave que identificará Alfanumérico(2)
+el tipo de régimen del
+L3.1
+IGIC o una operación
+con trascendencia
+tributaria
+Clave adicional que
+Alfanumérico(2)
+identificará el tipo de
+L3.1
+régimen del IGIC o
+una operación con
+trascendencia
+tributaria
+Clave adicional que
+Alfanumérico(2)
+identificará el tipo de
+L3.1
+operación o el régimen
+especial con
+trascendencia
+tributaria
+Número de registro
+Alfanumérico(1
+general obtenido al
+2)
+enviar por la sede
+electrónica de la ATC
+la autorización en
+materia de facturación
+o de libros de registro
+Importe total de la
+Decimal(12,2)
+factura
+Para grupos de IGIC
+Decimal(12,2)
+
+Descripcio
+nOperación
+
+Descripción del objeto
+de la factura
+
+Alfanumérico(5
+00)
+
+RefExterna
+
+Referencia Externa.
+Dato adicional de
+contenido libre
+enviado por algunas
+aplicaciones clientes
+(asiento contable, etc).
+
+Alfanumérico(6
+0)
+
+FacturaSim
+plificadaAr
+ticulos7.2_
+7.3
+
+Factura simplificada
+Articulo 7,2 Y 7,3 RD
+1619/2012.
+
+Alfanumérico(1)
+
+EntidadSuc
+edida
+
+L26
+
+Si no se informa este
+campo se entenderá
+que tiene valor “N
+NombreRa
+zon
+
+Nombre-razón social
+de la entidad sucedida
+como consecuencia de
+una operación de
+reestructuración
+
+Alfanumérico(1
+20)
+
+NIF
+
+NIF asociado a la
+entidad sucedida como
+consecuencia de una
+operación de
+reestructuración
+
+FormatoNIF(9)
+
+RegPrevio
+GGEEoRE
+DEME
+
+Identificador que
+Alfanumérico(1)
+especifica aquellos
+L28
+registros de
+facturación con
+dificultades para
+enviarse en plazo por
+no tener constancia del
+cambio de condición a
+GGEE o de la
+inclusión en
+REDEME
+Si no se informa este
+campo se entenderá
+que tiene valor “N”.
+Identificador que
+especifica aquellas
+facturas con importe
+de la factura superior a
+un umbral de
+100.000.000 euros.
+
+Macrodato
+
+DatosInmu
+eble
+
+DetalleInm
+ueble
+
+SituaciónIn
+mueble
+Referencia
+Catastral
+
+Si no se informa este
+campo se entenderá
+que tiene valor “N”.
+Identificador que
+especifica la situación
+del inmueble
+Referencia catastral
+del inmueble
+
+Alfanumérico(1)
+L29
+
+Numérico(1)
+L6
+Alfanumérico(2
+5)
+
+DatosArtic
+ulo25
+
+DetalleArti
+culo25
+
+PagoAntici
+padoArt25
+
+Identificador
+que Alfanumérico(1)
+especifica que se trata
+L31
+de un pago anticipado
+
+TipoBienA
+rt25
+
+Tipo de bien de Alfanumérico(2)
+inversión exento por
+L32
+artículo 25 L19/94
+
+IDDocume
+ntoArt25
+
+TipoD
+ocum
+Art25
+
+Tipo de documento en Alfanumérico(2)
+que
+conste
+la
+L33
+operación exenta por
+artículo 25 L19/94
+
+Numer
+oProto
+colo
+
+Número de protocolo Alfanumérico(6)
+de la escritura notarial
+en que conste la
+operación exenta por
+artículo 25 L19/94
+
+Apelli
+dosNo
+mbre
+Notari
+o
+
+Apellidos y nombre
+del
+notario
+que
+protocoliza
+la
+operación exenta por
+artículo 25 L19/94
+
+Alfanumérico(1
+20)
+
+ImporteTra
+nsmisionIn
+mueblesSuj
+etoAIGIC
+
+Importe percibido por
+transmisiones
+de
+inmuebles sujetas a
+IGIC
+
+Decimal(12,2)
+
+EmitidaPor
+TercerosO
+
+Identificador
+que Alfanumérico(1)
+especifica si la factura
+L10
+ha sido emitida por un
+
+Destinatari
+o
+
+tercero o por
+destinatario.
+
+el
+
+Si no se informa este
+campo se entenderá
+que tiene valor “N”.
+Facturacio
+nDispAdici
+onalTercer
+aYsextayD
+el Mercado
+Organizado
+DelGas
+
+Identificador
+que Alfanumérico(1)
+especifica si la factura
+L25
+ha sido emitida por un
+tercero de acuerdo a
+una
+exigencia
+normativa (disposición
+adicional tercera y
+sexta Reglamento por
+el que se regulan las
+obligaciones
+de
+facturación y del
+Mercado Organizado
+del Gas).
+Si no se informa este
+campo se entenderá
+que tiene valor “N”.
+
+VariosDest
+inatarios
+
+Identificador
+que Alfanumérico(1)
+especifica si la factura
+L20
+tiene
+varios
+destinatarios.
+
+Si no se informa este
+campo se entenderá
+que tiene valor “N”.
+Identificador
+que Alfanumérico(1)
+especifica si la factura
+L22
+tipo R1, R5 o F4 tiene
+minoración de la base
+imponible por la
+concesión de cupones,
+bonificaciones
+o
+descuentos
+cuando
+solo se expide el
+original de la factura.
+
+Cupon
+
+Si no se informa este
+campo se entenderá
+que tiene valor “N”.
+FacturaSinI
+dentifDesti
+natarioArit
+culo6.1.d
+
+Factura
+sin Alfanumérico(1)
+identificación
+L27
+destinatario artículo
+6.1.d) RD 1619/2012
+Si no se informa este
+campo se entenderá
+que tiene valor “N”.
+
+Contrapart
+e
+
+NombreRa
+zon
+
+Nombre-razón social
+de la contraparte de la
+operación (cliente) de
+facturas expedidas
+
+Alfanumérico(1
+20)
+
+NIF del representante FormatoNIF(9)
+de la contraparte de la
+operación
+Identificador del NIF
+contraparte de la FormatoNIF(9)
+operación (cliente) de
+facturas expedidas
+Código
+del
+país
+asociado contraparte Alfanumérico(2)
+(ISO 3166-1
+de
+la
+operación
+alpha-2
+codes)
+(cliente) de facturas
+L17
+expedidas
+
+NIFRepres
+entante
+
+NIF
+
+CodigoPais
+
+IDOtro
+
+Clave para establecer
+el
+tipo
+de Alfanumérico(2)
+identificación en el
+L4
+país de residencia
+
+IDType
+
+Número
+de
+identificación en el
+país de residencia
+
+ID
+
+Exenta
+TipoDesgl
+ose
+
+DesgloseFa
+ctura
+
+DetalleEx
+enta
+
+Sujeta
+NoExe
+nta
+
+TipoNoE
+xenta
+
+Alfanumérico(2
+0)
+
+CausaEx
+encion
+
+Campo que especifica Alfanumérico(2)
+la causa de la exención
+L9
+
+BaseImp
+onible
+
+Importe en euros Decimal(12,2)
+correspondiente a la
+causa de exención
+Tipo de operación
+Alfanumérico(2)
+sujeta y no exenta para
+L7
+la diferenciación de
+
+TipoImpositi
+vo
+
+DesgloseI
+GIC
+
+DetalleI
+GIC
+
+BaseImponi
+ble
+
+CuotaReperc
+utida
+Import
+ePorA
+rticulo
+s9_Otr
+os
+
+inversión de sujeto
+pasivo
+Porcentaje
+aplicado
+sobre
+la
+Base
+Imponible
+para
+calcular la cuota.
+Magnitud
+dineraria
+sobre la cual se aplica
+un determinado tipo
+impositivo
+Cuota resultante de
+aplicar a la base
+imponible
+un
+determinado
+tipo
+impositivo
+Importe en euros si la
+sujeción es por el art. 9
+Ley 20/1991 y otros
+
+Decimal(3,2)
+
+Decimal(12,2)
+
+Decimal(12,2)
+
+Decimal(12,2)
+
+NoSujeta
+Import
+eTAIR
+eglasL
+ocaliza
+cion
+PrestacionS
+ervicios
+
+Sujeta
+
+Importe en euros si la
+sujeción
+es
+por
+operaciones no sujetas
+en el TAI por reglas de
+localización
+Exenta
+
+DetalleE
+xenta
+
+CausaExenci
+on
+
+Decimal(12,2)
+
+Campo que especifica Alfanumérico(2)
+la causa de la exención
+L9
+
+BaseImponi
+ble
+
+TipoNo
+Exenta
+
+TipoImpositi
+vo
+NoExenta
+Desglos
+eIGIC
+
+DesgloseTi
+poOperacio
+n
+
+DetalleIGIC
+
+BaseImponibl
+e
+
+CuotaReperc
+utida
+ImporteP
+orArticulo
+s9_Otros
+NoSuj
+eta
+
+ImporteT
+AIReglas
+Localizaci
+on
+
+Importe en euros Decimal(12,2)
+correspondiente a la
+causa de exención
+Tipo de operación
+sujeta y no exenta para
+Alfanumérico(2)
+la diferenciación de
+L7
+inversión de sujeto
+pasivo
+Porcentaje
+aplicado
+Decimal(3,2)
+sobre
+la
+Base
+Imponible
+para
+calcular la cuota.
+Magnitud
+dineraria Decimal(12,2)
+sobre la cual se aplica
+un determinado tipo
+impositivo
+Cuota resultante de Decimal(12,2)
+aplicar a la base
+imponible
+un
+determinado
+tipo
+impositivo
+Importe en euros si la Decimal(12,2)
+sujeción es por el art. 9
+Ley 20/1991 y otros
+Importe en euros si la
+sujeción
+es
+por
+operaciones no sujetas
+en el TAI por reglas de
+localización
+
+Decimal(12,2)
+
+Exenta
+
+DetalleE
+xenta
+
+CausaExenci
+on
+
+Campo que especifica Alfanumérico(2)
+la causa de la exención
+L9
+
+BaseImponi
+ble
+
+Importe en euros Decimal(12,2)
+correspondiente a la
+causa de exención
+Tipo de operación
+sujeta y no exenta para
+Alfanumérico(2)
+la diferenciación de
+L7
+inversión de sujeto
+pasivo
+Porcentaje
+aplicado
+Decimal(3,2)
+sobre
+la
+Base
+Imponible
+para
+calcular la cuota.
+Magnitud
+dineraria Decimal(12,2)
+sobre la cual se aplica
+un determinado tipo
+impositivo
+Cuota resultante de Decimal(12,2)
+aplicar a la base
+imponible
+un
+determinado
+tipo
+impositivo
+Importe en euros si la Decimal(12,2)
+sujeción es por el art. 9
+Ley 20/1991 y otros
+
+TipoNo
+Exenta
+
+Sujeta
+Entrega
+
+TipoImpositi
+vo
+NoExenta
+Desglos
+eIGIC
+
+DetalleIGIC
+
+BaseImponibl
+e
+
+CuotaReperc
+utida
+
+NoSuj
+eta
+
+ImporteP
+orArticulo
+s9_Otros
+
+ImporteT
+AIReglas
+Localizaci
+on
+
+Operación
+sujeta
+AIEM
+
+Operación
+sujeta
+II.EE
+gestionado
+por la CAC
+
+Cuota resultante de
+aplicar a la base
+imponible
+un
+determinado
+tipo
+impositivo
+
+Cuota
+AIEM
+
+Clave del
+Impuesto
+especial
+
+Clave del
+impuesto
+especial (1,
+2 y 3)
+
+Exenta
+
+(S/N)
+
+Régimen
+suspensivo
+
+(S/N)
+
+Cuota II.EE
+CAC
+
+Importe en euros si la
+sujeción
+es
+por
+operaciones no sujetas
+en el TAI por reglas de
+localización
+
+Campo que especifica
+el impuesto especial
+
+Decimal(12,2)
+
+Decimal(12,2)
+
+Alfanumérico(1)
+L36
+
+Identificador
+que
+especifica
+si
+la
+operación está exenta. Alfanumérico(1)
+Si no se informa este
+L.37
+campo se entenderá
+que tiene valor “N”.
+Identificador
+que
+especifica
+si
+la
+operación está acogida
+a
+un
+régimen Alfanumérico(1)
+suspensivo.
+L.38
+Si no se informa este
+campo se entenderá
+que tiene valor “N”.
+Cuota resultante de
+Decimal(12,2)
+aplicar a la base
+
+imponible
+determinado
+impositivo
+
+un
+tipo
+
+En el caso de que los sujetos pasivos acogidos al régimen especial del criterio de caja debieran incluir en el libro registro de facturas
+expedidas información sobre los cobros, se deberá informar atendiendo a los siguientes campos de registro:
+BLOQUE
+
+DATOS/
+
+DATOS/
+
+DATOS/
+
+DATOS/
+
+AGRUPACIÓN
+
+AGRUPACIÓN
+
+AGRUP
+ACIÓN
+
+AGRUPACI
+ÓN
+
+NombreRazon
+
+FORMATO
+LONGITUD
+LISTA
+
+Identificación de la versión del esquema
+utilizado para el intercambio de
+información
+
+IDVersionSii
+
+Alfanumérico(3)
+L19
+
+Nombre-razón social del Titular del libro de
+registro de facturas expedidas
+
+Alfanumérico(120)
+
+NIFRepresentante
+
+NIF del representante del titular del libro de
+registro
+
+FormatoNIF(9)
+
+NIF
+
+NIF asociado al titular del libro de registro
+
+FormatoNIF(9)
+
+Identificador del NIF del emisor de la
+factura
+
+FormatoNIF(9)
+
+Cabecera
+Titular
+
+IDFactura
+
+DESCRIPCIÓN
+
+IDEmisorFactura
+
+NIF
+
+Nº Serie+Nº Factura que identifica a la
+factura emitida (en su caso primera factura
+del asiento resumen)
+
+NumSerieFacturaEmisor
+FechaExpedicionFacturaEmis
+or
+RegistroLRCo
+bros
+Cobros
+
+Cobro
+
+Fecha de expedición de la factura
+
+Alfanumérico(60)
+Fecha(dd-mmyyyy)
+Fecha(dd-mmyyyy)
+
+Fecha
+
+Fecha de realización del cobro
+
+Importe
+
+Importe cobrado
+
+Decimal(12,2)
+
+Medio
+
+Medio de cobro utilizado
+
+Alfanumérico(2)
+L11
+
+Cuenta_O
+_Medio
+
+Cuenta bancaria o medio de cobro utilizado
+
+Alfanumérico(34)
+
+En el caso de que los sujetos pasivos informen de más de quince números de referencias catastrales dentro de un mismo registro de
+facturación (arrendamientos de locales de negocio), el suministro de estas referencias se realizará atendiendo a los siguientes campos de
+registro:
+BLOQUE
+
+DATOS/
+
+DATOS/
+
+DATOS/
+
+DATOS/
+
+AGRUPACIÓN
+
+AGRUPACIÓN
+
+AGRUP
+ACIÓN
+
+AGRUPACI
+ÓN
+
+NombreRazon
+
+Alfanumérico(3)
+L19
+Alfanumérico(120)
+
+NIFRepresentante
+
+NIF del representante del titular del libro de
+registro
+
+FormatoNIF(9)
+
+NIF
+
+NIF asociado al titular del libro de registro
+
+FormatoNIF(9)
+
+Identificador del NIF del emisor de la
+factura
+Nº Serie+Nº Factura que identifica a la
+factura emitida (en su caso primera factura
+del asiento resumen)
+
+FormatoNIF(9)
+
+Titular
+
+IDEmisorFactura
+
+NIF
+
+NumSerieFacturaEmisor
+FechaExpedicionFacturaEmis
+or
+
+DatosInmueble
+
+LISTA
+
+Nombre-razón social del Titular del libro de
+registro de facturas expedidas
+
+Cabecera
+
+IDFactura
+
+FORMATO
+LONGITUD
+
+Identificación de la versión del esquema
+utilizado para el intercambio de
+información
+
+IDVersionSii
+
+RegistroLRIn
+mueblesAdicio
+nales
+
+DESCRIPCIÓN
+
+DetalleInmueble
+
+Fecha de expedición de la factura
+SituaciónI
+nmueble
+
+Identificador que especifica la situación del
+inmueble
+
+Alfanumérico(60)
+Fecha(dd-mmyyyy)
+Numérico(1)
+L6
+
+Referenci
+aCatastral
+
+2.
+
+Referencia catastral del inmueble
+
+Alfanumérico(25)
+
+Libro de registro de Facturas Recibidas
+
+BLOQU
+E
+
+DATOS/
+
+DATOS/
+
+DATOS/
+
+DATOS/
+
+AGRUPACIÓ
+N
+
+AGRUPACIÓN
+
+AGRUP
+ACIÓN
+
+AGRUPAC
+IÓN
+
+DESCRIPCIÓN
+
+FORMATO
+LONGITUD
+
+AGRU
+PACI
+ÓN
+
+LISTA
+
+Alfanumérico(3)
+L19
+
+Nombre-razón social del
+Titular del libro de registro
+de facturas recibidas
+
+Alfanumérico(120)
+
+NIFRepresentante
+
+NIF del representante del
+titular del libro de registro
+
+FormatoNIF(9)
+
+NIF
+
+NIF asociado al titular del
+libro de registro
+
+FormatoNIF(9)
+
+NombreRazon
+
+Titular
+
+DATOS
+
+Identificación
+de
+la
+versión del esquema
+utilizado
+para
+el
+intercambio
+de
+información
+
+IDVersionSii
+
+Cabecera
+
+DATO
+S/
+
+TipoComunicaci
+on
+
+PeriodoLiquidac
+ion
+
+Tipo de operación (alta,
+modificación)
+Ejercicio
+
+Ejercicio
+
+Periodo
+
+Periodo Liquidación
+
+Alfanumérico(2)
+L0
+Numérico(4)
+Alfanumérico(2)
+
+Identificador del NIF del
+emisor de la factura
+
+FormatoNIF(9)
+
+CodigoPais
+
+Código del país asociado
+al emisor de la factura
+
+Alfanumérico(2) (ISO 31661 alpha-2 codes)
+L17
+
+IDType
+
+Clave para establecer el
+tipo de identificación en el
+país de residencia
+
+Alfanumérico(2)
+L4
+
+ID
+
+Número de identificación
+en el país de residencia
+
+Alfanumérico(20)
+
+NIF
+
+IDEmisorFactura
+IDOtro
+
+RegistroL
+Rfacturas
+Recibidas
+IDFactura
+
+NumSerieFactura
+Emisor
+
+NumSerieFactura
+EmisorResumenF
+in
+
+L1
+
+Nº Serie+Nº Factura que
+identifica a la factura
+emitida (en su caso
+primera factura del asiento
+resumen)
+Nº Serie+Nº Factura que
+identifica a la última
+factura cuando el Tipo de
+Factura es un asiento
+resumen de facturas
+
+Alfanumérico(60)
+
+Alfanumérico(60)
+
+FechaExpedicion
+FacturaEmisor
+
+TipoFactura
+
+FacturaRecibida
+
+TipoRectificativa
+
+FacturasAgrupada
+s
+
+FacturasRectifica
+das
+
+IDFactura
+Agrupada
+
+IDFactura
+Rectificad
+a
+
+NumSerieFa
+cturaEmisor
+FechaExped
+icionFactura
+Emisor
+NumSerieFa
+cturaEmisor
+FechaExped
+icionFactura
+Emisor
+
+Fecha de expedición de la
+factura
+Especificación del tipo de
+factura: factura completa,
+factura
+simplificada,
+asiento
+resumen,
+importación y demás
+documentos justificativos
+del
+derecho
+a
+la
+deducción.
+La
+especificación de factura
+emitida en sustitución de
+facturas simplificadas o de
+factura rectificativa tienen
+carácter opcional.
+Campo que identifica si el
+tipo de factura rectificativa
+es por sustitución o por
+diferencia
+Nº Serie+Nº Factura que
+identifica a la factura
+emitida
+Fecha de expedición de la
+factura
+Nº Serie+Nº Factura que
+identifica a la factura
+emitida
+Fecha de expedición de la
+factura
+
+Fecha(dd-mm-yyyy)
+Alfanumérico(2)
+L2_RECI
+
+Alfanumérico(1)
+L5
+
+Alfanumérico(60)
+
+Fecha(dd-mm-yyyy)
+
+Alfanumérico(60)
+
+Fecha(dd-mm-yyyy)
+
+Base
+Rectificad
+a
+ImporteRectificac
+ion
+
+Cuota
+Rectificad
+a
+CargaImp
+ositivaIm
+plicitaRec
+tificada
+
+FechaOperación
+
+ClaveRegimenEs
+pecialOTrascende
+ncia
+ClaveRegimenEs
+pecialOTrascende
+nciaAdicional1
+
+ClaveRegimenEs
+pecialOTrascende
+nciaAdicional2
+
+Base imponible de la
+factura/facturas
+sustituidas
+Cuota
+repercutida
+o
+soportada
+de
+la
+factura/facturas
+sustituidas
+Carga impositiva implícita
+rectificada
+
+Decimal(12,2)
+
+Fecha en la que se ha
+realizado la operación
+siempre que sea diferente
+a la fecha de expedición.
+
+Fecha(dd-mm-yyyy)
+
+Clave que identificará el
+tipo de régimen del IGIC o
+una
+operación
+con
+trascendencia tributaria
+Clave
+adicional
+que
+identificará el tipo de
+régimen del IGIC o una
+operación
+con
+trascendencia tributaria
+Clave
+adicional
+que
+identificará el tipo de
+régimen del IGIC o una
+operación
+con
+trascendencia tributaria
+
+Alfanumérico(2)
+
+Decimal(12,2)
+
+Decimal(12,2)
+
+L3.2
+Alfanumérico(2)
+L3.2
+
+Alfanumérico(2)
+L3.2
+
+Número
+de
+registro
+general obtenido al enviar
+por la sede electrónica de
+la ATC la autorización en
+materia de facturación o
+de libros de registro
+Importe total de la factura
+
+NumRegistroAuto
+rizacionFacturaci
+on
+ImporteTotal
+
+Alfanumérico(12)
+
+Decimal(12,2)
+
+BaseImponibleA
+Coste
+DescripcionOpera
+cion
+RefExterna
+
+Para grupos de IGIC
+Descripción del objeto de
+la factura
+Referencia Externa. Dato
+adicional de contenido
+libre enviado por algunas
+aplicaciones
+clientes
+(asiento contable, etc.).
+
+Alfanumérico(500)
+
+FacturaSimplifica
+daArticulos7.2_7.
+3
+
+Factura
+simplificada
+Articulo 7,2 Y 7,3 RD
+1619/2012.
+
+Alfanumérico(1)
+
+Decimal(12,2)
+
+Alfanumérico(60)
+
+L26
+
+Si no se informa este
+campo se entenderá que
+tiene valor “N
+EntidadSucedida
+
+NombreR
+azon
+
+Nombre-razón social de la
+entidad sucedida como
+consecuencia de una
+operación
+de
+reestructuración
+
+Alfanumérico(120)
+
+NIF
+
+RegPrevioGGEEo
+REDEME
+
+NIF asociado a la entidad
+sucedida
+como
+consecuencia de una
+operación
+de
+reestructuración
+
+FormatoNIF(9)
+
+Identificador
+que
+especifica
+aquellos
+registros de facturación
+con dificultades para
+enviarse en plazo por no
+tener
+constancia
+del
+cambio de condición a
+GGEE o de la inclusión en
+REDEME
+
+Alfanumérico(1)
+L28
+
+Si no se informa este
+campo se entenderá que
+tiene valor “N”.
+Macrodato
+
+Identificador
+que
+especifica
+aquellas
+facturas con importe de la
+factura superior a un
+umbral de 100.000.000
+euros.
+Si no se informa este
+campo se entenderá que
+tiene valor “N”.
+
+Alfanumérico(1)
+L29
+
+DatosArticulo25
+
+DetalleAr
+ticulo25
+
+PagoAnticip
+adoArt25
+
+Identificador
+que
+especifica que se trata de
+un pago anticipado
+
+Alfanumérico(1)
+
+TipoBienArt
+25
+
+Tipo de bien de inversión
+exento por artículo 25
+L19/94
+
+Alfanumérico(2)
+
+TipoDo
+cumArt
+25
+
+Tipo de documento en que
+conste la operación exenta
+por artículo 25 L19/94
+
+Alfanumérico(2)
+
+Número de protocolo de la
+escritura notarial en que
+conste la operación exenta
+por artículo 25 L19/94
+
+Alfanumérico(6)
+
+Numer
+oProtoc
+olo
+Apellid
+osNom
+breNot
+ario
+
+Apellidos y nombre del
+notario que protocoliza la
+operación exenta por
+artículo 25 L19/94
+
+Alfanumérico(120)
+
+TipoIm
+positiv
+o
+BaseIm
+ponible
+
+Porcentaje aplicado sobre
+la Base Imponible para
+calcular la cuota
+Magnitud dineraria sobre
+la cual se aplica un
+determinado
+tipo
+impositivo
+Cuota resultante de aplicar
+a la base imponible un
+
+IDDocumen
+toArt25
+
+DetalleIGIC
+
+DesgloseFactura
+
+Inversion
+SujetoPas
+ivo
+
+CuotaS
+oportad
+a
+
+L31
+
+L32
+
+L33
+
+Decimal(3,2)
+
+Decimal(12,2)
+
+Decimal(12,2)
+
+BienIn
+version
+
+DetalleIGIC
+
+TipoIm
+positiv
+o
+BaseIm
+ponible
+
+CuotaS
+oportad
+a
+DesgloseI
+GIC
+
+CargaI
+mpositi
+vaImpli
+cita
+
+determinado
+tipo
+impositivo
+Identificador
+que
+especifica
+bien
+de
+inversión.
+Si no se informa este
+campo se entenderá que
+tiene valor “N”.
+Porcentaje aplicado sobre
+la Base Imponible para
+calcular la cuota.
+Magnitud dineraria sobre
+la cual se aplica un
+determinado
+tipo
+impositivo
+Cuota resultante de aplicar
+a la base imponible un
+determinado
+tipo
+impositivo
+Carga impositiva implícita
+
+Alfanumérico(1)
+L34
+
+Decimal(3,2)
+
+Decimal(12,2)
+
+Decimal(12,2)
+
+Decimal(12,2)
+
+CuotaR
+ecargo
+Minoris
+ta
+
+Cuota recargo minorista
+
+Decimal(12,2)
+
+Porcent
+Compe
+
+Porcentaje compensación
+Régimen Especial de la
+
+Decimal(3,2)
+
+NombreR
+azon
+
+Contraparte
+
+NIFRepre
+sentante
+
+NIF
+
+IDOtro
+
+CodigoPais
+
+nsacion
+REAG
+YP
+
+Agricultura, Ganadería y
+Pesca.
+
+Importe
+Compe
+nsacion
+REAG
+YP
+
+Compensación Régimen
+Especial de la Agricultura,
+Ganadería y Pesca.
+
+BienIn
+version
+
+Identificador
+que
+especifica
+bien
+de
+inversión.
+Si no se informa este
+campo se entenderá que
+tiene valor “N”.
+Nombre-razón social de la
+contraparte
+de
+la
+operación. Proveedor en
+facturas recibidas
+NIF del representante de la
+contraparte
+de
+la
+operación. Proveedor en
+facturas recibidas
+Identificador del NIF de la
+contraparte
+de
+la
+operación. Proveedor en
+facturas recibidas
+Código del país asociado
+de la contraparte de la
+
+Decimal(12,2)
+
+Alfanumérico(1)
+L34
+Alfanumérico(120)
+
+FormatoNIF(9)
+
+FormatoNIF(9)
+
+Alfanumérico(2) (ISO 31661 alpha-2 codes)
+L17
+
+operación. Proveedor en
+facturas recibidas
+Alfanumérico(2)
+L4
+
+ID
+
+Número de identificación
+en el país de residencia
+
+Alfanumérico(20)
+
+Fecha
+del
+registro
+contable de la operación.
+Se utilizará para el plazo
+de remisión de las facturas
+recibidas
+Cuota deducible
+
+FechaRegContabl
+e
+CuotaDeducible
+
+Identificador
+que
+especifica si la factura se
+deduce en un periodo
+posterior
+Si no se informa este
+campo se entenderá que
+tiene valor “N”.
+Ejercicio de deducción
+
+DeducirEnPeriod
+oPosterior
+
+EjercicioDeduccci
+on
+
+Periodo de deducción
+
+PeriodoDeduccio
+n
+Operación sujeta
+AIEM
+
+IDType
+
+Clave para establecer el
+tipo de identificación en el
+país de residencia
+
+Fecha(dd-mm-yyyy)
+
+Decimal(12,2)
+
+Alfanumérico(1)
+L35
+
+Numérico(4)
+Alfanumérico(2)
+L1
+
+Cuota
+AIEM
+
+Cuota resultante de aplicar
+a la base imponible un
+
+Decimal(12,2)
+
+determinado
+impositivo
+Clave del
+Impuesto
+especial
+
+Clave del
+impuesto
+especial (1,
+2 y 3)
+
+Exenta
+
+(S/N)
+
+Régimen
+suspensiv
+o
+
+(S/N)
+
+Operación sujeta
+II.EE gestionado
+por la CAC
+
+Cuota
+IIEE
+CAC
+
+tipo
+
+Campo que especifica el
+impuesto especial
+Identificador
+que
+especifica si la operación
+está exenta.
+Si no se informa este
+campo se entenderá que
+tiene valor “N”.
+Identificador
+que
+especifica si la operación
+está acogida a un régimen
+suspensivo.
+Si no se informa este
+campo se entenderá que
+tiene valor “N”.
+Cuota resultante de aplicar
+a la base imponible un
+determinado
+tipo
+impositivo
+
+Alfanumérico(1)
+L36
+
+Alfanumérico(1)
+L.37
+
+Alfanumérico(1)
+L.38
+
+Decimal(12,2)
+
+En el caso de que los sujetos pasivos acogidos al régimen especial del criterio de caja o los sujetos pasivos no acogidos a este régimen que sean
+destinatarios de las operaciones afectadas por el mismo debieran incluir en el libro registro de facturas recibidas información sobre los
+pagos, se deberá informar atendiendo a los siguientes campos de registro:
+
+BLOQUE
+
+DATOS/
+
+DATOS/
+
+DATOS/
+
+DATOS/
+
+AGRUPACIÓN
+
+AGRUPACIÓN
+
+AGRUP
+ACIÓN
+
+AGRUPACI
+ÓN
+
+NombreRazon
+
+LONGITUD
+LISTA
+Alfanumérico(3)
+L19
+
+Nombre-razón social del Titular del libro de
+registro de facturas recibidas
+
+Alfanumérico(120)
+
+NIFRepresentante
+
+NIF del representante del titular del libro de
+registro
+
+FormatoNIF(9)
+
+NIF
+
+NIF asociado al titular del libro de registro
+
+FormatoNIF(9)
+
+NombreR
+azon
+
+Nombre-razón social del emisor de la
+factura
+
+Alfanumérico(120)
+
+NIF
+
+Identificador del NIF del emisor de la
+factura
+
+Cabecera
+Titular
+
+IDFactura
+
+FORMATO
+
+Identificación de la versión del esquema
+utilizado para el intercambio de
+información
+
+IDVersionSii
+
+RegistroLRPa
+gos
+
+DESCRIPCIÓN
+
+CodigoPais
+
+IDEmisorFactura
+IDOtro
+
+IDType
+ID
+
+FormatoNIF(9)
+
+Código del país asociado a la contraparte de
+la factura
+
+Alfanumérico(2)
+(ISO 3166-1 alpha2 codes)
+L17
+
+Clave para establecer el tipo
+identificación en el país de residencia
+
+Alfanumérico(2)
+L4
+
+de
+
+Número de identificación en el país de
+residencia
+
+Alfanumérico(20)
+
+Nº Serie+Nº Factura que identifica a la
+factura emitida (en su caso primera factura
+del asiento resumen)
+
+NumSerieFacturaEmisor
+FechaExpedicionFacturaEmis
+or
+
+Pagos
+
+Pago
+
+Fecha de expedición de la factura
+
+Alfanumérico(60)
+Fecha(dd-mmyyyy)
+Fecha(dd-mmyyyy)
+
+Fecha
+
+Fecha de realización del pago
+
+Importe
+
+Importe pagado
+
+Decimal(12,2)
+
+Medio
+
+Medio de pago utilizado
+
+Alfanumérico(2)
+L11
+
+Cuenta_O
+_Medio
+
+Cuenta bancaria o medio de pago utilizado
+
+Alfanumérico(34)
+
+3.
+
+Libro de registro de Bienes de Inversión
+
+BLOQUE
+
+DATOS/
+
+DATOS/
+
+DATOS/
+
+DATOS/
+
+AGRUPACIÓN
+
+AGRUPACIÓN
+
+AGRUP
+ACIÓN
+
+AGRUPACI
+ÓN
+
+NombreRazon
+
+Alfanumérico(3)
+L19
+Alfanumérico(120)
+
+NIFRepresentante
+
+NIF del representante del titular del libro de
+registro
+
+FormatoNIF(9)
+
+NIF
+
+NIF asociado al titular del libro de registro
+
+FormatoNIF(9)
+
+Titular
+
+Alfanumérico(2)
+Tipo de operación (alta, modificación)
+L0
+Ejercicio
+
+Ejercicio del Libro registro de los bienes de
+inversión
+
+Periodo
+
+0A
+
+Debe informarse
+con valor “0A”
+
+Nombre-razón social del emisor de la
+factura asociada a los bienes de inversión
+
+Alfanumérico(120)
+
+PeriodoLiquidaci
+on
+
+IDFactura
+
+LISTA
+
+Nombre-razón social del Titular del libro de
+registro de bienes de inversión
+
+TipoComunicacio
+n
+RegistroLRBie
+nesInversion
+
+FORMATO
+LONGITUD
+
+Identificación de la versión del esquema
+utilizado para el intercambio de
+información
+
+IDVersionSii
+
+Cabecera
+
+DESCRIPCIÓN
+
+IDEmisorFactura
+
+NombreR
+azon
+
+Numérico(4)
+
+Identificador del NIF del emisor de la
+factura
+
+NIF
+CodigoPais
+IDOtro
+
+IDType
+ID
+
+NumSerieFacturaEmisor
+FechaExpedicionFacturaEmis
+or
+
+BienesInversion
+
+FormatoNIF(9)
+
+Código del país asociado al emisor de la
+factura
+
+Alfanumérico(2)
+(ISO 3166-1 alpha2 codes)
+L17
+
+Clave para establecer el tipo
+identificación en el país de residencia
+
+Alfanumérico(2)
+L4
+
+de
+
+Número de identificación en el país de
+residencia
+
+Alfanumérico(20)
+
+Nº Serie+Nº Factura que identifica a la
+factura emitida
+
+Alfanumérico(60)
+
+Fecha de expedición de la factura
+
+Fecha(dd-mmyyyy)
+Alfanumérico(40)
+
+IdentificacionBien
+
+Descripción de los bienes objeto de la
+operación
+
+FechaInicioUtilizacion
+
+Fecha de inicio de utilización del mismo
+
+Fecha(dd-mmyyyy)
+
+ProrrataAnualDefinitiva
+
+Prorrata anual definitiva
+
+Decimal(3,2)
+
+RegularizacionAnualDeduccio
+n
+IdentificacionEntrega
+RegularizacionDeduccionEfec
+tuada
+
+Importe de la regularización anual de las
+deducciones cuando proceda
+Referencia al asiento del libro registro de
+facturas expedidas que recoja la entrega del
+bien de inversión
+Importe de la regularización de la
+deducción efectuada con motivo de la
+entrega del bien de inversión
+
+Decimal(12,2)
+Alfanumérico(40)
+
+Decimal(12,2)
+
+RefExterna
+
+Referencia Externa. Dato adicional de
+contenido libre enviado por algunas
+aplicaciones clientes (asiento contable, etc.)
+
+Alfanumérico(60)
+
+NumRegistroAutorizacionFact
+uracion
+
+Número de registro general obtenido al
+enviar por la sede electrónica de la ATC la
+autorización en materia de facturación o de
+libros de registro
+Nombre-razón social de la entidad
+sucedida como consecuencia de una
+operación de reestructuración
+
+Alfanumérico(12)
+
+EntidadSucedida
+
+NombreR
+azon
+
+NIF
+
+NIF asociado a la entidad sucedida como
+consecuencia de una operación de
+reestructuración
+
+Alfanumérico(120)
+
+FormatoNIF(9)
+
+4.
+
+Suministro de Operaciones de trascendencia tributaria con carácter anual
+
+4.1.
+
+Operaciones en metálico (Importes superiores a 6.000 euros que se hubieran percibido en metálico durante el ejercicio de una misma persona
+o entidad)
+
+BLOQUE
+
+DATOS/
+
+DATOS/
+
+AGRUPACIÓN
+
+AGRUPACIÓN
+
+DATO
+S/
+
+DESCRIPCIÓN
+
+LONGITUD
+
+AGRU
+PACI
+ÓN
+IDVersionSii
+
+FORMATO
+
+LISTA
+
+Identificación de la versión del esquema utilizado
+para el intercambio de información
+
+Alfanumérico(3)
+
+Nombre-razón social del titular
+
+Alfanumérico(120)
+
+NIF del representante del titular
+
+FormatoNIF(9)
+
+NIF asociado al titular
+
+FormatoNIF(9)
+
+L19
+
+NombreRazon
+Cabecera
+
+Titular
+NIFRepresentante
+NIF
+
+Alfanumérico(2)
+
+TipoComunicacio
+n
+
+Tipo de operación (alta, modificación)
+L0
+Ejercicio
+
+RegistroLRCo
+brosMetalico
+
+PeriodoLiquidaci
+on
+
+Periodo
+
+Numérico(4)
+
+Ejercicio
+0A
+
+Debe informarse
+con valor “0A”
+
+NombreRazon
+
+Nombre-razón social de la contraparte de la
+operación
+
+Alfanumérico(120)
+
+NIFRepresentante
+
+NIF del representante de la contraparte de la
+operación
+
+FormatoNIF(9)
+
+NIF
+
+NIF asociado a la contraparte de la operación
+
+FormatoNIF(9)
+
+Contraparte
+
+IDOtro
+
+ImporteTotal
+
+NombreRazon
+EntidadSucedida
+
+NIF
+
+Codigo
+Código del país asociado a la contraparte
+Pais
+
+Alfanumérico(2)
+(ISO 3166-1 alpha2 codes)
+L17
+
+IDTyp
+e
+
+Clave para establecer el tipo de identificación en el
+país de residencia
+
+Alfanumérico(2)
+L4
+
+ID
+
+Número de identificación en el país de residencia
+
+Alfanumérico(20)
+
+Importes superiores a 6.000 euros que se hubieran
+percibido en metálico de la misma persona o entidad
+por las operaciones realizadas durante el año natural.
+
+Decimal(12,2)
+
+Nombre-razón social de la entidad sucedida como
+consecuencia de una operación de reestructuración
+NIF asociado a la entidad su
+cedida como consecuencia de una operación de
+reestructuración
+
+Alfanumérico(120)
+
+FormatoNIF(9)
+
+4.2.
+
+Agencias de viajes. (Prestaciones de servicios en cuya realización intervienen actuando como mediadoras en nombre y por cuenta ajena a las
+que se refiere el apartado 7.b) de la disposición adicional cuarta del Real Decreto 1619/2012, de 30 de noviembre)
+
+BLOQUE
+
+DATOS/
+
+DATOS/
+
+AGRUPACIÓN
+
+AGRUPACIÓN
+
+DATO
+S/
+
+DESCRIPCIÓN
+
+LONGITUD
+
+AGRU
+PACI
+ÓN
+IDVersionSii
+
+FORMATO
+
+LISTA
+
+Identificación de la versión del esquema utilizado para
+el intercambio de información
+
+Alfanumérico(3)
+
+Nombre-razón social del titular
+
+Alfanumérico(120)
+
+NIF del representante del titular
+
+FormatoNIF(9)
+
+NIF asociado al titular
+
+FormatoNIF(9)
+
+L19
+
+NombreRazon
+Cabecera
+
+Titular
+NIFRepresentante
+NIF
+
+Alfanumérico(2)
+
+TipoComunicacio
+n
+RegistroLRAg
+enciasViajes
+
+PeriodoLiquidaci
+on
+
+Tipo de operación (alta, modificación)
+L0
+Ejercicio
+
+Ejercicio
+
+Numérico(4)
+
+Contraparte
+
+Periodo
+
+0A
+
+Debe informarse
+con valor “0A”
+
+NombreRazon
+
+Nombre-razón social de la contraparte de la operación
+
+Alfanumérico(120)
+
+NIFRepresentante
+
+NIF del representante de la contraparte de la operación
+
+FormatoNIF(9)
+
+NIF asociado a la contraparte de la operación
+
+FormatoNIF(9)
+
+NIF
+
+IDOtro
+
+Codigo
+Código del país asociado a la contraparte
+Pais
+
+Alfanumérico(2)
+(ISO 3166-1 alpha2 codes)
+L17
+
+IDTyp
+e
+
+Clave para establecer el tipo de identificación en el
+país de residencia
+
+Alfanumérico(2)
+L4
+
+Número de identificación en el país de residencia
+
+Alfanumérico(20)
+
+ID
+ImporteTotal
+
+Importe anual
+NombreRazon
+
+EntidadSucedida
+
+NIF
+
+Nombre-razón social de la entidad sucedida como
+consecuencia de una operación de reestructuración
+NIF asociado a la entidad su
+cedida como consecuencia de una operación de
+reestructuración
+
+Decimal(12,2)
+Alfanumérico(120)
+
+FormatoNIF(9)
+
+II.
+
+CLAVES Y VALORES PERMITIDOS EN CAMPOS DE TIPO LISTA:
+
+L0 → Tipo de Comunicación
+DESCRIPCIÓN
+
+VALORES
+A0
+A1
+A4
+A5
+A6
+
+Alta de facturas/registro
+Modificación de facturas/registros (errores registrales)
+Modificación Factura Régimen de Viajeros
+Alta de las devoluciones del IGIC de viajeros (DER)
+Modificación de las devoluciones del IGIC de viajeros
+(DER)
+
+L1 → Periodo de liquidación
+DESCRIPCIÓN
+
+VALORES
+01
+02
+03
+04
+05
+06
+07
+08
+09
+10
+
+Enero
+Febrero
+Marzo
+Abril
+Mayo
+Junio
+Julio
+Agosto
+Septiembre
+Octubre
+
+11
+12
+0A
+1T
+2T
+3T
+4T
+
+Noviembre
+Diciembre
+Anual
+1º Trimestre
+2º Trimestre
+3º Trimestre
+4º Trimestre
+
+Nota: Los libros de registro de facturas expedidas y recibidas tendrán un periodo mensual/trimestral. El libro registro de bienes de inversión tendrá periodicidad
+anual. La información correspondiente a operaciones con trascendencia tributaria de suministro anual que formen parte de los libros registros de facturas
+expedidas y recibidas también tendrá por defecto como periodo el año.
+
+L2_EMI → Tipo de Factura Emitidas
+VALORES
+F1
+F2
+F3
+F4
+R1
+R2
+R3
+R4
+R5
+
+DESCRIPCIÓN
+Factura (art. 6, 7.2 y 7.3 del RD 1619/2012)
+Factura Simplificada y y Facturas sin identificación del
+destinatario art. 6.1.d) RD 1619/2012
+Factura emitida en sustitución de facturas simplificadas
+facturadas y declaradas con anterioridad
+Asiento resumen de facturas
+Factura Rectificativa (Error fundado en derecho y Art.
+22 apartados 4, 5 y 11 L20/91)
+Factura Rectificativa (Art 22.6 L20/91 – concurso)
+Factura Rectificativa (Art 22.7 L20/91 - deuda
+incobrable)
+Factura Rectificativa (Resto)
+Factura Rectificativa en facturas simplificadas
+
+AJ
+
+Ajuste margen bruto Régimen Especial de Agencias de
+viaje y Régimen Especial de Bienes Usados
+
+L2_RECI → Tipo de Factura Recibidas
+VALORES
+F1
+F2
+F3
+F4
+F5
+F6
+R1
+R2
+R3
+R4
+R5
+LC
+24
+25
+
+DESCRIPCIÓN
+Factura (art. 6, 7.2 y 7.3 del RD 1619/2012)
+Factura Simplificada y y Facturas sin identificación del
+destinatario art. 6.1.d) RD 1619/2012
+Factura emitida en sustitución de facturas simplificadas
+facturadas y declaradas con anterioridad
+Asiento resumen de facturas
+Importaciones (DUA)
+Justificantes contables
+Factura Rectificativa (Error fundado en derecho y Art.
+22 apartados 4, 5 y 11 L20/91)
+Factura Rectificativa (Art 22.6 L20/91 – concurso)
+Factura Rectificativa (Art 22.7 L20/91 - deuda
+incobrable)
+Factura Rectificativa (Resto)
+Factura Rectificativa en facturas simplificadas
+Importaciones - Liquidación complementaria
+Cuotas deducibles por exclusión del R.E. comerciante
+minorista (modelo 424)
+Documento de ingreso articulo 25 Ley 19/1994
+
+Las claves F3, R1, R2, R3, R4 y R5 tienen carácter opcional en el Libro registro de facturas recibidas.
+
+L3.1 → Clave de régimen especial o trascendencia en facturas expedidas
+VALORES
+DESCRIPCIÓN
+01
+Operación de régimen general.
+02
+03
+04
+05
+06
+07
+08
+09
+10
+
+11
+14
+15
+
+Exportación.
+Operaciones a las que se aplique los regímenes especiales de bienes usados y de
+objetos de arte, antigüedades y objetos de colección.
+Régimen especial del oro de inversión.
+Régimen especial de las agencias de viajes.
+Régimen especial grupo de entidades en IGIC (Nivel Avanzado)
+Régimen especial del criterio de caja.
+Operaciones sujetas al IVA (Impuesto sobre el Valor Añadido).
+Facturación de las prestaciones de servicios de agencias de viaje que actúan
+como mediadoras en nombre y por cuenta ajena (D.A.4ª RD1619/2012)
+Cobros por cuenta de terceros de honorarios profesionales o de derechos
+derivados de la propiedad industrial, de autor u otros por cuenta de sus socios,
+asociados o colegiados efectuados por sociedades, asociaciones, colegios
+profesionales u otras entidades que realicen estas funciones de cobro.
+Operaciones de arrendamiento de local de negocio
+Factura con IGIC pendiente de devengo en certificaciones de obra cuyo
+destinatario sea una Administración Pública.
+Factura con IGIC pendiente de devengo en operaciones de tracto sucesivo.
+
+16
+17
+18
+19
+20
+
+Facturas anteriores a la inclusión en el SII
+Régimen especial de comerciante minorista
+Régimen especial del pequeño empresario o profesional
+Operaciones interiores exentas por aplicación artículo 25 Ley 19/1994
+Operaciones sujetas al IPSI (Impuesto sobre la Producción, los Servicios y la
+Importación).
+
+L3.2 → Clave de régimen especial o trascendencia en facturas recibidas
+VALORES
+DESCRIPCIÓN
+01
+Operación de régimen general.
+02
+Operaciones por las que los empresarios satisfacen compensaciones en las
+adquisiciones a personas acogidas al Régimen especial de la agricultura,
+ganadería y pesca.
+03
+Operaciones a las que se aplique los regímenes especiales de bienes usados y
+04
+
+de objetos de arte, antigüedades y objetos de colección.
+Régimen especial del oro de inversión.
+
+05
+06
+
+Régimen especial de las agencias de viajes.
+Régimen especial grupo de entidades en IGIC (Nivel Avanzado).
+
+07
+08
+
+Régimen especial del criterio de caja.
+
+12
+
+Operaciones de arrendamiento de local de negocio.
+Factura correspondiente a una importación (informada sin asociar a un DUA).
+Facturas anteriores a la inclusión en el SII
+Régimen especial de comerciante minorista
+Régimen especial del pequeño empresario o profesional
+Operaciones interiores exentas por aplicación artículo 25 Ley 19/1994
+
+13
+14
+15
+16
+17
+
+Operaciones sujetas al IVA (Impuesto sobre el Valor Añadido).
+
+18
+
+Operaciones sujetas al IPSI (Impuesto sobre la Producción, los Servicios y la
+Importación).
+
+L4 → Tipos de Identificación en el país de residencia
+DESCRIPCIÓN
+
+VALORES
+03
+04
+05
+06
+07
+
+PASAPORTE
+DOCUMENTO OFICIAL DE IDENTIFICACIÓN EXPEDIDO POR EL PAÍS O
+TERRITORIO DE RESIDENCIA
+CERTIFICADO DE RESIDENCIA
+OTRO DOCUMENTO PROBATORIO
+NO CENSADO
+
+La clave 07, “No censado”, puede utilizarse como tipo de identificación en el Libro registro de facturas expedidas y en las Operaciones de trascendencia tributaria
+con carácter anual
+L5 → Tipo de Factura Rectificativa
+DESCRIPCIÓN
+
+VALORES
+S
+I
+
+Por sustitución
+Por diferencias
+
+L6 → Situación del Inmueble
+VALORES
+1
+2
+3
+4
+5
+
+DESCRIPCIÓN
+Inmueble con referencia catastral situado en las Islas Canarias
+Inmueble sin referencia catastral situado en las Islas Canarias
+Inmueble con referencia catastral situado en el resto del territorio español
+Inmueble sin referencia catastral situado en el resto del territorio español
+Inmueble situado en el extranjero
+
+L7 → Calificación del tipo de operación Sujeta/ No Exenta
+VALORES
+S1
+S2
+S3
+
+DESCRIPCIÓN
+No exenta- Sin inversión sujeto pasivo
+No exenta - Con inversión sujeto pasivo
+No exenta - Sin inversión sujeto pasivo y con inversión sujeto pasivo
+
+L9 → Causa de exención de operaciones sujetas y exentas
+VALORES
+E1
+E2
+E3
+E4
+E5
+E6
+
+DESCRIPCIÓN
+Exenta por el Art. 50 Ley 4/2012
+Exenta por el Art. 11 Ley 20/1991
+Exenta por el Art. 12 Ley 20/1991
+Exenta por Art. 13 Ley 20/1991
+Exenta por el Art. 25 Ley 19/1994
+Exenta por el Art. 47 Ley 19/1994
+
+E7
+E8
+
+Exenta por el Art. 110 Ley 4/2012
+Exenta Otros
+
+L10 → Emitidas por Terceros
+DESCRIPCIÓN
+
+VALORES
+S
+N
+
+Sí
+No
+
+L11→ Medio de Pago/Cobro
+VALORES
+01
+02
+03
+04
+05
+
+DESCRIPCIÓN
+Transferencia
+Cheque
+No se cobra / paga (fecha límite de devengo / devengo forzoso en concurso de
+acreedores)
+Otros medios de cobro / pago
+Domiciliación bancaria
+
+L17→ Código de País.
+Se informará según la relación de códigos de países y territorios que se incluye en el Anexo II de la Orden EHA/3496/2011, de 15 de diciembre (BOE del 2612-2011).
+
+L19 -> IDVersionSii
+DESCRIPCIÓN
+
+VALORES
+1.1
+
+Versión Actual del esquema utilizado para el intercambio de información
+
+L20 → Varios destinatarios
+DESCRIPCIÓN
+
+VALORES
+S
+N
+
+Si
+No
+
+L22 → Factura R1, R5 o F4 con minoración de la base imponible por la concesión de cupones, bonificaciones o descuentos cuando solo se expide el original de
+la factura
+DESCRIPCIÓN
+
+VALORES
+S
+N
+
+Sí
+No
+
+L25 → Emitida por terceros de acuerdo con una exigencia normativa
+VALORES
+S
+Sí
+N
+No
+
+DESCRIPCIÓN
+
+L26 → Factura simplificada Articulo 7,2 Y 7,3 RD 1619/2012.
+
+VALORES
+S
+Si
+N
+No
+
+DESCRIPCIÓN
+
+L27 → Factura sin identificación destinatario artículo 6,1,d) RD 1619/2012
+VALORES
+S
+Sí
+N
+No
+
+DESCRIPCIÓN
+
+L28 → Identificador que especifica aquellos registros de facturación con dificultades para enviarse en plazo por no tener constancia del cambio de condición a
+GGEE o de la inclusión en REDEME
+VALORES
+S
+Si
+N
+No
+
+DESCRIPCIÓN
+
+L29 → Facturas con importe de la factura superior a un umbral de 100.000.000 €
+VALORES
+S
+Sí
+N
+No
+
+DESCRIPCIÓN
+
+L31 → Pago anticipado operación exenta artículo 25 Ley 19/1994
+VALORES
+
+DESCRIPCIÓN
+
+S
+N
+
+Si
+No
+
+L32 → Tipo bien operación exenta artículo 25 Ley 19/1994
+DESCRIPCIÓN
+
+VALORES
+01
+02
+03
+04
+05
+
+Adquisición, entrega o ejecución de obras que tengan por objeto de bienes
+inmuebles
+Adquisición, entrega o ejecución de obras que tengan por objeto de bienes
+muebles
+Adquisición o cesión de elementos del inmovilizado intangible consistente en el
+derecho de uso de propiedad industrial o intelectual
+Adquisición o cesión del inmovilizado intangible consistente en el derecho de uso
+de conocimientos no patentados
+Adquisición o cesión del inmovilizado intangible consistente en concesiones
+administrativas
+
+L33 → Tipo de documento artículo 25 Ley 19/1994
+DESCRIPCIÓN
+
+VALORES
+01
+02
+03
+
+Notarial
+Privado
+Otros
+
+L34 → Identificador que especifica bien de inversión
+VALORES
+
+DESCRIPCIÓN
+
+S
+N
+
+Sí
+No
+
+L35 → Identificador que especifica si la factura se deduce en un periodo posterior
+VALORES
+S
+Si
+N
+No
+
+DESCRIPCIÓN
+
+L36 → Identificador que especifica el impuesto especial gestionado por la CAC
+CLAVE DEL IMPUESTO ESPECIAL GESTIONADO POR LA CAC
+
+VALORES
+01
+02
+03
+
+Impuesto sobre las labores de tabaco
+Impuesto especial sobre combustibles derivados del petróleo
+Impuesto sobre el depósito de residuos en vertederos, la incineración y la
+coincineración de residuos
+
+L37 → Identificador que especifica si la operación se encuentra exenta del Impuesto especial gestionado por la CAC
+VALORES
+S
+Sí
+N
+No
+
+DESCRIPCIÓN
+
+L38 → Identificador que especifica si la operación se encuentra acogido a un régimen suspensivo del Impuesto especial gestionado por la CAC
+VALORES
+S
+Si
+N
+No
+
+DESCRIPCIÓN
+
+
