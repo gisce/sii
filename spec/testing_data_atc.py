@@ -107,7 +107,7 @@ class DataGeneratorATC:
         ]
         
         # Partners (mateix format que AEAT)
-        spain = Country(code='ES')
+        spain = Country(code='ES', is_eu_member=False)
         self.partner_invoice = Partner(
             name=os.environ.get('NOMBRE_CONTRAPARTE_ATC', u'Juan Pérez García'),
             nif=os.environ.get('NIF_CONTRAPARTE_ATC', u'ES87654321A'),

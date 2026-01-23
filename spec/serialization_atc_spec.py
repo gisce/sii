@@ -82,7 +82,7 @@ with description('El XML Generado per ATC'):
             expect(self.factura_emitida).to(have_key('FacturaExpedida'))
 
         with it('conté Contraparte'):
-            expect(self.factura_emitida).to(have_key('Contraparte'))
+            expect(self.factura_emitida['FacturaExpedida']).to(have_key('Contraparte'))
 
         with it('la ClaveRegimenEspecialOTrascendencia és "08" (IGIC)'):
             clave = self.factura_emitida['FacturaExpedida']['ClaveRegimenEspecialOTrascendencia']

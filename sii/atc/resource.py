@@ -7,12 +7,62 @@ Segueix EXACTAMENT la mateixa estructura que sii/resource.py però adaptat per I
 """
 import re
 from decimal import Decimal
-from datetime import date
+from datetime import date, datetime
 
 from sii.atc import __ATC_SII_VERSION__
 from sii.utils import unidecode_str, VAT
+from sii.atc.models import invoices_record
 
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}
+
+
+def get_periodo_ejercicio(invoice):
+    """
+    Extreu període i exercici de la factura.
+    
+    Intenta primer usar period_id.name amb format MM/YYYY,
+    si no és vàlid, usa period_id.date_start per calcular-ho.
+    
+    Returns:
+        tuple: (periodo, ejercicio) ex: ('01', '2026')
+    
+    Raises:
+        ValueError: Si no es pot determinar el període i exercici
+    """
+    if invoice.period_id:
+        # Intentar usar period_id.name amb format MM/YYYY
+        period_name = invoice.period_id.name
+        if '/' in period_name and len(period_name) >= 7:
+            periodo = period_name[0:2]
+            ejercicio = period_name[3:7]
+            # Validar que siguin dígits
+            if periodo.isdigit() and ejercicio.isdigit():
+                return (periodo, ejercicio)
+        
+        # Fallback: usar date_start per calcular període i exercici
+        if hasattr(invoice.period_id, 'date_start') and invoice.period_id.date_start:
+            date_start = invoice.period_id.date_start
+            # Convertir string a datetime si cal
+            if isinstance(date_start, str):
+                date_start = datetime.strptime(date_start, '%Y-%m-%d')
+            periodo = '{:02d}'.format(date_start.month)
+            ejercicio = str(date_start.year)
+            return (periodo, ejercicio)
+    
+    # Últim fallback: usar date_invoice
+    if hasattr(invoice, 'date_invoice') and invoice.date_invoice:
+        date_invoice = invoice.date_invoice
+        if isinstance(date_invoice, str):
+            date_invoice = datetime.strptime(date_invoice, '%Y-%m-%d')
+        periodo = '{:02d}'.format(date_invoice.month)
+        ejercicio = str(date_invoice.year)
+        return (periodo, ejercicio)
+    
+    # Si tot falla, llançar error
+    raise ValueError(
+        "No s'ha pogut determinar el període i exercici de la factura. "
+        "La factura ha de tenir period_id amb date_start o date_invoice vàlids."
+    )
 
 
 def is_inversion_sujeto_pasivo(tax_name):
@@ -96,26 +146,38 @@ def get_igic_values(invoice, in_invoice, is_export=False, is_import=False):
 
 
 def get_partner_info(partner, in_invoice, nombre_razon=False):
-    vat_type = partner.sii_get_vat_type()
+    """
+    Obté informació del partner per al SII ATC.
+    Adaptació de sii.resource.get_partner_info() per IGIC.
+    """
+    vat_type_result = partner.sii_get_vat_type()
+    # sii_get_vat_type() pot retornar tupla (vat_type, auto_vat) o només vat_type
+    if isinstance(vat_type_result, tuple):
+        vat_type, auto_vat = vat_type_result
+    else:
+        vat_type = vat_type_result
+        auto_vat = False
+    
     contraparte = {}
+    
+    partner_country = partner.country_id or partner.country
     if nombre_razon:
         contraparte['NombreRazon'] = unidecode_str(partner.name)
-    partner_country = partner.country_id or partner.country
+    
+    # Per factures rebudes amb auto_vat i vat_type '07', convertir a '02' (NIF)
+    if auto_vat and vat_type == '07' and in_invoice:
+        vat_type = '02'
+    
+    # NIFs espanyols (vat_type '02') sempre usen camp NIF
     if vat_type == '02':
-        if not partner.aeat_registered and not in_invoice:
-            contraparte['IDOtro'] = {
-                'CodigoPais': partner_country.code,
-                'IDType': '07',
-                'ID': VAT.clean_vat(partner.vat)
-            }
-        else:
-            contraparte['NIF'] = VAT.clean_vat(partner.vat)
+        contraparte['NIF'] = VAT.clean_vat(partner.vat)
     else:
         contraparte['IDOtro'] = {
             'CodigoPais': partner_country.code,
             'IDType': vat_type,
             'ID': VAT.clean_vat(partner.vat)
         }
+    
     return contraparte
 
 
@@ -194,7 +256,15 @@ def get_factura_emitida_tipo_desglose(invoice):
         
         partner_vat = VAT.clean_vat(invoice.partner_id.vat)
         partner_vat_starts_with_n = (partner_vat and partner_vat.upper().startswith('N'))
-        has_id_otro = invoice.partner_id.sii_get_vat_type() != '02'
+        
+        # sii_get_vat_type() pot retornar tupla (vat_type, auto_vat) o només vat_type
+        vat_type_result = invoice.partner_id.sii_get_vat_type()
+        if isinstance(vat_type_result, tuple):
+            vat_type, _ = vat_type_result
+        else:
+            vat_type = vat_type_result
+        
+        has_id_otro = vat_type != '02'
         if has_id_otro or partner_vat_starts_with_n:
             tipo_desglose = {'DesgloseTipoOperacion': {'PrestacionServicios': desglose}}
         else:
@@ -313,21 +383,24 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
 
 def get_factura_emitida_dict(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
     factura_expedida, contraparte = get_factura_emitida(invoice, rect_sust_opc1, rect_sust_opc2)
+    # Contraparte va dins de FacturaExpedida segons l'exemple oficial
+    if contraparte:
+        factura_expedida['Contraparte'] = contraparte
+    periodo, ejercicio = get_periodo_ejercicio(invoice)
     obj = {
         'SuministroLRFacturasEmitidas': {
             'Cabecera': get_header(invoice),
             'RegistroLRFacturasEmitidas': {
                 'PeriodoLiquidacion': {
-                    'Ejercicio': invoice.period_id.name[3:7],
-                    'Periodo': invoice.period_id.name[0:2]
+                    'Ejercicio': ejercicio,
+                    'Periodo': periodo
                 },
                 'IDFactura': {
                     'IDEmisorFactura': {'NIF': VAT.clean_vat(invoice.company_id.partner_id.vat)},
                     'NumSerieFacturaEmisor': invoice.number,
                     'FechaExpedicionFacturaEmisor': invoice.date_invoice
                 },
-                'FacturaExpedida': factura_expedida,
-                'Contraparte': contraparte
+                'FacturaExpedida': factura_expedida
             }
         }
     }
@@ -340,8 +413,8 @@ def get_factura_recibida_dict(invoice, rect_sust_opc1=False, rect_sust_opc2=Fals
             'Cabecera': get_header(invoice),
             'RegistroLRFacturasRecibidas': {
                 'PeriodoLiquidacion': {
-                    'Ejercicio': invoice.period_id.name[3:7],
-                    'Periodo': invoice.period_id.name[0:2]
+                    'Ejercicio': get_periodo_ejercicio(invoice)[1],
+                    'Periodo': get_periodo_ejercicio(invoice)[0]
                 },
                 'IDFactura': {
                     'IDEmisorFactura': get_partner_info(invoice.partner_id, in_invoice=True),
@@ -383,22 +456,53 @@ class SIIATC(object):
         rectificativa_sustitucion_opcion_1 = tipo_rectificativa == 'RA'
         rectificativa_sustitucion_opcion_2 = tipo_rectificativa == 'R'
         if invoice.type.startswith('in'):
-            self.invoice_dict = get_factura_recibida_dict(
+            self.invoice_model = invoices_record.SuministroLRFacturasRecibidas()
+            self.full_dict = get_factura_recibida_dict(
                 invoice=self.invoice,
                 rect_sust_opc1=rectificativa_sustitucion_opcion_1,
                 rect_sust_opc2=rectificativa_sustitucion_opcion_2
             )
+            # Extreure el contingut interior per validació Marshmallow
+            self.invoice_dict = self.full_dict.get('SuministroLRFacturasRecibidas', {})
         elif invoice.type.startswith('out'):
-            self.invoice_dict = get_factura_emitida_dict(
+            self.invoice_model = invoices_record.SuministroLRFacturasEmitidas()
+            self.full_dict = get_factura_emitida_dict(
                 invoice=self.invoice,
                 rect_sust_opc1=rectificativa_sustitucion_opcion_1,
                 rect_sust_opc2=rectificativa_sustitucion_opcion_2
             )
+            # Extreure el contingut interior per validació Marshmallow
+            self.invoice_dict = self.full_dict.get('SuministroLRFacturasEmitidas', {})
         else:
             raise Exception('Tipus de factura no reconegut')
+    def get_validation_errors_list(self, errors):
+        error_messages = []
+
+        for key, values in errors.items():
+            if isinstance(values, dict):
+                error_messages += self.get_validation_errors_list(values)
+            else:
+                error_messages += ['{}: {}'.format(key, val) for val in values]
+
+        return error_messages
+
+    def validate_invoice(self):
+
+        res = {}
+        print(self.invoice_dict)
+        errors = self.invoice_model.validate(self.invoice_dict)
+
+        res['successful'] = False if errors else True
+        res['object_validated'] = self.invoice_dict
+        if errors:
+            errors_list = self.get_validation_errors_list(errors)
+            res['errors'] = errors_list
+
+        return res
 
     def generate_object(self):
-        return self.invoice_dict
+        """Retorna el dict complet amb la clau exterior per compatibilitat amb tests"""
+        return self.full_dict
 
 
 class SIIATCDeregister(object):
@@ -420,8 +524,8 @@ class SIIATCDeregister(object):
                 'Cabecera': get_header(self.invoice),
                 'RegistroLRBajaExpedidas': {
                     'PeriodoLiquidacion': {
-                        'Ejercicio': self.invoice.period_id.name[3:7],
-                        'Periodo': self.invoice.period_id.name[0:2]
+                        'Ejercicio': get_periodo_ejercicio(self.invoice)[1],
+                        'Periodo': get_periodo_ejercicio(self.invoice)[0]
                     },
                     'IDFactura': {
                         'IDEmisorFactura': {'NIF': VAT.clean_vat(self.invoice.company_id.partner_id.vat)},
@@ -439,8 +543,8 @@ class SIIATCDeregister(object):
                 'Cabecera': get_header(self.invoice),
                 'RegistroLRBajaRecibidas': {
                     'PeriodoLiquidacion': {
-                        'Ejercicio': self.invoice.period_id.name[3:7],
-                        'Periodo': self.invoice.period_id.name[0:2]
+                        'Ejercicio': get_periodo_ejercicio(self.invoice)[1],
+                        'Periodo': get_periodo_ejercicio(self.invoice)[0]
                     },
                     'IDFactura': {
                         'IDEmisorFactura': get_partner_info(self.invoice.partner_id, in_invoice=True),
