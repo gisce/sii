@@ -8,6 +8,8 @@ WSDLs de l'Agència Tributària Canària.
 """
 
 from sii.atc.resource import SIIATC, SIIATCDeregister
+from sii.atc.plugins import DryRunPlugin, PersistXmlPlugin
+from sii.atc.plugins.dry_run_plugin import DryRunException
 from zeep import Client
 from requests import Session
 from zeep.exceptions import Fault
@@ -50,7 +52,8 @@ class SiiServiceATC(Service):
     - Estructura IGIC en lloc d'IVA
     """
     
-    def __init__(self, certificate, key, url=None, test_mode=False):
+    def __init__(self, certificate, key, url=None, test_mode=False,
+                 dry_run=False, dry_run_verbose=False, persist_xml=None, use_local_wsdl=None):
         """
         Inicialitza el servei SII ATC
         
@@ -58,9 +61,20 @@ class SiiServiceATC(Service):
         :param key: Path a la clau privada
         :param url: URL base (opcional, per proxy SSL)
         :param test_mode: Si és mode de proves (1) o producció (0)
+        :param dry_run: Si True, NO envia peticions reals (mode debug)
+        :param persist_xml: Dict amb {'request': path, 'response': path} per guardar XMLs
+        :param use_local_wsdl: Si True, utilitza WSDLs locals. Si None, auto (local si dry_run)
         """
         super(SiiServiceATC, self).__init__(certificate, key, url)
         self.test_mode = test_mode
+        self.dry_run = dry_run
+        self.dry_run_verbose = dry_run_verbose
+        self.persist_xml = persist_xml
+        # Si use_local_wsdl no especificat, usar local quan dry_run activat
+        if use_local_wsdl is None:
+            self.use_local_wsdl = dry_run
+        else:
+            self.use_local_wsdl = use_local_wsdl
         self.emitted_service = None
         self.received_service = None
         self.url = url
@@ -87,7 +101,7 @@ class SiiServiceATC(Service):
         Crea el client SOAP segons el tipus de factura
         
         DIFERÈNCIES amb AEAT:
-        - WSDLs locals de l'ATC
+        - WSDLs remots (o locals si dry_run/tests)
         - Endpoints: gobiernodecanarias.org/tributos/atc
         - Namespace diferent
         """
@@ -101,25 +115,58 @@ class SiiServiceATC(Service):
         else:
             config = self.in_inv_config.copy()
         
+        # Decidir si usar WSDL local o remot
+        if self.use_local_wsdl:
+            # WSDLs locals per tests/dry-run
+            if self.invoice.type.startswith('out_'):
+                wsdl_url = get_wsdl_path('SuministroFactEmitidas.wsdl')
+            else:
+                wsdl_url = get_wsdl_path('SuministroFactRecibidas.wsdl')
+        else:
+            # WSDLs remots per producció
+            wsdl_url = config['wsdl']
+            if self.test_mode:
+                # Substituir middleware per middlewarecaut per entorn de proves
+                wsdl_url = wsdl_url.replace('/middleware/', '/middlewarecaut/')
+        
         port_name = config['port_name']
-        # Nota: L'ATC podria no tenir ports separats per proves
-        # Ajustar segons la documentació oficial
+        # L'ATC utilitza ports diferents per proves (sufijo 'Pruebas')
         if self.test_mode:
-            # TODO: Verificar si l'ATC té ports diferents per proves
-            port_name += 'Pruebas'  # Ajustar segons documentació ATC
+            port_name += 'Pruebas'
+        
+        # Construir llista de plugins (per defecte buida)
+        plugins = []
+        
+        # Afegir plugin de persistència si especificat
+        if self.persist_xml:
+            plugins.append(PersistXmlPlugin(
+                request_file=self.persist_xml.get('request'),
+                response_file=self.persist_xml.get('response')
+            ))
+        
+        # Afegir plugin dry-run si activat
+        if self.dry_run:
+            plugins.append(DryRunPlugin(verbose=self.dry_run_verbose))
         
         client = Client(
-            wsdl=config['wsdl'],
+            wsdl=wsdl_url,
             port_name=port_name,
             transport=transport,
-            service_name=config['service_name']
+            service_name=config['service_name'],
+            plugins=plugins if plugins else None
         )
         
         if not self.url:
             return client.service
         
         # Si hi ha URL (proxy), crear servei amb adreça personalitzada
-        address = '{0}{1}'.format(self.url, config['type_address'])
+        # En mode test, utilitzar path middlewarecaut
+        if self.test_mode:
+            type_address = config['type_address'].replace('/middleware/', '/middlewarecaut/')
+        else:
+            type_address = config['type_address']
+        
+        address = '{0}{1}'.format(self.url, type_address)
         service = client.create_service(config['binding_name'], address)
         return service
     
@@ -145,9 +192,27 @@ class SiiServiceATC(Service):
                 )
             self.result = res
             return serialize_object(self.result)
-        except Exception as fault:
-            self.result = fault
-            raise fault
+        except DryRunException as dry_ex:
+            # Mode dry-run: retornar resposta simulada
+            # Python 2/3 compatible: evitar UnicodeEncodeError
+            try:
+                # Python 2: convertir a unicode i després a UTF-8
+                msg = unicode(dry_ex).encode('utf-8') if hasattr(str, 'decode') else str(dry_ex)
+            except (NameError, UnicodeDecodeError):
+                # Python 3 o fallback
+                msg = str(dry_ex)
+            
+            self.result = {
+                'successful': True,
+                'dry_run': True,
+                'message': msg,
+                'xml_generated': True
+            }
+            return self.result
+        except Exception as e:
+            # Python 2/3 compatible: simplement capturar i reraisar
+            self.result = e
+            raise
     
     def get_msg(self):
         """
@@ -159,38 +224,36 @@ class SiiServiceATC(Service):
         res_header = res_invoices = None
         
         if self.invoice.type.startswith('out_'):
-            res_header = dict_from_marsh['Cabecera']
-            res_invoices = dict_from_marsh['RegistroLRFacturasEmitidas']
+            suministro = dict_from_marsh['SuministroLRFacturasEmitidas']
+            res_header = suministro['Cabecera']
+            res_invoices = suministro['RegistroLRFacturasEmitidas']
         elif self.invoice.type.startswith('in_'):
-            res_header = dict_from_marsh['Cabecera']
-            res_invoices = dict_from_marsh['RegistroLRFacturasRecibidas']
+            suministro = dict_from_marsh['SuministroLRFacturasRecibidas']
+            res_header = suministro['Cabecera']
+            res_invoices = suministro['RegistroLRFacturasRecibidas']
         
         return res_header, res_invoices
     
     # Configuració per factures emeses
-    # DIFERÈNCIES CLAU:
-    # - WSDL local de l'ATC
-    # - Endpoint: gobiernodecanarias.org/tributos/atc
-    # - Namespace del binding diferent
+    # URLs remotes ATC (producció/proves reals):
+    # - Producció: https://sede.gobiernodecanarias.org/tributos/middleware/services/sii/
+    # - Proves: https://sede.gobiernodecanarias.org/tributos/middlewarecaut/services/sii/
+    # 
+    # NOTA: Si dry_run=True, s'utilitzen WSDLs locals automàticament (no cal connexió)
     out_inv_config = {
-        'wsdl': get_wsdl_path('SuministroFactEmitidas.wsdl'),
+        'wsdl': 'https://sede.gobiernodecanarias.org/tributos/middleware/services/sii/SiiFactFEV1SOAP?wsdl',
         'port_name': 'SuministroFactEmitidas',
-        # TODO: Ajustar binding_name segons el namespace real del WSDL ATC
-        # Cal revisar el WSDL per obtenir el namespace correcte
-        'binding_name': '{https://www3.gobiernodecanarias.org/tributos/atc/sii/igic/ws/SuministroFactEmitidas.wsdl}siiBinding',
-        # TODO: Verificar el type_address exacte amb la documentació ATC
-        'type_address': '/tributos/atc/sii/fe/',
+        'binding_name': '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/igic/ws/SuministroFactEmitidas.wsdl}siiBinding',
+        'type_address': '/tributos/middleware/services/sii/SiiFactFEV1SOAP',
         'service_name': 'siiService'
     }
     
     # Configuració per factures rebudes
     in_inv_config = {
-        'wsdl': get_wsdl_path('SuministroFactRecibidas.wsdl'),
+        'wsdl': 'https://sede.gobiernodecanarias.org/tributos/middleware/services/sii/SiiFactFRV1SOAP?wsdl',
         'port_name': 'SuministroFactRecibidas',
-        # TODO: Ajustar binding_name segons el namespace real del WSDL ATC
-        'binding_name': '{https://www3.gobiernodecanarias.org/tributos/atc/sii/igic/ws/SuministroFactRecibidas.wsdl}siiBinding',
-        # TODO: Verificar el type_address exacte amb la documentació ATC
-        'type_address': '/tributos/atc/sii/fr/',
+        'binding_name': '{https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/igic/ws/SuministroFactRecibidas.wsdl}siiBinding',
+        'type_address': '/tributos/middleware/services/sii/SiiFactFRV1SOAP',
         'service_name': 'siiService'
     }
     
@@ -198,21 +261,25 @@ class SiiServiceATC(Service):
         """
         Retorna la URL de producció de l'ATC
         
+        URL oficial: https://sede.gobiernodecanarias.org
+        Path: /tributos/middleware/services/sii/
+        
         :return: URL base del servei de producció
         """
-        return 'https://www3.gobiernodecanarias.org'
+        return 'https://sede.gobiernodecanarias.org'
     
     def get_test_url(self):
         """
-        Retorna la URL de proves de l'ATC
+        Retorna la URL de proves de l'ATC (Preproducció)
         
-        TODO: Verificar si l'ATC té un entorn de proves separat
+        URL oficial: https://sede.gobiernodecanarias.org
+        Path: /tributos/middlewarecaut/services/sii/
+        
+        Nota: Mateix host però path diferent (middlewarecaut vs middleware)
         
         :return: URL base del servei de proves
         """
-        # Nota: L'ATC podria utilitzar la mateixa URL per proves
-        # i diferenciar amb un paràmetre al XML
-        return 'https://www3.gobiernodecanarias.org'
+        return 'https://sede.gobiernodecanarias.org'
 
 
 class SiiDeregisterServiceATC(SiiServiceATC):
