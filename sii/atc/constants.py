@@ -137,6 +137,49 @@ CLAVE_REGIMEN_ESPECIAL_VALUES = [
     '15',  # Factura amb IGIC cobrat
 ]
 
+# Valors per la Clave de Régimen Especial per factures emeses (ATC - IGIC)
+CRE_FACTURAS_EMITIDAS_ATC = [
+    ('01', u'Operación de régimen general'),
+    ('02', u'Exportación'),
+    ('03', u'Operaciones régimen especial bienes usados, arte, antigüedades, colección'),
+    ('04', u'Régimen especial oro de inversión'),
+    ('05', u'Régimen especial agencias de viajes'),
+    ('06', u'Régimen especial grupo entidades IGIC (Nivel Avanzado)'),
+    ('07', u'Régimen especial criterio de caja'),
+    ('08', u'Operaciones sujetas a IPSI/IGIC'),
+    ('09', u'Facturación agencias viajes como mediadoras'),
+    ('10', u'Cobros por cuenta de terceros'),
+    ('11', u'Operaciones arrendamiento local negocio con retención'),
+    ('12', u'Operaciones arrendamiento local negocio sin retención'),
+    ('13', u'Operaciones arrendamiento local negocio (con y sin retención)'),
+    ('14', u'Factura con IGIC pendiente en certificaciones obra'),
+    ('15', u'Factura con IGIC pendiente en operaciones tracto sucesivo'),
+    ('16', u'Primer semestre 2017 y otras facturas previas al SII'),
+    ('17', u'Operaciones acogidas régimen especial agricultura, ganadería y pesca'),
+    ('18', u'Arrendamiento local negocio inversión sujeto pasivo'),
+    ('19', u'Arrendamiento local negocio (con y sin inversión)'),
+    ('20', u'Operaciones en régimen simplificado'),
+]
+
+# Valors per la Clave de Régimen Especial per factures rebudes (ATC - IGIC)
+CRE_FACTURAS_RECIBIDAS_ATC = [
+    ('01', u'Operación de régimen general'),
+    ('02', u'Operaciones con compensación régimen especial agricultura, ganadería y pesca'),
+    ('03', u'Operaciones régimen especial bienes usados, arte, antigüedades, colección'),
+    ('04', u'Régimen especial oro de inversión'),
+    ('05', u'Régimen especial agencias de viajes'),
+    ('06', u'Régimen especial grupo entidades IGIC (Nivel Avanzado)'),
+    ('07', u'Régimen especial criterio de caja'),
+    ('08', u'Operaciones sujetas a IPSI/IGIC'),
+    ('09', u'Adquisiciones intracomunitarias bienes y prestaciones servicios'),
+    ('10', u'Cobros por cuenta de terceros'),
+    ('11', u'Operaciones con inversión sujeto pasivo'),
+    ('12', u'Empresa acogida régimen especial criterio caja'),
+    ('13', u'Operaciones en régimen simplificado'),
+    ('14', u'Primer semestre 2017 y otras facturas previas al SII'),
+    ('15', u'Factura con IGIC pendiente en certificaciones obra'),
+]
+
 
 def get_valid_igic_rates(fecha_operacion):
     """
