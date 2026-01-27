@@ -16,6 +16,27 @@ from sii.atc.models import invoices_record
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}
 
 
+def get_clave_regimen_especial_atc(invoice, is_out_invoice=True):
+    """
+    Obté la Clave de Régimen Especial específica per ATC des de la factura
+    
+    Crida al mètode de la factura per obtenir el CRE específic d'ATC.
+    El mètode get_clave_regimen_especial_atc() està implementat al
+    mòdul ERP (account_invoice.py) i gestiona la lògica de cache.
+    
+    Args:
+        invoice: Objecte factura (browse)
+        is_out_invoice: True si és factura emesa, False si és rebuda
+        
+    Returns:
+        string: Codi CRE ('01'-'20' per emeses, '01'-'15' per rebudes)
+    
+    Raises:
+        AttributeError: Si l'invoice no té el mètode get_clave_regimen_especial_atc()
+    """
+    return invoice.get_clave_regimen_especial_atc(is_out_invoice=is_out_invoice)
+
+
 def get_periodo_ejercicio(invoice):
     """
     Extreu període i exercici de la factura.
@@ -241,7 +262,8 @@ def get_factura_emitida_tipo_desglose(invoice):
         if igic_values['sujeta_a_igic']:
             desglose['Sujeta'] = {}
             if igic_values['igic_exento']:
-                desglose['Sujeta']['Exenta'] = detalle_igic_exento
+                # DetalleExenta ha de ser un array d'elements
+                desglose['Sujeta']['Exenta'] = {'DetalleExenta': [detalle_igic_exento]}
             if igic_values['igic_no_exento']:
                 desglose['Sujeta']['NoExenta'] = {
                     'TipoNoExenta': 'S1',
@@ -265,10 +287,14 @@ def get_factura_emitida_tipo_desglose(invoice):
             vat_type = vat_type_result
         
         has_id_otro = vat_type != '02'
-        if has_id_otro or partner_vat_starts_with_n:
-            tipo_desglose = {'DesgloseTipoOperacion': {'PrestacionServicios': desglose}}
-        else:
-            tipo_desglose = {'DesgloseFactura': desglose}
+        # Assegurar que sempre retornem un tipo_desglose vàlid
+        if desglose:  # Si hi ha contingut al desglose
+            if has_id_otro or partner_vat_starts_with_n:
+                tipo_desglose = {'DesgloseTipoOperacion': {'PrestacionServicios': desglose}}
+            else:
+                tipo_desglose = {'DesgloseFactura': desglose}
+        else:  # Si desglose està buit, usar estructura per defecte
+            tipo_desglose = {'DesgloseFactura': {}}
     return tipo_desglose
 
 
@@ -296,9 +322,13 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
     rectificativa_sustitucion = rect_sust_opc1 or rect_sust_opc2
     
     importe_total = get_invoice_sign(invoice) * invoice.amount_total
+    
+    # Obtenir CRE específic per ATC des del cache info
+    cre_atc = get_clave_regimen_especial_atc(invoice, is_out_invoice=True)
+    
     factura_expedida = {
         'TipoFactura': 'R4' if (is_refund or rectificativa_sustitucion) else 'F1',
-        'ClaveRegimenEspecialOTrascendencia': invoice.sii_out_clave_regimen_especial,
+        'ClaveRegimenEspecialOTrascendencia': cre_atc,
         'ImporteTotal': importe_total,
         'DescripcionOperacion': unidecode_str(invoice.sii_description)
     }
@@ -327,7 +357,11 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
 
 def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
     in_invoice = True
-    is_import = invoice.sii_in_clave_regimen_especial == '13'
+    
+    # Obtenir CRE específic per ATC des del cache info
+    cre_atc = get_clave_regimen_especial_atc(invoice, is_out_invoice=False)
+    is_import = cre_atc == '13'
+    
     igic_values = get_igic_values(invoice, in_invoice=in_invoice, is_import=is_import)
     cuota_deducible = 0
     importe_total = get_invoice_sign(invoice) * invoice.amount_total
@@ -342,7 +376,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         desglose_factura = {'DesgloseIGIC': {'DetalleIGIC': [{'BaseImponible': base_imponible_factura}]}}
     
     fecha_reg_contable = invoice.date_invoice
-    is_first_semester_2017 = invoice.sii_in_clave_regimen_especial == '14'
+    is_first_semester_2017 = cre_atc == '14'
     if is_first_semester_2017:
         fecha_reg_contable = date.today().strftime('%Y-%m-%d')
         cuota_deducible = 0
@@ -353,7 +387,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
     
     factura_recibida = {
         'TipoFactura': 'R4' if (is_refund or rectificativa_sustitucion) else 'F1',
-        'ClaveRegimenEspecialOTrascendencia': invoice.sii_in_clave_regimen_especial,
+        'ClaveRegimenEspecialOTrascendencia': cre_atc,
         'ImporteTotal': importe_total,
         'DescripcionOperacion': unidecode_str(invoice.sii_description),
         'DesgloseFactura': desglose_factura,
