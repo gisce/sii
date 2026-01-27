@@ -161,7 +161,8 @@ class DataGeneratorATC:
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
             sii_description=u'Factura con IGIC',
-            sii_out_clave_regimen_especial='08'
+            sii_out_clave_regimen_especial='08',
+            sii_out_clave_regimen_especial_atc='08'
         )
         return invoice
     
@@ -190,7 +191,8 @@ class DataGeneratorATC:
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
             sii_description=u'Factura recibida con IGIC',
-            sii_in_clave_regimen_especial='08'
+            sii_in_clave_regimen_especial='08',
+            sii_in_clave_regimen_especial_atc='08'
         )
         return invoice
     
@@ -218,7 +220,8 @@ class DataGeneratorATC:
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
             sii_description=u'Factura rectificativa con IGIC',
-            sii_out_clave_regimen_especial='08'
+            sii_out_clave_regimen_especial='08',
+            sii_out_clave_regimen_especial_atc='08'
         )
         return invoice
     
@@ -247,6 +250,7 @@ class DataGeneratorATC:
             sii_registered=self.sii_registered,
             fiscal_position=self.fiscal_position,
             sii_description=u'Abono recibido con IGIC',
-            sii_in_clave_regimen_especial='08'
+            sii_in_clave_regimen_especial='08',
+            sii_in_clave_regimen_especial_atc='08'
         )
         return invoice
