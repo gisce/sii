@@ -39,19 +39,36 @@ class CustomStringField(fields.String):
 
 
 class DateString(fields.String):
-    """Camp per dates en format String"""
+    """Camp per dates en format String
+    
+    Accepta format YYYY-MM-DD (ISO) i el serialitza a DD-MM-YYYY (ATC format)
+    """
     
     def _validate(self, value):
         if value is None:
             return None
         try:
+            # Validar que és una data vàlida en format ISO
             datetime.strptime(value, '%Y-%m-%d')
         except (ValueError, AttributeError):
-            raise ValidationError('Invalid date string', value)
+            raise ValidationError('Invalid date string, expected YYYY-MM-DD format', value)
     
-    @post_dump
-    def _serialize(self, value, attr, obj):
-        return datetime.strptime(value, '%Y-%m-%d').strftime('%d-%m-%Y')
+    def _serialize(self, value, attr, obj, **kwargs):
+        """Converteix de YYYY-MM-DD a DD-MM-YYYY"""
+        if value is None:
+            return None
+        
+        # Si ja està en format DD-MM-YYYY, retornar-lo
+        if len(value) == 10 and value[2] == '-' and value[5] == '-':
+            return value
+            
+        # Convertir de YYYY-MM-DD a DD-MM-YYYY
+        try:
+            date_obj = datetime.strptime(value, '%Y-%m-%d')
+            return date_obj.strftime('%d-%m-%Y')
+        except (ValueError, AttributeError):
+            # Si falla, retornar el valor original
+            return value
 
 
 class MySchema(Schema):
