@@ -16,6 +16,34 @@ from sii.atc.models import invoices_record
 SIGN = {'N': 1, 'R': 1, 'A': -1, 'B': -1, 'RA': 1, 'C': 1, 'G': 1}
 
 
+def convert_date_to_atc_format(date_value):
+    """
+    Converteix una data de format ISO (YYYY-MM-DD) a format ATC (DD-MM-YYYY)
+    
+    Args:
+        date_value: String amb data en format ISO o ja en format ATC
+        
+    Returns:
+        String amb data en format DD-MM-YYYY
+    """
+    if not date_value or not isinstance(date_value, str):
+        return date_value
+    
+    # Si ja està en format DD-MM-YYYY, retornar
+    if len(date_value) == 10 and date_value[2] == '-' and date_value[5] == '-':
+        return date_value
+    
+    # Si està en format ISO (YYYY-MM-DD), convertir
+    if len(date_value) == 10 and date_value[4] == '-' and date_value[7] == '-':
+        try:
+            date_obj = datetime.strptime(date_value, '%Y-%m-%d')
+            return date_obj.strftime('%d-%m-%Y')
+        except ValueError:
+            pass  # Si falla, retornar el valor original
+    
+    return date_value
+
+
 def get_clave_regimen_especial_atc(invoice, is_out_invoice=True):
     """
     Obté la Clave de Régimen Especial específica per ATC des de la factura
@@ -293,8 +321,26 @@ def get_factura_emitida_tipo_desglose(invoice):
                 tipo_desglose = {'DesgloseTipoOperacion': {'PrestacionServicios': desglose}}
             else:
                 tipo_desglose = {'DesgloseFactura': desglose}
-        else:  # Si desglose està buit, usar estructura per defecte
-            tipo_desglose = {'DesgloseFactura': {}}
+        else:  # Si desglose està buit, crear estructura mínima vàlida
+            # En cas que no hi hagi cap impost (anomalia), crear estructura amb Sujeta/NoExenta
+            desglose_default = {
+                'Sujeta': {
+                    'NoExenta': {
+                        'TipoNoExenta': 'S1',
+                        'DesgloseIGIC': {
+                            'DetalleIGIC': [{
+                                'TipoImpositivo': 0.0,
+                                'BaseImponible': 0.0,
+                                'CuotaSoportada': 0.0
+                            }]
+                        }
+                    }
+                }
+            }
+            if has_id_otro or partner_vat_starts_with_n:
+                tipo_desglose = {'DesgloseTipoOperacion': {'PrestacionServicios': desglose_default}}
+            else:
+                tipo_desglose = {'DesgloseFactura': desglose_default}
     return tipo_desglose
 
 
@@ -348,7 +394,7 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             vals['FacturasRectificadas'] = {
                 'IDFacturaRectificada': [{
                     'NumSerieFacturaEmisor': fact_rect.number,
-                    'FechaExpedicionFacturaEmisor': fact_rect.date_invoice
+                    'FechaExpedicionFacturaEmisor': convert_date_to_atc_format(fact_rect.date_invoice)
                 }]
             }
         factura_expedida.update(vals)
@@ -375,10 +421,10 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         base_imponible_factura = invoice.amount_untaxed
         desglose_factura = {'DesgloseIGIC': {'DetalleIGIC': [{'BaseImponible': base_imponible_factura}]}}
     
-    fecha_reg_contable = invoice.date_invoice
+    fecha_reg_contable = convert_date_to_atc_format(invoice.date_invoice)
     is_first_semester_2017 = cre_atc == '14'
     if is_first_semester_2017:
-        fecha_reg_contable = date.today().strftime('%Y-%m-%d')
+        fecha_reg_contable = convert_date_to_atc_format(date.today().strftime('%Y-%m-%d'))
         cuota_deducible = 0
     
     # Una factura és rectificativa si és refund O si té rectificative_type de substitució
@@ -408,7 +454,7 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             vals['FacturasRectificadas'] = {
                 'IDFacturaRectificada': [{
                     'NumSerieFacturaEmisor': fact_rect.origin,
-                    'FechaExpedicionFacturaEmisor': fact_rect.origin_date_invoice
+                    'FechaExpedicionFacturaEmisor': convert_date_to_atc_format(fact_rect.origin_date_invoice)
                 }]
             }
         factura_recibida.update(vals)
@@ -421,6 +467,19 @@ def get_factura_emitida_dict(invoice, rect_sust_opc1=False, rect_sust_opc2=False
     if contraparte:
         factura_expedida['Contraparte'] = contraparte
     periodo, ejercicio = get_periodo_ejercicio(invoice)
+    
+    # Convertir data de format ISO (YYYY-MM-DD) a format ATC (DD-MM-YYYY)
+    fecha_expedicion = invoice.date_invoice
+    if fecha_expedicion and isinstance(fecha_expedicion, str):
+        # Si està en format ISO (YYYY-MM-DD), convertir a DD-MM-YYYY
+        if len(fecha_expedicion) == 10 and fecha_expedicion[4] == '-' and fecha_expedicion[7] == '-':
+            from datetime import datetime
+            try:
+                date_obj = datetime.strptime(fecha_expedicion, '%Y-%m-%d')
+                fecha_expedicion = date_obj.strftime('%d-%m-%Y')
+            except ValueError:
+                pass  # Si falla, deixar el valor original
+    
     obj = {
         'SuministroLRFacturasEmitidas': {
             'Cabecera': get_header(invoice),
@@ -432,7 +491,7 @@ def get_factura_emitida_dict(invoice, rect_sust_opc1=False, rect_sust_opc2=False
                 'IDFactura': {
                     'IDEmisorFactura': {'NIF': VAT.clean_vat(invoice.company_id.partner_id.vat)},
                     'NumSerieFacturaEmisor': invoice.number,
-                    'FechaExpedicionFacturaEmisor': invoice.date_invoice
+                    'FechaExpedicionFacturaEmisor': fecha_expedicion
                 },
                 'FacturaExpedida': factura_expedida
             }
@@ -564,7 +623,7 @@ class SIIATCDeregister(object):
                     'IDFactura': {
                         'IDEmisorFactura': {'NIF': VAT.clean_vat(self.invoice.company_id.partner_id.vat)},
                         'NumSerieFacturaEmisor': self.invoice.number,
-                        'FechaExpedicionFacturaEmisor': self.invoice.date_invoice
+                        'FechaExpedicionFacturaEmisor': convert_date_to_atc_format(self.invoice.date_invoice)
                     }
                 }
             }
@@ -583,7 +642,7 @@ class SIIATCDeregister(object):
                     'IDFactura': {
                         'IDEmisorFactura': get_partner_info(self.invoice.partner_id, in_invoice=True),
                         'NumSerieFacturaEmisor': self.invoice.origin,
-                        'FechaExpedicionFacturaEmisor': self.invoice.origin_date_invoice
+                        'FechaExpedicionFacturaEmisor': convert_date_to_atc_format(self.invoice.origin_date_invoice)
                     }
                 }
             }

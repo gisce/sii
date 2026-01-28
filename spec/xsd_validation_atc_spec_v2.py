@@ -84,6 +84,10 @@ with description('Validació XSD ATC amb Dry-Run Plugins'):
     with before.all:
         self.data_gen = DataGeneratorATC()
         
+        # Paràmetre per controlar si es vol persistir els fitxers després del test
+        # Per defecte False (esborrar), posar True per debugar
+        self.persist_test_files = os.environ.get('PERSIST_TEST_FILES', 'false').lower() == 'true'
+        
         # Path als XSDs
         import sii
         sii_path = os.path.dirname(os.path.abspath(sii.__file__))
@@ -103,8 +107,13 @@ with description('Validació XSD ATC amb Dry-Run Plugins'):
     with after.all:
         # Neteja temporal
         import shutil
-        if hasattr(self, 'tmp_dir') and os.path.exists(self.tmp_dir):
-            shutil.rmtree(self.tmp_dir)
+        if not self.persist_test_files and hasattr(self, 'tmp_dir') and os.path.exists(self.tmp_dir):
+            try:
+                shutil.rmtree(self.tmp_dir)
+            except Exception as e:
+                print("Warning: No s'ha pogut esborrar {}: {}".format(self.tmp_dir, e))
+        elif self.persist_test_files and hasattr(self, 'tmp_dir'):
+            print("\n⚠️  Directori temporal NO esborrat (PERSIST_TEST_FILES=true): {}".format(self.tmp_dir))
     
     with description('Factura emesa amb IGIC'):
         with before.each:

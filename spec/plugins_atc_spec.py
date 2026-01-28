@@ -8,7 +8,7 @@ Aquest spec valida:
 3. Que el comportament per defecte és sense plugins
 """
 from expects import *
-from mamba import description, context, it, before
+from mamba import description, context, it, before, after
 import os
 import tempfile
 import shutil
@@ -23,8 +23,12 @@ from spec.testing_data_atc import DataGeneratorATC
 with description('Plugin Dry Run i Persist XML per SII ATC') as self:
     
     with before.each:
+        # Paràmetre per controlar si es vol persistir els fitxers després del test
+        # Per defecte False (esborrar), posar True per debugar
+        self.persist_test_files = os.environ.get('PERSIST_TEST_FILES', 'false').lower() == 'true'
+        
         # Crear directori temporal per tests
-        self.temp_dir = tempfile.mkdtemp()
+        self.temp_dir = tempfile.mkdtemp(prefix='sii_atc_test_')
         self.request_file = os.path.join(self.temp_dir, 'request.xml')
         self.response_file = os.path.join(self.temp_dir, 'response.xml')
         
@@ -37,6 +41,17 @@ with description('Plugin Dry Run i Persist XML per SII ATC') as self:
             f.write('DUMMY CERT')
         with open(self.key_file, 'w') as f:
             f.write('DUMMY KEY')
+    
+    with after.each:
+        """Neteja fitxers temporals generats durant el test"""
+        if not self.persist_test_files and hasattr(self, 'temp_dir'):
+            if os.path.exists(self.temp_dir):
+                try:
+                    shutil.rmtree(self.temp_dir)
+                except Exception as e:
+                    print("Warning: No s'ha pogut esborrar {}: {}".format(self.temp_dir, e))
+        elif self.persist_test_files and hasattr(self, 'temp_dir'):
+            print("\n⚠️  Directori temporal NO esborrat (PERSIST_TEST_FILES=true): {}".format(self.temp_dir))
     
     with context('Comportament per defecte (sense plugins)'):
         with it('crea servei sense activar plugins'):

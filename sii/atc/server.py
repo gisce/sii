@@ -19,16 +19,25 @@ import certifi
 import os
 
 
-def get_wsdl_path(filename):
+def get_wsdl_path(filename, wsdl_dir=None):
     """
     Obté el path complet a un fitxer WSDL local
     
     :param filename: Nom del fitxer WSDL
-    :return: Path absolut al fitxer WSDL
+    :param wsdl_dir: Directori on buscar els WSDLs (opcional, per defecte: sii/data/atc/wsdl)
+    :return: Path absolut al fitxer WSDL amb prefix file://
     """
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    wsdl_dir = os.path.join(current_dir, '..', 'data', 'atc', 'wsdl')
+    if wsdl_dir is None:
+        # Default: directori de la llibreria
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        wsdl_dir = os.path.join(current_dir, '..', 'data', 'atc', 'wsdl')
+    
     wsdl_path = os.path.join(wsdl_dir, filename)
+    
+    # Verificar que el fitxer existeix
+    if not os.path.exists(wsdl_path):
+        raise IOError('WSDL file not found: {}'.format(wsdl_path))
+    
     return 'file://{}'.format(os.path.abspath(wsdl_path))
 
 
@@ -53,7 +62,8 @@ class SiiServiceATC(Service):
     """
     
     def __init__(self, certificate, key, url=None, test_mode=False,
-                 dry_run=False, dry_run_verbose=False, persist_xml=None, use_local_wsdl=None):
+                 dry_run=False, dry_run_verbose=False, persist_xml=None, 
+                 use_local_wsdl=None, wsdl_dir=None):
         """
         Inicialitza el servei SII ATC
         
@@ -62,14 +72,18 @@ class SiiServiceATC(Service):
         :param url: URL base (opcional, per proxy SSL)
         :param test_mode: Si és mode de proves (1) o producció (0)
         :param dry_run: Si True, NO envia peticions reals (mode debug)
-        :param persist_xml: Dict amb {'request': path, 'response': path} per guardar XMLs
+        :param persist_xml: Path o dict per guardar XMLs. 
+                           - String: guarda request al path especificat
+                           - Dict: {'request': path, 'response': path}
         :param use_local_wsdl: Si True, utilitza WSDLs locals. Si None, auto (local si dry_run)
+        :param wsdl_dir: Directori personalitzat per WSDLs locals (opcional)
         """
         super(SiiServiceATC, self).__init__(certificate, key, url)
         self.test_mode = test_mode
         self.dry_run = dry_run
         self.dry_run_verbose = dry_run_verbose
         self.persist_xml = persist_xml
+        self.wsdl_dir = wsdl_dir
         # Si use_local_wsdl no especificat, usar local quan dry_run activat
         if use_local_wsdl is None:
             self.use_local_wsdl = dry_run
@@ -119,9 +133,9 @@ class SiiServiceATC(Service):
         if self.use_local_wsdl:
             # WSDLs locals per tests/dry-run
             if self.invoice.type.startswith('out_'):
-                wsdl_url = get_wsdl_path('SuministroFactEmitidas.wsdl')
+                wsdl_url = get_wsdl_path('SuministroFactEmitidas.wsdl', self.wsdl_dir)
             else:
-                wsdl_url = get_wsdl_path('SuministroFactRecibidas.wsdl')
+                wsdl_url = get_wsdl_path('SuministroFactRecibidas.wsdl', self.wsdl_dir)
         else:
             # WSDLs remots per producció
             wsdl_url = config['wsdl']
@@ -139,9 +153,19 @@ class SiiServiceATC(Service):
         
         # Afegir plugin de persistència si especificat
         if self.persist_xml:
+            # Acceptar tant dict com string/io
+            if isinstance(self.persist_xml, dict):
+                # Format dict: {'request': path, 'response': path}
+                request_file = self.persist_xml.get('request')
+                response_file = self.persist_xml.get('response')
+            else:
+                # Format string o io: mateix fitxer per request i response
+                request_file = self.persist_xml
+                response_file = None  # No guardar response si només es passa un path
+            
             plugins.append(PersistXmlPlugin(
-                request_file=self.persist_xml.get('request'),
-                response_file=self.persist_xml.get('response')
+                request_file=request_file,
+                response_file=response_file
             ))
         
         # Afegir plugin dry-run si activat
