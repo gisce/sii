@@ -41,17 +41,32 @@ class CustomStringField(fields.String):
 class DateString(fields.String):
     """Camp per dates en format String
     
-    Accepta format YYYY-MM-DD (ISO) i el serialitza a DD-MM-YYYY (ATC format)
+    Accepta format YYYY-MM-DD (ISO) o DD-MM-YYYY (ATC/europeu) i el serialitza a DD-MM-YYYY
     """
     
     def _validate(self, value):
         if value is None:
             return None
+        
+        # Provar format ISO (YYYY-MM-DD)
         try:
-            # Validar que és una data vàlida en format ISO
             datetime.strptime(value, '%Y-%m-%d')
+            return  # ✅ Vàlid en format ISO
         except (ValueError, AttributeError):
-            raise ValidationError('Invalid date string, expected YYYY-MM-DD format', value)
+            pass  # No és format ISO, provar europeu
+        
+        # Provar format europeu (DD-MM-YYYY)
+        try:
+            datetime.strptime(value, '%d-%m-%Y')
+            return  # ✅ Vàlid en format europeu
+        except (ValueError, AttributeError):
+            pass  # No és format europeu tampoc
+        
+        # Cap dels dos formats és vàlid
+        raise ValidationError(
+            'Formato de fecha inválido, se espera YYYY-MM-DD o DD-MM-YYYY',
+            value
+        )
     
     def _serialize(self, value, attr, obj, **kwargs):
         """Converteix de YYYY-MM-DD a DD-MM-YYYY"""
@@ -161,9 +176,9 @@ class Contraparte(MySchema):
         has_idotro = 'IDOtro' in data and data['IDOtro']
         
         if not has_nif and not has_idotro:
-            raise ValidationError('Cal proporcionar NIF o IDOtro')
+            raise ValidationError('Es necesario proporcionar NIF o IDOtro')
         if has_nif and has_idotro:
-            raise ValidationError('Només es pot proporcionar NIF o IDOtro, no ambdós')
+            raise ValidationError('Solo se puede proporcionar NIF o IDOtro, no ambos')
 
 
 # ============================================================================
@@ -222,9 +237,9 @@ class Sujeta(MySchema):
         has_no_exenta = 'NoExenta' in data and data['NoExenta']
         
         if not has_exenta and not has_no_exenta:
-            raise ValidationError('Cal proporcionar Exenta o NoExenta')
+            raise ValidationError('Es necesario proporcionar Exenta o NoExenta')
         if has_exenta and has_no_exenta:
-            raise ValidationError('Només es pot proporcionar Exenta o NoExenta, no ambdós')
+            raise ValidationError('Solo se puede proporcionar Exenta o NoExenta, no ambos')
 
 
 class NoSujeta(MySchema):
@@ -257,10 +272,37 @@ class DesgloseTipoOperacion(MySchema):
     Entrega = fields.Nested(Entrega)
 
 
+class DesgloseFactura(MySchema):
+    """Desglose sense tipus d'operació (per destinatari)"""
+    # Només un dels dos: Sujeta o NoSujeta
+    Sujeta = fields.Nested(Sujeta)
+    NoSujeta = fields.Nested(NoSujeta)
+
+
 class TipoDesglose(MySchema):
-    """Tipus de desglose (per operació o per destinatari)"""
-    DesgloseTipoOperacion = fields.Nested(DesgloseTipoOperacion, required=True)
-    # TODO: Afegir DesgloseFactura si és necessari
+    """Tipus de desglose (per operació o per destinatari)
+    
+    XSD especifica <choice> - només un dels dos ha d'estar present:
+    - DesgloseTipoOperacion (amb distinció Entrega/PrestacionServicios)
+    - DesgloseFactura (sense distinció)
+    """
+    DesgloseTipoOperacion = fields.Nested(DesgloseTipoOperacion)
+    DesgloseFactura = fields.Nested(DesgloseFactura)
+    
+    @validates_schema
+    def validate_choice(self, data):
+        """Validar que només un dels dos camps estigui present (XSD <choice>)"""
+        has_tipo_operacion = 'DesgloseTipoOperacion' in data
+        has_factura = 'DesgloseFactura' in data
+        
+        if not has_tipo_operacion and not has_factura:
+            raise ValidationError(
+                'Es necesario proporcionar DesgloseTipoOperacion o DesgloseFactura'
+            )
+        if has_tipo_operacion and has_factura:
+            raise ValidationError(
+                'Solo se puede proporcionar DesgloseTipoOperacion o DesgloseFactura, no ambos'
+            )
 
 
 # ============================================================================
