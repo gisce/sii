@@ -234,7 +234,14 @@ def get_partner_info(partner, in_invoice, nombre_razon=False):
 def get_header(invoice):
     """Genera la capçalera del missatge"""
     # TipoComunicacion: A0 (alta) o A1 (modificació)
-    tipo_comunicacion = 'A1' if invoice.sii_registered else 'A0'
+    # A1 només si ja s'ha enviat amb èxit anteriorment
+    sii_atc_registered = (
+        hasattr(invoice, 'sii_atc_sent') and 
+        invoice.sii_atc_sent and 
+        hasattr(invoice, 'sii_atc_state') and
+        invoice.sii_atc_state == 'Correcto'
+    )
+    tipo_comunicacion = 'A1' if sii_atc_registered else 'A0'
     
     return {
         'IDVersionSii': __ATC_SII_VERSION__,
