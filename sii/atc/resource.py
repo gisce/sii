@@ -371,8 +371,8 @@ def get_fact_rect_sustitucion_fields(invoice, opcion=False):
 
 
 def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
-    # Una factura és rectificativa si és refund O si té rectificative_type de substitució
-    is_refund = invoice.type.endswith('refund')
+    # IMPORTANT: Només R4 si és SUBSTITUCIÓ (rectificative_type='R' o 'RA')
+    # Les abonadores 'A', 'B' o refunds simples són F1 (NO R4)
     rectificativa_sustitucion = rect_sust_opc1 or rect_sust_opc2
     
     importe_total = get_invoice_sign(invoice) * invoice.amount_total
@@ -381,7 +381,7 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
     cre_atc = get_clave_regimen_especial_atc(invoice, is_out_invoice=True)
     
     factura_expedida = {
-        'TipoFactura': 'R4' if (is_refund or rectificativa_sustitucion) else 'F1',
+        'TipoFactura': 'R4' if rectificativa_sustitucion else 'F1',
         'ClaveRegimenEspecialOTrascendencia': cre_atc,
         'ImporteTotal': importe_total,
         'DescripcionOperacion': unidecode_str(invoice.sii_description)
@@ -435,12 +435,12 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
         fecha_reg_contable = convert_date_to_atc_format(date.today().strftime('%Y-%m-%d'))
         cuota_deducible = 0
     
-    # Una factura és rectificativa si és refund O si té rectificative_type de substitució
-    is_refund = invoice.type.endswith('refund')
+    # IMPORTANT: Només R4 si és SUBSTITUCIÓ (rectificative_type='R' o 'RA')
+    # Les abonadores 'A', 'B' o refunds simples són F1 (NO R4)
     rectificativa_sustitucion = rect_sust_opc1 or rect_sust_opc2
     
     factura_recibida = {
-        'TipoFactura': 'R4' if (is_refund or rectificativa_sustitucion) else 'F1',
+        'TipoFactura': 'R4' if rectificativa_sustitucion else 'F1',
         'ClaveRegimenEspecialOTrascendencia': cre_atc,
         'ImporteTotal': importe_total,
         'DescripcionOperacion': unidecode_str(invoice.sii_description),
