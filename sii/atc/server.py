@@ -184,11 +184,17 @@ class SiiServiceATC(Service):
             return client.service
         
         # Si hi ha URL (proxy), crear servei amb adreça personalitzada
-        # En mode test, utilitzar path middlewarecaut
-        if self.test_mode:
-            type_address = config['type_address'].replace('/middleware/', '/middlewarecaut/')
-        else:
-            type_address = config['type_address']
+        # IMPORTANT: Quan hi ha proxy, només necessitem el nom del servei SOAP
+        # ja que el proxy s'encarrega del path complet
+        # Exemple: proxy = https://proxy:444/atc/test
+        #          type_address = /SiiFactFEV1SOAP
+        #          final = https://proxy:444/atc/test/SiiFactFEV1SOAP
+        
+        # Extreure només el nom del servei del path complet
+        # De: /tributos/middleware/services/sii/SiiFactFEV1SOAP
+        # A:  /SiiFactFEV1SOAP
+        service_name = config['type_address'].split('/')[-1]
+        type_address = '/{}'.format(service_name)
         
         address = '{0}{1}'.format(self.url, type_address)
         service = client.create_service(config['binding_name'], address)
