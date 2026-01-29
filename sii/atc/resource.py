@@ -398,7 +398,9 @@ def get_factura_emitida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             opcion = 2
         vals = get_fact_rect_sustitucion_fields(invoice, opcion=opcion)
         fact_rect = invoice.rectifying_id
-        if fact_rect and fact_rect.sii_registered:
+        # Comprovar si la factura rectificada està registrada a l'ATC (no al SII AEAT)
+        if fact_rect and hasattr(fact_rect, 'sii_atc_sent') and fact_rect.sii_atc_sent and \
+           hasattr(fact_rect, 'sii_atc_state') and fact_rect.sii_atc_state == 'Correcto':
             vals['FacturasRectificadas'] = {
                 'IDFacturaRectificada': [{
                     'NumSerieFacturaEmisor': fact_rect.number,
@@ -458,7 +460,9 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
             opcion = 2
         vals = get_fact_rect_sustitucion_fields(invoice, opcion=opcion)
         fact_rect = invoice.rectifying_id
-        if fact_rect and fact_rect.sii_registered:
+        # Comprovar si la factura rectificada està registrada a l'ATC (no al SII AEAT)
+        if fact_rect and hasattr(fact_rect, 'sii_atc_sent') and fact_rect.sii_atc_sent and \
+           hasattr(fact_rect, 'sii_atc_state') and fact_rect.sii_atc_state == 'Correcto':
             vals['FacturasRectificadas'] = {
                 'IDFacturaRectificada': [{
                     'NumSerieFacturaEmisor': fact_rect.origin,
