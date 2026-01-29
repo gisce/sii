@@ -150,7 +150,7 @@ def get_igic_values(invoice, in_invoice, is_export=False, is_import=False):
             cuota = inv_tax.tax_amount
             tipo_impositivo_unitario = inv_tax.tax_id.amount
             tipo_impositivo = tipo_impositivo_unitario * 100
-            tax_name = inv_tax.name.lower()
+            tax_name = inv_tax.tax_id.name.lower()
             invoice_total -= (base_imponible + cuota)
             tax_type = inv_tax.tax_id.type
             is_igic_exento = (tipo_impositivo_unitario == 0 and tax_type == 'percent' and ('exento' in tax_name or 'exempt' in tax_name))
