@@ -84,11 +84,16 @@ class SiiServiceFactory(object):
                 test_mode=test_mode
             )
         elif service_type == cls.ATC:
+            # IMPORTANT: Si usem proxy (url), sempre usar WSDLs locals
+            # per evitar errors SSL al descarregar el WSDL del servidor remot
+            use_local_wsdl = True if url else None
+            
             return SiiServiceATC(
                 certificate=certificate,
                 key=key,
                 url=url,
-                test_mode=test_mode
+                test_mode=test_mode,
+                use_local_wsdl=use_local_wsdl
             )
         else:
             raise ValueError(
