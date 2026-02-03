@@ -203,7 +203,7 @@ class DataGeneratorATC:
         invoice = Invoice(
             invoice_type='out_refund',
             journal_id=journal,
-            rectificative_type='I',
+            rectificative_type='R',
             rectifying_id=False,
             number='R' + self.invoice_number,
             partner_id=self.partner_invoice,
@@ -232,7 +232,7 @@ class DataGeneratorATC:
         invoice = Invoice(
             invoice_type='in_refund',
             journal_id=journal,
-            rectificative_type='I',
+            rectificative_type='R',
             rectifying_id=False,
             number='R' + self.invoice_number,
             origin='RPROV' + self.invoice_number,

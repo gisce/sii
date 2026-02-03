@@ -195,5 +195,5 @@ with description('SiiServiceFactory'):
                 certificate=self.certificate,
                 key=self.key
             )
-            expect(service_aeat).to(have_property('deregister'))
-            expect(service_atc).to(have_property('deregister'))
+            expect(service_aeat).to(have_property('deregister_invoice'))
+            expect(service_atc).to(have_property('deregister_invoice'))
