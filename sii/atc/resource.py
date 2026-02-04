@@ -154,7 +154,7 @@ def get_igic_values(invoice, in_invoice, is_export=False, is_import=False):
             tax_description = (inv_tax.tax_id.description or '')
             invoice_total -= (base_imponible + cuota)
             tax_type = inv_tax.tax_id.type
-            is_igic_exento = (tipo_impositivo_unitario == 0 and tax_type == 'percent' and ('exento' in tax_name or 'exempt' in tax_name) and (not tax_description or ('exento' in tax_description or 'exempt' in tax_description))
+            is_igic_exento = (tipo_impositivo_unitario == 0 and tax_type == 'percent' and ('exento' in tax_name or 'exempt' in tax_name) and (not tax_description or ('exento' in tax_description or 'exempt' in tax_description)))
             
             if is_inversion_sujeto_pasivo(inv_tax.name):
                 new_value = {
