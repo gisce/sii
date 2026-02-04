@@ -67,10 +67,11 @@ class FiscalPosition:
 
 
 class Tax:
-    def __init__(self, name, amount, type):
+    def __init__(self, name, amount, type, description=''):
         self.name = name
         self.amount = amount
         self.type = type
+        self.description = description
 
 
 class InvoiceTax:
@@ -114,7 +115,9 @@ class Invoice:
                  fiscal_name=None,
                  fiscal_vat=None,
                  issued_by_others=None,
-                 sii_non_current_tax_rate='R4'):
+                 sii_non_current_tax_rate='R4',
+                 sii_in_clave_regimen_especial_atc=None,
+                 sii_out_clave_regimen_especial_atc=None):
         self.journal_id = journal_id
         self.number = number
         self.type = invoice_type
@@ -143,6 +146,8 @@ class Invoice:
         self.rectifying_id = rectifying_id
         self.sii_non_current_tax_rate = sii_non_current_tax_rate
         self.issued_by_others = issued_by_others
+        self.sii_in_clave_regimen_especial_atc = sii_in_clave_regimen_especial_atc
+        self.sii_out_clave_regimen_especial_atc = sii_out_clave_regimen_especial_atc
 
     def get_values_taxes_non_current_tax_rate(self):
         if self.sii_non_current_tax_rate == 'R4':
@@ -162,4 +167,23 @@ class Invoice:
             return True
         else:
             return False
+    
+    def get_clave_regimen_especial_atc(self, is_out_invoice=True):
+        """
+        Obté la Clave de Régimen Especial específica per ATC
+        
+        Aquest mètode s'utilitza en els tests per retornar el CRE
+        configurat en la instància de test de la factura.
+        
+        Args:
+            is_out_invoice: True si és factura emesa, False si és rebuda
+            
+        Returns:
+            string: Codi CRE ('01'-'20' per emeses, '01'-'15' per rebudes)
+                    Per defecte: '08' (Operacions subjectes a IGIC)
+        """
+        if is_out_invoice:
+            return getattr(self, 'sii_out_clave_regimen_especial_atc', '08')
+        else:
+            return getattr(self, 'sii_in_clave_regimen_especial_atc', '08')
         
