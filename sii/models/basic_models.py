@@ -67,10 +67,11 @@ class FiscalPosition:
 
 
 class Tax:
-    def __init__(self, name, amount, type):
+    def __init__(self, name, amount, type, description=''):
         self.name = name
         self.amount = amount
         self.type = type
+        self.description = description
 
 
 class InvoiceTax:
