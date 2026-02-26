@@ -914,6 +914,45 @@ with description('El XML Generado'):
                     ['FechaRegContable']
                 ).to(equal(datetime.today().strftime('%d-%m-%Y')))
 
+        with context('si es una factura con importe 0 y sin impuestos (no sujeta)'):
+            with before.all:
+                self.in_invoice_zero = self.data_gen.get_in_invoice_zero_amount_no_taxes()
+                self.in_invoice_zero_obj = SII(self.in_invoice_zero).generate_object()
+                self.factura_recibida_zero = (
+                    self.in_invoice_zero_obj['SuministroLRFacturasRecibidas']
+                    ['RegistroLRFacturasRecibidas']
+                )
+
+            with it('debe tener ImporteTotal igual a 0'):
+                expect(
+                    self.factura_recibida_zero['FacturaRecibida']['ImporteTotal']
+                ).to(equal(0.0))
+
+            with it('debe tener CuotaDeducible igual a 0'):
+                expect(
+                    self.factura_recibida_zero['FacturaRecibida']['CuotaDeducible']
+                ).to(equal(0.0))
+
+            with it('debe contener DesgloseFactura no vacío'):
+                desglose_factura = (
+                    self.factura_recibida_zero['FacturaRecibida']['DesgloseFactura']
+                )
+                expect(desglose_factura).not_to(equal({}))
+
+            with it('debe contener DesgloseIVA'):
+                desglose_factura = (
+                    self.factura_recibida_zero['FacturaRecibida']['DesgloseFactura']
+                )
+                expect(desglose_factura).to(have_key('DesgloseIVA'))
+
+            with it('debe contener DetalleIVA con BaseImponible 0'):
+                detalle_iva = (
+                    self.factura_recibida_zero['FacturaRecibida']['DesgloseFactura']
+                    ['DesgloseIVA']['DetalleIVA']
+                )
+                expect(detalle_iva).to(have_len(1))
+                expect(detalle_iva[0]['BaseImponible']).to(equal(0.0))
+
     with description('en los datos de una factura recibida sin periodo'):
         with before.all:
             self.in_invoice = self.data_gen.get_in_invoice_without_period()
