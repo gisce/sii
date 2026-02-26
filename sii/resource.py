@@ -601,6 +601,15 @@ def get_factura_recibida(invoice, rect_sust_opc1=False, rect_sust_opc2=False):
                     }]
                 }
             }
+        else:
+            # Per factures amb import 0 i sense impostos (no sujeta)
+            desglose_factura = {
+                'DesgloseIVA': {
+                    'DetalleIVA': [{
+                        'BaseImponible': 0.0
+                    }]
+                }
+            }
     if iva_values.get('inversion_sujeto_pasivo'):
         detalle_isp = iva_values.get('inversion_sujeto_pasivo')
         detalle_iva_isp = []
