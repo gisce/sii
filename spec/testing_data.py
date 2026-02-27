@@ -341,6 +341,41 @@ class DataGenerator:
         )
         return invoice
 
+    def get_in_invoice_zero_amount_no_taxes(self):
+        """
+        Factura rebuda amb import 0 i sense impostos (no sujeta).
+        Aquest cas requereix que el DesgloseFactura contingui sempre
+        un DesgloseIVA amb BaseImponible 0.
+        """
+        journal = Journal(
+            name=u'Factura de Energía Recibida'
+        )
+
+        invoice = Invoice(
+            invoice_type='in_invoice',
+            journal_id=journal,
+            rectificative_type='N',
+            rectifying_id=False,
+            number='FRecib0{}'.format(self.invoice_number),
+            origin='FRecibOrigen0{}'.format(self.invoice_number),
+            partner_id=self.partner_invoice,
+            address_contact_id=self.address_contact_id,
+            company_id=self.company,
+            amount_total=0.0,
+            amount_untaxed=0.0,
+            amount_tax=0.0,
+            period_id=self.period,
+            origin_date_invoice=self.origin_date_invoice,
+            date_invoice=self.date_invoice,
+            tax_line=[],  # Sense línies d'impost
+            invoice_line=[],  # Sense línies de factura
+            sii_registered=self.sii_registered,
+            fiscal_position=self.fiscal_position,
+            sii_description='Factura no sujeta a impuestos',
+            sii_in_clave_regimen_especial=self.sii_in_clave_regimen_especial,
+        )
+        return invoice
+
     def get_out_invoice(self, with_fiscal_info=True):
         journal = Journal(
             name=u'Factura de Energía Emitida'
