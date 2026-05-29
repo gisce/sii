@@ -207,7 +207,7 @@ with description('El XML Generado'):
                     self.periodo['Ejercicio']
                 ).to(equal(self.invoice.period_id.name[3:7]))
 
-            with it('el período es el correspondiente al mes de la factura'):
+            with it('el período es el correspondiente al mes de la factura por defecto'):
                 expect(
                     self.periodo['Periodo']
                 ).to(equal(self.invoice.period_id.name[0:2]))
@@ -1824,6 +1824,7 @@ with description('El XML Generado'):
 with description('El XML Generado en una baja de una factura emitida'):
     with before.all:
         self.data_gen = DataGenerator()
+        os.environ['MONTHLY'] = 'False'
 
     with description('en la cabecera'):
         with before.all:
@@ -1876,10 +1877,10 @@ with description('El XML Generado en una baja de una factura emitida'):
                     self.periodo['Ejercicio']
                 ).to(equal(self.invoice.period_id.name[3:7]))
 
-            with it('el período es el correspondiente al mes de la factura'):
+            with it('el período es el correspondiente al trimestre de la fecha de factura (diciembre)'):
                 expect(
                     self.periodo['Periodo']
-                ).to(equal(self.invoice.period_id.name[0:2]))
+                ).to(equal('4T'))
 
         with context('en los datos de la factura'):
             with before.all:
@@ -1963,10 +1964,10 @@ with description('El XML Generado en una baja de una factura recibida'):
                     self.periodo['Ejercicio']
                 ).to(equal(self.invoice.period_id.name[3:7]))
 
-            with it('el período es el correspondiente al mes de la factura'):
+            with it('el período es el correspondiente al trimestre de la fecha de factura (diciembre)'):
                 expect(
                     self.periodo['Periodo']
-                ).to(equal(self.invoice.period_id.name[0:2]))
+                ).to(equal('4T'))
 
         with context('en los datos de la factura'):
             with before.all:

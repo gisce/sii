@@ -686,7 +686,7 @@ def get_factura_emitida_dict(invoice,
             'RegistroLRFacturasEmitidas': {
                 'PeriodoLiquidacion': {
                     'Ejercicio': invoice.period_id.name[3:7],
-                    'Periodo': invoice.period_id.name[0:2]
+                    'Periodo': invoice.get_invoice_period()
                 },
                 'IDFactura': {
                     'IDEmisorFactura': {
@@ -719,7 +719,7 @@ def get_factura_recibida_dict(invoice,
             'RegistroLRFacturasRecibidas': {
                 'PeriodoLiquidacion': {
                     'Ejercicio': period_name[3:7],
-                    'Periodo': period_name[0:2]
+                    'Periodo': invoice.get_invoice_period()
                 },
                 'IDFactura': {
                     'IDEmisorFactura': get_partner_info(
@@ -847,7 +847,7 @@ def get_baja_factura_recibida_dict(invoice):
             'RegistroLRBajaRecibidas': {
                 'PeriodoLiquidacion': {
                     'Ejercicio': invoice.period_id.name[3:7],
-                    'Periodo': invoice.period_id.name[0:2]
+                    'Periodo': invoice.get_invoice_period()
                 },
                 'IDFactura': {
                     'IDEmisorFactura': get_partner_info(
@@ -874,7 +874,7 @@ def get_baja_factura_emitida_dict(invoice):
             'RegistroLRBajaExpedidas': {
                 'PeriodoLiquidacion': {
                     'Ejercicio': invoice.period_id.name[3:7],
-                    'Periodo': invoice.period_id.name[0:2]
+                    'Periodo': invoice.get_invoice_period()
                 },
                 'IDFactura': {
                     'IDEmisorFactura': {
