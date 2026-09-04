@@ -525,7 +525,7 @@ def get_factura_recibida_dict(invoice, rect_sust_opc1=False, rect_sust_opc2=Fals
                 'IDFactura': {
                     'IDEmisorFactura': get_partner_info(invoice.partner_id, in_invoice=True),
                     'NumSerieFacturaEmisor': invoice.origin,
-                    'FechaExpedicionFacturaEmisor': invoice.origin_date_invoice
+                    'FechaExpedicionFacturaEmisor': convert_date_to_atc_format(invoice.origin_date_invoice)
                 },
                 'FacturaRecibida': get_factura_recibida(invoice, rect_sust_opc1, rect_sust_opc2)
             }
