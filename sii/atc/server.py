@@ -325,15 +325,17 @@ class SiiDeregisterServiceATC(SiiServiceATC):
         
         DIFERÈNCIA: Utilitza SIIATCDeregister en lloc de SIIDeregister
         """
-        dict_from_marsh = SIIATCDeregister(self.invoice).generate_object()
+        dict_from_marsh = SIIATCDeregister(self.invoice).generate_deregister_object()
         res_header = res_invoice = None
         
         if self.invoice.type.startswith('out_'):
-            res_header = dict_from_marsh['Cabecera']
-            res_invoice = dict_from_marsh['RegistroLRBajaExpedidas']
+            res = dict_from_marsh['BajaLRFacturasEmitidas']
+            res_header = res['Cabecera']
+            res_invoice = res['RegistroLRBajaExpedidas']
         elif self.invoice.type.startswith('in_'):
-            res_header = dict_from_marsh['Cabecera']
-            res_invoice = dict_from_marsh['RegistroLRBajaRecibidas']
+            res = dict_from_marsh['BajaLRFacturasRecibidas']
+            res_header = res['Cabecera']
+            res_invoice = res['RegistroLRBajaRecibidas']
         
         return res_header, res_invoice
     
