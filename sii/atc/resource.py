@@ -653,7 +653,7 @@ class SIIATCDeregister(object):
                         'Periodo': get_periodo_ejercicio(self.invoice)[0]
                     },
                     'IDFactura': {
-                        'IDEmisorFactura': get_partner_info(self.invoice.partner_id, in_invoice=True),
+                        'IDEmisorFactura': get_partner_info(self.invoice.partner_id, in_invoice=True, nombre_razon=True),
                         'NumSerieFacturaEmisor': self.invoice.origin,
                         'FechaExpedicionFacturaEmisor': convert_date_to_atc_format(self.invoice.origin_date_invoice)
                     }
