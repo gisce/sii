@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from sii.utils import VAT
+import os
 
 
 class Period:
@@ -167,6 +168,29 @@ class Invoice:
             return True
         else:
             return False
+
+    def get_invoice_period(self):
+        if self.period_id and self.period_id.name:
+            period_name = self.period_id.name
+            res = period_name[0:2]
+        else:
+            year, month, date = self.date_invoice.split('-')
+            period_name = '{}/{}'.format(month, year)
+            res = period_name[0:2]
+
+        monthly = os.environ.get('MONTHLY', 'True')
+        if monthly != 'True':
+            n_month = int(res)
+            if n_month < 4:
+                res = '1T'
+            elif n_month < 7:
+                res = '2T'
+            elif n_month < 10:
+                res = '3T'
+            else:
+                res = '4T'
+
+        return res
     
     def get_clave_regimen_especial_atc(self, is_out_invoice=True):
         """
